@@ -1,0 +1,12 @@
+AWS_ACCESS_KEY = test_access
+AWS_SECRET_KEY = test_scret
+albname = 
+privatesubnet = 
+region = 
+securitygroupname = 
+vpccidr = 
+vpcname = 
+instance_type = 
+nodemonitoringenabled = 
+mastercount = 
+workercount = 
