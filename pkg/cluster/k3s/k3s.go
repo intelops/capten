@@ -26,6 +26,8 @@ type ClusterInfo struct {
 	NodeMonitoringEnabled string
 	MasterCount           string
 	WorkerCount           string
+	TraefikHttpPort       string
+	TraefikHttpsPort      string
 }
 
 func Create(config *viper.Viper, workDir string) error {
@@ -44,6 +46,8 @@ func Create(config *viper.Viper, workDir string) error {
 		NodeMonitoringEnabled: config.GetString(types.NodeMonitoringEnabled),
 		MasterCount:           config.GetString(types.MasterCount),
 		WorkerCount:           config.GetString(types.WorkerCount),
+		TraefikHttpPort:       config.GetString(types.TraefikHttpPort),
+		TraefikHttpsPort:      config.GetString(types.TraefikHttpsPort),
 	}
 
 	content, err := os.ReadFile("./templates/k3s/values.tfvars.tmpl")

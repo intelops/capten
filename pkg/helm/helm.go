@@ -79,7 +79,7 @@ func (h *helm) Install() {
 			return
 		}
 
-		chartInfo.Override = util.MergeMap(globalValues, chartInfo.Override)
+		chartInfo.Override = util.MergeMap(util.ProcessMap(globalValues), util.ProcessMap(chartInfo.Override))
 		logrus.Debugf("chart Overrides are %+v", chartInfo.Override)
 		if err := h.Run(context.Background(), chartInfo); err != nil {
 			logrus.Error("install failed", err)
