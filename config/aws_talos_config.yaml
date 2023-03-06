@@ -10,34 +10,41 @@ InstanceType: "t2.medium"
 NodeMonitoringEnabled: "false"
 MasterCount: "3"
 WorkerCount: "3"
+TraefikHttpPort: "32080"
+TraefikHttpsPort: "32443"
 #GlobalValues:
 #  ingress.hostname: "test.optimizer.com"
 PostInstall:
-#  - Name: "openebs-jiva"
-#    ChartName: "tools/openebs-jiva"
-#    RepoName: "tools"
-#    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-#    Namespace: "openebs-jiva"
-#    ReleaseName: "openebs-jiva"
-#    Version: "1.0.3"
-#    CreateNamespace: true
-#    MakeNsPrivilege: true
-#  - Name: "traefik"
-#    ChartName: "traefik/traefik"
-#    RepoName: "traefik"
-#    RepoURL: "https://traefik.github.io/charts"
-#    Namespace: "traefik"
-#    ReleaseName: "traefik"
-#    Version: "20.8.0"
-#    CreateNamespace: true
-#  - Name: "temporal"
-#    ChartName: "tools/temporal"
-#    RepoName: "tools"
-#    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-#    Namespace: "default"
-#    ReleaseName: "temporal"
-#    Version: "0.1.1"
-#    CreateNamespace: true
+  - Name: "openebs-jiva"
+    ChartName: "tools/openebs-jiva"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "openebs-jiva"
+    ReleaseName: "openebs-jiva"
+    Version: "1.0.5"
+    CreateNamespace: true
+    MakeNsPrivilege: true
+  - Name: "traefik"
+    ChartName: "traefik/traefik"
+    RepoName: "traefik"
+    RepoURL: "https://traefik.github.io/charts"
+    Namespace: "traefik"
+    ReleaseName: "traefik"
+    Version: "20.8.0"
+    CreateNamespace: true
+    Override:
+      "service.type": NodePort
+      # note: need to provide the case-sensitive key as part of value
+      "ports.websecure.nodePort": ports.websecure.nodePort|32443
+      "ports.web.nodePort": ports.web.nodePort|32080
+  - Name: "temporal"
+    ChartName: "tools/temporal"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "default"
+    ReleaseName: "temporal"
+    Version: "0.1.1"
+    CreateNamespace: true
   - Name: "loki"
     ChartName: "grafana/loki-stack"
     RepoName: "grafana"
@@ -68,8 +75,10 @@ PostInstall:
     RepoURL: "https://kube-tarian.github.io/kad"
     Namespace: "default"
     ReleaseName: "kad"
-    Version: "0.1.12"
+    Version: "0.1.16"
     CreateNamespace: true
+    Override:
+      "ingressroute.mtls.enabled": true
     SecretInfos:
       - FilePath: "./intermediate/cert-chain.pem"
         Key: "ingressroute.mtls.caCrt"
@@ -77,11 +86,11 @@ PostInstall:
         Key: "ingressroute.mtls.tlsCrt"
       - FilePath: "./server/server.key"
         Key: "ingressroute.mtls.tlsKey"
-#  - Name: "signoz"
-#    ChartName: "signoz/signoz"
-#    RepoName: "signoz"
-#    RepoURL: "https://charts.signoz.io"
-#    Namespace: "observability"
-#    ReleaseName: "signoz"
-#    CreateNamespace: true
+  - Name: "signoz"
+    ChartName: "signoz/signoz"
+    RepoName: "signoz"
+    RepoURL: "https://charts.signoz.io"
+    Namespace: "observability"
+    ReleaseName: "signoz"
+    CreateNamespace: true
 
