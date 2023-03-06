@@ -83,7 +83,7 @@ cp root/root-cert.pem intermediate/
 
 ##Server Certificate Creation
 openssl req -newkey rsa:2048 -nodes -keyout server/server.key -subj "/O=Intelops Inc./CN=*.dev.optimizor.app" -out server/server.csr
-openssl x509 -req -extfile <(printf "subjectAltName=DNS:capten-agent.dev.optimizor.app,DNS:dev.optimizor.app") -days 365 -in server/server.csr -CA intermediate/ca-cert.pem -CAkey intermediate/ca-key.pem -CAcreateserial -out server/server.crt
+openssl x509 -req -extfile <(printf "subjectAltName=DNS:captenagent.dev.optimizor.app,DNS:dev.optimizor.app") -days 365 -in server/server.csr -CA intermediate/ca-cert.pem -CAkey intermediate/ca-key.pem -CAcreateserial -out server/server.crt
 
 ##K8s secrets creation
 #cd ..
