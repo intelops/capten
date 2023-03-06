@@ -13,4 +13,6 @@ const (
 	NodeMonitoringEnabled = "NodeMonitoringEnabled"
 	MasterCount           = "MasterCount"
 	WorkerCount           = "WorkerCount"
+	TraefikHttpPort       = "TraefikHttpPort"
+	TraefikHttpsPort      = "TraefikHttpsPort"
 )
