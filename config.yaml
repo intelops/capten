@@ -1,0 +1,3 @@
+saas:
+  scheme: http
+  endpoint: capten.intelops.app
