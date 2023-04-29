@@ -93,4 +93,14 @@ PostInstall:
     Namespace: "observability"
     ReleaseName: "signoz"
     CreateNamespace: true
-
+    Override:
+      "clickhouse.password": admin
+  - Name: "quality-trace"
+    ChartName: "quality-trace/quality-trace"
+    RepoName: "quality-trace"
+    RepoURL: "https://kube-tarian.github.io/quality-trace"
+    Namespace: "quality-trace"
+    ReleaseName: "quality-trace"
+    CreateNamespace: true
+    Override:
+      "clickhouse.url": http://chi-signoz-clickhouse-cluster-0-0.observability.svc.cluster.local:9000
