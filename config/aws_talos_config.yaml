@@ -95,12 +95,63 @@ PostInstall:
     CreateNamespace: true
     Override:
       "clickhouse.password": admin
-  - Name: "quality-trace"
-    ChartName: "quality-trace/quality-trace"
-    RepoName: "quality-trace"
-    RepoURL: "https://kube-tarian.github.io/quality-trace"
-    Namespace: "quality-trace"
-    ReleaseName: "quality-trace"
+#  - Name: "quality-trace"
+#    ChartName: "quality-trace/quality-trace"
+#    RepoName: "quality-trace"
+#    RepoURL: "https://kube-tarian.github.io/quality-trace"
+#    Namespace: "quality-trace"
+#    ReleaseName: "quality-trace"
+#    CreateNamespace: true
+#    Override:
+#      "clickhouse.url": http://signoz-clickhouse.observability.svc.cluster.local:9000
+  - Name: "kyverno"
+    ChartName: "kyverno/kyverno"
+    RepoName: "kyverno"
+    RepoURL: "https://kyverno.github.io/kyverno/"
+    Namespace: "kyverno"
+    ReleaseName: "kyverno"
     CreateNamespace: true
     Override:
-      "clickhouse.url": http://chi-signoz-clickhouse-cluster-0-0.observability.svc.cluster.local:9000
+      "target.loki.host": http://loki.observability.svc.cluster.local:3100
+      "target.loki.path": /loki/api/v1/push
+      "target.loki.minimumPriority": warning
+      "target.loki.skipExistingOnStartup": true
+      "target.loki.sources[0]": kyverno
+  - Name: "velero"
+    ChartName: "vmware-tanzu/velero"
+    RepoName: "velero"
+    RepoURL: "https://vmware-tanzu.github.io/helm-charts"
+    Namespace: "velero"
+    ReleaseName: "velero"
+    CreateNamespace: true
+  - Name: "kubescape"
+    ChartName: "kubescape/kubescape-prometheus-integrator"
+    RepoName: "kubescape"
+    RepoURL: "https://kubescape.github.io/helm-charts/"
+    Namespace: "kubescape-prometheus"
+    ReleaseName: "kubescape-prometheus"
+    CreateNamespace: true
+    Override:
+      "kubescape.prometheusAnnotation.enabled": true
+  - Name: "falco"
+    ChartName: "falcosecurity/falco"
+    RepoName: "falcosecurity"
+    RepoURL: "https://falcosecurity.github.io/charts"
+    Namespace: "falco"
+    ReleaseName: "falco"
+    CreateNamespace: true
+    Override:
+      "driver.kind[0]": ebpf
+  - Name: "crossplane"
+    ChartName: "crossplane-stable/crossplane"
+    RepoName: "crossplane-stable"
+    RepoURL: "https://charts.crossplane.io/stable"
+    Namespace: "crossplane-system"
+    ReleaseName: "crossplane"
+    CreateNamespace: true
+    Override:
+      "provider.packages[0]": xpkg.upbound.io/crossplane-contrib/provider-aws:v0.33.0
+      "provider.packages[1]": xpkg.upbound.io/crossplane-contrib/provider-gcp:v0.22.0
+      "provider.packages[2]": xpkg.upbound.io/crossplane-contrib/provider-azure:v0.20.1
+      "provider.packages[3]": xpkg.upbound.io/digitalocean/provider-digitalocean:v0.2.0
+      "provider.packages[4]": xpkg.upbound.io/civo/provider-civo:v0.1
