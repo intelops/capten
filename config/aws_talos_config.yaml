@@ -34,17 +34,20 @@ PostInstall:
     CreateNamespace: true
     Override:
       "service.type": NodePort
-      # note: need to provide the case-sensitive key as part of value
+      note: need to provide the case-sensitive key as part of value
       "ports.websecure.nodePort": ports.websecure.nodePort|32443
       "ports.web.nodePort": ports.web.nodePort|32080
   - Name: "temporal"
     ChartName: "tools/temporal"
     RepoName: "tools"
     RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-    Namespace: "default"
+    Namespace: "capten"
     ReleaseName: "temporal"
-    Version: "0.1.1"
+    Version: "0.1.2"
     CreateNamespace: true
+    Override:
+      "server.config.persistence.default.cassandra.port": 9042
+      "server.config.persistence.visibility.cassandra.port": 9042
   - Name: "loki"
     ChartName: "grafana/loki-stack"
     RepoName: "grafana"
@@ -59,16 +62,16 @@ PostInstall:
       "prometheus.enabled": true
       "grafana.sidecar.datasources.enabled": true
       "grafana.sidecar.dashboards.enabled": true
-#  - Name: "cert-manager"
-#    ChartName: "jetstack/cert-manager"
-#    RepoName: "jetstack"
-#    RepoURL: "https://charts.jetstack.io"
-#    Namespace: "cert-manager"
-#    ReleaseName: "cert-manager"
-#    Version: "v1.11.0"
-#    CreateNamespace: true
-#    Override:
-#      "installCRDs": true
+  - Name: "cert-manager"
+    ChartName: "jetstack/cert-manager"
+    RepoName: "jetstack"
+    RepoURL: "https://charts.jetstack.io"
+    Namespace: "cert-manager"
+    ReleaseName: "cert-manager"
+    Version: "v1.11.0"
+    CreateNamespace: true
+    Override:
+      "installCRDs": installCRDs|true
   - Name: "kad"
     ChartName: "kad/kad"
     RepoName: "kad"
@@ -95,15 +98,15 @@ PostInstall:
     CreateNamespace: true
     Override:
       "clickhouse.password": admin
-#  - Name: "quality-trace"
-#    ChartName: "quality-trace/quality-trace"
-#    RepoName: "quality-trace"
-#    RepoURL: "https://kube-tarian.github.io/quality-trace"
-#    Namespace: "quality-trace"
-#    ReleaseName: "quality-trace"
-#    CreateNamespace: true
-#    Override:
-#      "clickhouse.url": http://signoz-clickhouse.observability.svc.cluster.local:9000
+  # - Name: "quality-trace"
+  #   ChartName: "quality-trace/quality-trace"
+  #   RepoName: "quality-trace"
+  #   RepoURL: "https://kube-tarian.github.io/quality-trace"
+  #   Namespace: "quality-trace"
+  #   ReleaseName: "quality-trace"
+  #   CreateNamespace: true
+  #   Override:
+  #     "clickhouse.url": http://signoz-clickhouse.observability.svc.cluster.local:9000
   - Name: "kyverno"
     ChartName: "kyverno/kyverno"
     RepoName: "kyverno"
@@ -119,7 +122,7 @@ PostInstall:
       "target.loki.sources[0]": kyverno
   - Name: "velero"
     ChartName: "vmware-tanzu/velero"
-    RepoName: "velero"
+    RepoName: "vmware-tanzu"
     RepoURL: "https://vmware-tanzu.github.io/helm-charts"
     Namespace: "velero"
     ReleaseName: "velero"
@@ -132,7 +135,8 @@ PostInstall:
     ReleaseName: "kubescape-prometheus"
     CreateNamespace: true
     Override:
-      "kubescape.prometheusAnnotation.enabled": true
+      "kubescape.prometheusAnnotation.enabled": kubescape.prometheusAnnotation.enabled|true
+      "kubescape.serviceMonitor.enabled": kubescape.serviceMonitor.enabled|false
   - Name: "falco"
     ChartName: "falcosecurity/falco"
     RepoName: "falcosecurity"
@@ -141,7 +145,7 @@ PostInstall:
     ReleaseName: "falco"
     CreateNamespace: true
     Override:
-      "driver.kind[0]": ebpf
+      "driver.kind": ebpf
   - Name: "crossplane"
     ChartName: "crossplane-stable/crossplane"
     RepoName: "crossplane-stable"
@@ -150,8 +154,45 @@ PostInstall:
     ReleaseName: "crossplane"
     CreateNamespace: true
     Override:
-      "provider.packages[0]": xpkg.upbound.io/crossplane-contrib/provider-aws:v0.33.0
+     "provider.packages[0]": xpkg.upbound.io/crossplane-contrib/provider-aws:v0.33.0
       "provider.packages[1]": xpkg.upbound.io/crossplane-contrib/provider-gcp:v0.22.0
       "provider.packages[2]": xpkg.upbound.io/crossplane-contrib/provider-azure:v0.20.1
       "provider.packages[3]": xpkg.upbound.io/digitalocean/provider-digitalocean:v0.2.0
       "provider.packages[4]": xpkg.upbound.io/civo/provider-civo:v0.1
+  - Name: "kubviz-client"
+    ChartName: "kubviz/client"
+    RepoName: "kubviz"
+    RepoURL: "https://kube-tarian.github.io/kubviz/"
+    Namespace: "observability"
+    ReleaseName: "kubviz-client"
+    CreateNamespace: true
+  - Name: "kubviz-agent"
+    ChartName: "kubviz/agent"
+    RepoName: "kubviz"
+    RepoURL: "https://kube-tarian.github.io/kubviz/"
+    Namespace: "observability"
+    ReleaseName: "kubviz-agent"
+    CreateNamespace: true
+    Override:
+      "nats.host": kubviz-client-nats.observability.svc.cluster.local
+  - Name: "vault-operator"
+    ChartName: "banzaicloud-stable/vault-operator"
+    RepoName: "banzaicloud-stable"
+    RepoURL: "https://kubernetes-charts.banzaicloud.com"
+    Namespace: "vault-infra"
+    ReleaseName: "vault-operator"
+    CreateNamespace: true
+  - Name: vault-post
+    ChartName: "tools/vault-post"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "vault-infra"
+    ReleaseName: "vault-post"
+    CreateNamespace: true  
+  - Name: vault-secrets-webhook
+    ChartName: banzaicloud-stable/vault-secrets-webhook
+    RepoName: banzaicloud-stable
+    RepoURL: https://kubernetes-charts.banzaicloud.com
+    Namespace: vault-infra
+    ReleaseName: vault-secrets-webhook
+    CreateNamespace: true  
