@@ -186,7 +186,7 @@ PostInstall:
     ChartName: "tools/vault-post"
     RepoName: "tools"
     RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-    Namespace: "vault-infra"
+    Namespace: "deafault"
     ReleaseName: "vault-post"
     CreateNamespace: true  
   - Name: vault-secrets-webhook
