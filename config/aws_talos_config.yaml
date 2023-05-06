@@ -34,26 +34,32 @@ PostInstall:
     CreateNamespace: true
     Override:
       "service.type": NodePort
-      note: need to provide the case-sensitive key as part of value
+      #note: need to provide the case-sensitive key as part of value
       "ports.websecure.nodePort": ports.websecure.nodePort|32443
       "ports.web.nodePort": ports.web.nodePort|32080
-  - Name: "temporal"
-    ChartName: "tools/temporal"
-    RepoName: "tools"
-    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-    Namespace: "capten"
-    ReleaseName: "temporal"
-    Version: "0.1.2"
-    CreateNamespace: true
-    Override:
-      "server.config.persistence.default.cassandra.port": 9042
-      "server.config.persistence.visibility.cassandra.port": 9042
+  # - Name: "temporal"
+  #   ChartName: "tools/temporal"
+  #   RepoName: "tools"
+  #   RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+  #   Namespace: "capten"
+  #   ReleaseName: "temporal"
+  #   Version: "0.1.1"
+  #   CreateNamespace: true
+  #   Override:
+  #     "server.config.persistence.default.cassandra.port": 9042
+  #     "server.config.persistence.visibility.cassandra.port": 9042
+  #     "server.metrics.serviceMonitor.enabled": server.metrics.serviceMonitor.enabled|false
+  #     "server.frontend.metrics.serviceMonitor.enabled": server.frontend.metrics.serviceMonitor.enabled|false
+  #     "server.history.metrics.serviceMonitor.enabled": server.history.metrics.serviceMonitor.enabled|false
+  #     "server.matching.metrics.serviceMonitor.enabled": server.matching.metrics.serviceMonitor.enabled|false
+  #     "server.worker.metrics.serviceMonitor.enabled": server.worker.metrics.serviceMonitor.enabled|false
   - Name: "loki"
     ChartName: "grafana/loki-stack"
     RepoName: "grafana"
     RepoURL: "https://grafana.github.io/helm-charts"
     Namespace: "observability"
     ReleaseName: "loki"
+    Version: "2.9.10"
     CreateNamespace: true
     Override:
       "grafana.enabled": true
@@ -62,6 +68,15 @@ PostInstall:
       "prometheus.enabled": true
       "grafana.sidecar.datasources.enabled": true
       "grafana.sidecar.dashboards.enabled": true
+      "grafana.plugins": vertamedia-clickhouse-datasource
+  - Name: "grafana-dashboards"
+    ChartName: "tools/grafana-dashboards"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "observability"
+    ReleaseName: "grafana-dashboards"
+    Version: "0.1.0"
+    CreateNamespace: true
   - Name: "cert-manager"
     ChartName: "jetstack/cert-manager"
     RepoName: "jetstack"
@@ -72,6 +87,14 @@ PostInstall:
     CreateNamespace: true
     Override:
       "installCRDs": installCRDs|true
+  - Name: "pre-install"
+    ChartName: "tools/pre-install"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "observability"
+    ReleaseName: "pre-install"
+    Version: "1.0.0"
+    CreateNamespace: true
   - Name: "kad"
     ChartName: "kad/kad"
     RepoName: "kad"
@@ -95,6 +118,7 @@ PostInstall:
     RepoURL: "https://charts.signoz.io"
     Namespace: "observability"
     ReleaseName: "signoz"
+    Version: "0.14.0"
     CreateNamespace: true
     Override:
       "clickhouse.password": admin
@@ -113,20 +137,32 @@ PostInstall:
     RepoURL: "https://kyverno.github.io/kyverno/"
     Namespace: "kyverno"
     ReleaseName: "kyverno"
+    Version: "2.7.2"
     CreateNamespace: true
+  - Name: "policy-reporter"
+    ChartName: "policy-reporter/policy-reporter"
+    RepoName: "policy-reporter"
+    RepoURL: "https://kyverno.github.io/policy-reporter"
+    Namespace: "policy-reporter"
+    ReleaseName: "policy-reporter"
+    Version: "2.18.3"
+    CreateNamespace: true  
     Override:
-      "target.loki.host": http://loki.observability.svc.cluster.local:3100
+      "metrics.enabled": true
+      "kyvernoPlugin.enabled": kyvernoPlugin.enabled|true
+      "global.plugins.kyverno": true
+      "target.loki.host": http://loki.observability:3100
       "target.loki.path": /loki/api/v1/push
-      "target.loki.minimumPriority": warning
-      "target.loki.skipExistingOnStartup": true
+      "target.loki.minimumPriority": target.loki.minimumPriority|warning
+      "target.loki.skipExistingOnStartup": target.loki.skipExistingOnStartup|true
       "target.loki.sources[0]": kyverno
-  - Name: "velero"
-    ChartName: "vmware-tanzu/velero"
-    RepoName: "vmware-tanzu"
-    RepoURL: "https://vmware-tanzu.github.io/helm-charts"
-    Namespace: "velero"
-    ReleaseName: "velero"
-    CreateNamespace: true
+  # - Name: "velero"
+  #   ChartName: "vmware-tanzu/velero"
+  #   RepoName: "vmware-tanzu"
+  #   RepoURL: "https://vmware-tanzu.github.io/helm-charts"
+  #   Namespace: "velero"
+  #   ReleaseName: "velero"
+  #   CreateNamespace: true
   - Name: "kubescape"
     ChartName: "kubescape/kubescape-prometheus-integrator"
     RepoName: "kubescape"
@@ -134,27 +170,30 @@ PostInstall:
     Namespace: "kubescape-prometheus"
     ReleaseName: "kubescape-prometheus"
     CreateNamespace: true
+    Version: "0.0.11"
     Override:
       "kubescape.prometheusAnnotation.enabled": kubescape.prometheusAnnotation.enabled|true
       "kubescape.serviceMonitor.enabled": kubescape.serviceMonitor.enabled|false
-  - Name: "falco"
-    ChartName: "falcosecurity/falco"
-    RepoName: "falcosecurity"
-    RepoURL: "https://falcosecurity.github.io/charts"
-    Namespace: "falco"
-    ReleaseName: "falco"
-    CreateNamespace: true
-    Override:
-      "driver.kind": ebpf
+  # - Name: "falco"
+  #   ChartName: "falcosecurity/falco"
+  #   RepoName: "falcosecurity"
+  #   RepoURL: "https://falcosecurity.github.io/charts"
+  #   Namespace: "falco"
+  #   ReleaseName: "falco"
+  #   Version: "3.1.4"
+  #   CreateNamespace: true
+  #   Override:
+  #     "driver.kind": ebpf
   - Name: "crossplane"
     ChartName: "crossplane-stable/crossplane"
     RepoName: "crossplane-stable"
     RepoURL: "https://charts.crossplane.io/stable"
     Namespace: "crossplane-system"
     ReleaseName: "crossplane"
+    Version: "1.12.1"
     CreateNamespace: true
     Override:
-     "provider.packages[0]": xpkg.upbound.io/crossplane-contrib/provider-aws:v0.33.0
+      "provider.packages[0]": xpkg.upbound.io/crossplane-contrib/provider-aws:v0.33.0
       "provider.packages[1]": xpkg.upbound.io/crossplane-contrib/provider-gcp:v0.22.0
       "provider.packages[2]": xpkg.upbound.io/crossplane-contrib/provider-azure:v0.20.1
       "provider.packages[3]": xpkg.upbound.io/digitalocean/provider-digitalocean:v0.2.0
@@ -165,6 +204,7 @@ PostInstall:
     RepoURL: "https://kube-tarian.github.io/kubviz/"
     Namespace: "observability"
     ReleaseName: "kubviz-client"
+    Version: "0.1.9"
     CreateNamespace: true
   - Name: "kubviz-agent"
     ChartName: "kubviz/agent"
@@ -172,6 +212,7 @@ PostInstall:
     RepoURL: "https://kube-tarian.github.io/kubviz/"
     Namespace: "observability"
     ReleaseName: "kubviz-agent"
+    Version: "0.1.6"
     CreateNamespace: true
     Override:
       "nats.host": kubviz-client-nats.observability.svc.cluster.local
@@ -181,13 +222,15 @@ PostInstall:
     RepoURL: "https://kubernetes-charts.banzaicloud.com"
     Namespace: "vault-infra"
     ReleaseName: "vault-operator"
+    Version: "1.19.0"
     CreateNamespace: true
   - Name: vault-post
     ChartName: "tools/vault-post"
     RepoName: "tools"
     RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-    Namespace: "deafault"
+    Namespace: "default"
     ReleaseName: "vault-post"
+    Version: "1.0.1"
     CreateNamespace: true  
   - Name: vault-secrets-webhook
     ChartName: banzaicloud-stable/vault-secrets-webhook
@@ -195,4 +238,5 @@ PostInstall:
     RepoURL: https://kubernetes-charts.banzaicloud.com
     Namespace: vault-infra
     ReleaseName: vault-secrets-webhook
-    CreateNamespace: true  
+    Version: "1.19.0"
+    CreateNamespace: true
