@@ -3,11 +3,13 @@ package cmd
 import (
 	"log"
 
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+
 	"capten/pkg/api"
 	"capten/pkg/cluster"
 	"capten/pkg/helm"
-
-	"github.com/spf13/cobra"
+	"capten/pkg/util"
 )
 
 // createCmd represents the create command
@@ -39,6 +41,11 @@ var appsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath, _ := cmd.Flags().GetString("config")
 		kubeCfgPath, _ := cmd.Flags().GetString("kubeconfig")
+		if err := util.OsExec("bash", "./generate.sh"); err != nil {
+			logrus.Errorf("failed to generate certificate %v", err)
+			return
+		}
+
 		helmObj, err := helm.NewHelm(configPath, kubeCfgPath)
 		if err != nil {
 			log.Println("failed to setup apps", err)
