@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"capten/pkg/config"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
+
+	"capten/pkg/config"
 )
 
 type fileInfo struct {

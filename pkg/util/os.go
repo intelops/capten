@@ -15,6 +15,5 @@ func OsExec(command string, args ...string) error {
 		return err
 	}
 
-	//fmt.Println(string(stdoutStderr))
 	return nil
 }
