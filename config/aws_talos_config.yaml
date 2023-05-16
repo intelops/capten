@@ -49,12 +49,55 @@ PostInstall:
     ReleaseName: "temporal"
     Version: "0.1.1"
     CreateNamespace: false
+  - Name: "cert-manager"
+    ChartName: "jetstack/cert-manager"
+    RepoName: "jetstack"
+    RepoURL: "https://charts.jetstack.io"
+    Namespace: "cert-manager"
+    ReleaseName: "cert-manager"
+    Version: "v1.11.0"
+    CreateNamespace: true
+    Override:
+      Values:
+        "installCRDs": installCRDs|true
+  - Name: "pre-install"
+    ChartName: "tools/pre-install"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "observability"
+    ReleaseName: "pre-install"
+    Version: "1.0.1"
+    CreateNamespace: true
+  - Name: "vault-operator"
+    ChartName: "banzaicloud-stable/vault-operator"
+    RepoName: "banzaicloud-stable"
+    RepoURL: "https://kubernetes-charts.banzaicloud.com"
+    Namespace: "capten"
+    ReleaseName: "vault-operator"
+    Version: "1.19.0"
+    CreateNamespace: true
+  - Name: vault-post
+    ChartName: "tools/vault-post"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "capten"
+    ReleaseName: "vault-post"
+    Version: "1.0.2"
+    CreateNamespace: true  
+  - Name: "vault-secrets-webhook"
+    ChartName: "banzaicloud-stable/vault-secrets-webhook"
+    RepoName: "banzaicloud-stable"
+    RepoURL: "https://kubernetes-charts.banzaicloud.com"
+    Namespace: "capten"
+    ReleaseName: "vault-secrets-webhook"
+    Version: "1.19.0"
+    CreateNamespace: true
   - Name: "loki"
     ChartName: "grafana/loki-stack"
     RepoName: "grafana"
     RepoURL: "https://grafana.github.io/helm-charts"
     Namespace: "observability"
-    ReleaseName: "loki-test"
+    ReleaseName: "loki"
     CreateNamespace: true
     Override:
       StringValues:
@@ -69,6 +112,19 @@ PostInstall:
         "prometheus.enabled": true
         "grafana.sidecar.datasources.enabled": true
         "grafana.sidecar.dashboards.enabled": true
+#        "grafana.enabled": true
+#        "grafana.ingress.enabled": true
+#        # "grafana.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
+#        "grafana.ingress.hosts": '{"grafana.capten.intelops.app"}'
+#        "grafana.ingress.tls[0].hosts[0]": grafana.capten.intelops.app
+#        "grafana.ingress.tls[0].secretName": grafana.ingress.tls[0].secretName|cert-dev
+#        "prometheus.enabled": true
+#        "grafana.sidecar.datasources.enabled": true
+#        "grafana.sidecar.dashboards.enabled": true
+#        "grafana.plugins": vertamedia-clickhouse-datasource
   - Name: "cert-manager"
     ChartName: "jetstack/cert-manager"
     RepoName: "jetstack"
@@ -80,11 +136,59 @@ PostInstall:
     Override:
       Values:
         "installCRDs": true
+  - Name: "kubviz-client"
+    ChartName: "kubviz/client"
+    RepoName: "kubviz"
+    RepoURL: "https://kube-tarian.github.io/kubviz/"
+    Namespace: "observability"
+    ReleaseName: "kubviz-client"
+    Version: "0.1.9"
+    CreateNamespace: true
+  - Name: "kubviz-agent"
+    ChartName: "kubviz/agent"
+    RepoName: "kubviz"
+    RepoURL: "https://kube-tarian.github.io/kubviz/"
+    Namespace: "observability"
+    ReleaseName: "kubviz-agent"
+    Version: "0.1.6"
+    CreateNamespace: true
+    Override:
+      "nats.host": kubviz-client-nats.observability.svc.cluster.local
+  - Name: "signoz"
+    ChartName: "signoz/signoz"
+    RepoName: "signoz"
+    RepoURL: "https://charts.signoz.io"
+    Namespace: "observability"
+    ReleaseName: "signoz"
+    Version: "0.14.0"
+    CreateNamespace: true
+    Override:
+      Values:
+        "clickhouse.password": admin
+        "frontend.ingress.enabled": true
+        # "frontend.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
+        "frontend.ingress.hosts[0].host": "signoz.capten.intelops.app"
+        "frontend.ingress.hosts[0].paths[0].path": "/"
+        "frontend.ingress.hosts[0].paths[0].pathType": frontend.ingress.hosts[0].paths[0].pathType|ImplementationSpecific
+        "frontend.ingress.hosts[0].paths[0].port": 3301
+        "frontend.ingress.tls[0].hosts[0]": signoz.capten.intelops.app
+        "frontend.ingress.tls[0].secretName": frontend.ingress.tls[0].secretName|cert-sig
+  - Name: "temporal"
+    ChartName: "tools/temporal"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "capten"
+    ReleaseName: "temporal"
+    Version: "0.1.1"
+    CreateNamespace: true
   - Name: "kad"
     ChartName: "kad/kad"
     RepoName: "kad"
     RepoURL: "https://kube-tarian.github.io/kad"
-    Namespace: "default"
+    Namespace: "capten"
     ReleaseName: "kad"
     Version: "0.1.16"
     CreateNamespace: true
@@ -98,11 +202,49 @@ PostInstall:
         Key: "ingressroute.mtls.tlsCrt"
       - FilePath: "./server/server.key"
         Key: "ingressroute.mtls.tlsKey"
-  - Name: "signoz"
-    ChartName: "signoz/signoz"
-    RepoName: "signoz"
-    RepoURL: "https://charts.signoz.io"
-    Namespace: "observability"
-    ReleaseName: "signoz"
+  - Name: "kyverno"
+    ChartName: "kyverno/kyverno"
+    RepoName: "kyverno"
+    RepoURL: "https://kyverno.github.io/kyverno/"
+    Namespace: "kyverno"
+    ReleaseName: "kyverno"
+    Version: "2.7.2"
     CreateNamespace: true
-
+  - Name: "policy-reporter"
+    ChartName: "policy-reporter/policy-reporter"
+    RepoName: "policy-reporter"
+    RepoURL: "https://kyverno.github.io/policy-reporter"
+    Namespace: "policy-reporter"
+    ReleaseName: "policy-reporter"
+    Version: "2.18.3"
+    CreateNamespace: true  
+    Override:
+      Values:
+        "metrics.enabled": true
+        "kyvernoPlugin.enabled": kyvernoPlugin.enabled|true
+        "global.plugins.kyverno": true
+        "target.loki.host": http://loki.observability:3100
+        "target.loki.path": /loki/api/v1/push
+        "target.loki.minimumPriority": target.loki.minimumPriority|warning
+  - Name: "kubescape"
+    ChartName: "kubescape/kubescape-prometheus-integrator"
+    RepoName: "kubescape"
+    RepoURL: "https://kubescape.github.io/helm-charts/"
+    Namespace: "kubescape-prometheus"
+    ReleaseName: "kubescape-prometheus"
+    CreateNamespace: true
+    Version: "0.0.11"
+    Override:
+      Values:
+        "kubescape.prometheusAnnotation.enabled": kubescape.prometheusAnnotation.enabled|true
+        "kubescape.serviceMonitor.enabled": kubescape.serviceMonitor.enabled|false
+  # - Name: "falco"
+  #   ChartName: "falcosecurity/falco"
+  #   RepoName: "falcosecurity"
+  #   RepoURL: "https://falcosecurity.github.io/charts"
+  #   Namespace: "falco"
+  #   ReleaseName: "falco"
+  #   Version: "3.1.4"
+  #   CreateNamespace: true
+  #   Override:
+  #     "driver.kind": ebpf
