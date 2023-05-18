@@ -35,18 +35,23 @@ type SecretInfo struct {
 	Key      string `mapstructure:"Key"`
 }
 
+type Override struct {
+	StringValues map[string]interface{} `mapstructure:"StringValues"`
+	Values       map[string]interface{} `mapstructure:"Values"`
+}
+
 type ChartInfo struct {
-	Name            string                 `mapstructure:"Name"`
-	ChartName       string                 `mapstructure:"ChartName"`
-	RepoName        string                 `mapstructure:"RepoName"`
-	RepoURL         string                 `mapstructure:"RepoURL"`
-	Namespace       string                 `mapstructure:"Namespace"`
-	ReleaseName     string                 `mapstructure:"ReleaseName"`
-	Version         string                 `mapstructure:"Version"`
-	Override        map[string]interface{} `mapstructure:"Override"`
-	CreateNamespace bool                   `mapstructure:"CreateNamespace"`
-	MakeNsPrivilege bool                   `mapstructure:"CreateNamespace"`
-	SecretInfos     []SecretInfo           `mapstructure:"SecretInfos"`
+	Name            string       `mapstructure:"Name"`
+	ChartName       string       `mapstructure:"ChartName"`
+	RepoName        string       `mapstructure:"RepoName"`
+	RepoURL         string       `mapstructure:"RepoURL"`
+	Namespace       string       `mapstructure:"Namespace"`
+	ReleaseName     string       `mapstructure:"ReleaseName"`
+	Version         string       `mapstructure:"Version"`
+	Override        Override     `mapstructure:"Override"`
+	CreateNamespace bool         `mapstructure:"CreateNamespace"`
+	MakeNsPrivilege bool         `mapstructure:"CreateNamespace"`
+	SecretInfos     []SecretInfo `mapstructure:"SecretInfos"`
 }
 
 func NewHelm(configPath, kubeConfigPath string) (*helm, error) {
@@ -72,15 +77,17 @@ func (h *helm) Install() {
 		return
 	}
 
-	globalValues := h.config.GetStringMap("GlobalValues")
+	globalStringValues := h.config.GetStringMap("GlobalValues.StringValues")
+	globalValues := h.config.GetStringMap("GlobalValues.Values")
 	for _, chartInfo := range chartInfos {
 		if err := populateSecretValues(&chartInfo); err != nil {
 			logrus.Error("failed to populate secret values", err)
 			return
 		}
 
-		chartInfo.Override = util.MergeMap(util.ProcessMap(globalValues), util.ProcessMap(chartInfo.Override))
-		logrus.Debugf("chart Overrides are %+v", chartInfo.Override)
+		chartInfo.Override.StringValues = util.MergeMap(util.ProcessMap(globalStringValues), util.ProcessMap(chartInfo.Override.StringValues))
+		chartInfo.Override.Values = util.MergeMap(util.ProcessMap(globalValues), util.ProcessMap(chartInfo.Override.Values))
+		logrus.Debugf("chart Overrides are %v", chartInfo.Override)
 		if err := h.Run(context.Background(), chartInfo); err != nil {
 			logrus.Error("install failed", err)
 			return
@@ -137,19 +144,21 @@ func (h *helm) Run(ctx context.Context, chartInfo ChartInfo) error {
 	client.Version = chartInfo.Version
 	client.Timeout = h.defaultTimeout
 	client.CreateNamespace = chartInfo.CreateNamespace
+	//client.DryRun = true
 	cp, err := client.ChartPathOptions.LocateChart(chartInfo.ChartName, settings)
 	chartReq, err := loader.Load(cp)
 	if err != nil {
 		return errors.Wrap(err, "chart load error")
 	}
 
-	if len(chartInfo.Override) == 0 {
+	if len(chartInfo.Override.Values) == 0 && len(chartInfo.Override.StringValues) == 0 {
 		_, err = client.Run(chartReq, nil)
 		return errors.Wrap(err, "chart run error")
 	}
 
 	valOptions := &values.Options{
-		Values: getValues(chartInfo.Override),
+		StringValues: getValues(chartInfo.Override.StringValues),
+		Values:       getValues(chartInfo.Override.Values),
 	}
 
 	vals, err := valOptions.MergeValues(getter.All(settings))
@@ -157,12 +166,12 @@ func (h *helm) Run(ctx context.Context, chartInfo ChartInfo) error {
 		return errors.Wrap(err, "failed to merge the helm values")
 	}
 
-	_, err = client.Run(chartReq, vals)
+	releaseInfo, err := client.Run(chartReq, vals)
 	if err != nil {
 		return errors.Wrap(err, "chart run error")
 	}
 
-	//log.Println("release info", releaseInfo)
+	logrus.Debug("release info ", releaseInfo)
 	return nil
 }
 
@@ -182,8 +191,8 @@ func getValues(values map[string]interface{}) []string {
 
 // populateSecretValues reads the data from secretInfo converts file content to base64 encoded overrides for helm
 func populateSecretValues(info *ChartInfo) error {
-	if info.Override == nil {
-		info.Override = make(map[string]interface{})
+	if info.Override.StringValues == nil {
+		info.Override.StringValues = make(map[string]interface{})
 	}
 
 	for _, secretInfo := range info.SecretInfos {
@@ -192,7 +201,7 @@ func populateSecretValues(info *ChartInfo) error {
 			return errors.Wrapf(err, "unable to read secret file %v", secretInfo.FilePath)
 		}
 
-		info.Override[secretInfo.Key] = base64.StdEncoding.EncodeToString(content)
+		info.Override.StringValues[secretInfo.Key] = base64.StdEncoding.EncodeToString(content)
 	}
 
 	return nil

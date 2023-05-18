@@ -91,7 +91,6 @@ func UploadFiles(files []fileInfo, url string, headers map[string]string) error 
 		req.Header.Add(key, val)
 	}
 
-	fmt.Printf("request is %+v\n", req)
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {

@@ -13,7 +13,10 @@ WorkerCount: "3"
 TraefikHttpPort: "32080"
 TraefikHttpsPort: "32443"
 #GlobalValues:
-#  ingress.hostname: "test.optimizer.com"
+#  StringValues:
+#    ingress.hostname: "test.optimizer.com"
+#  Values:
+#    "test": "test"
 PostInstall:
   - Name: "openebs-jiva"
     ChartName: "tools/openebs-jiva"
@@ -33,10 +36,19 @@ PostInstall:
     Version: "20.8.0"
     CreateNamespace: true
     Override:
-      "service.type": NodePort
-      #note: need to provide the case-sensitive key as part of value
-      "ports.websecure.nodePort": ports.websecure.nodePort|32443
-      "ports.web.nodePort": ports.web.nodePort|32080
+      Values:
+        "service.type": NodePort
+        # note: need to provide the case-sensitive key as part of value
+        "ports.websecure.nodePort": ports.websecure.nodePort|32443
+        "ports.web.nodePort": ports.web.nodePort|32080
+  - Name: "temporal"
+    ChartName: "tools/temporal"
+    RepoName: "tools"
+    RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    Namespace: "capten"
+    ReleaseName: "temporal"
+    Version: "0.1.1"
+    CreateNamespace: false
   - Name: "cert-manager"
     ChartName: "jetstack/cert-manager"
     RepoName: "jetstack"
@@ -46,7 +58,8 @@ PostInstall:
     Version: "v1.11.0"
     CreateNamespace: true
     Override:
-      "installCRDs": installCRDs|true
+      Values:
+        "installCRDs": installCRDs|true
   - Name: "pre-install"
     ChartName: "tools/pre-install"
     RepoName: "tools"
@@ -85,22 +98,44 @@ PostInstall:
     RepoURL: "https://grafana.github.io/helm-charts"
     Namespace: "observability"
     ReleaseName: "loki"
-    Version: "2.9.10"
     CreateNamespace: true
     Override:
-      "grafana.enabled": true
-      "grafana.ingress.enabled": true
-      # "grafana.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
-      # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
-      # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
-      # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
-      "grafana.ingress.hosts": '{"grafana.capten.intelops.app"}'
-      "grafana.ingress.tls[0].hosts[0]": grafana.capten.intelops.app
-      "grafana.ingress.tls[0].secretName": grafana.ingress.tls[0].secretName|cert-dev
-      "prometheus.enabled": true
-      "grafana.sidecar.datasources.enabled": true
-      "grafana.sidecar.dashboards.enabled": true
-      "grafana.plugins": vertamedia-clickhouse-datasource
+      StringValues:
+        'grafana.ingress.annotations.cert-manager\.io\/cluster-issuer': "letsencrypt-prod-cluster"
+        'grafana.ingress.annotations.kubernetes\.io\/force-ssl-redirect': "true"
+        'grafana.ingress.annotations.kubernetes\.io\/ssl-redirect': "true"
+        'grafana.ingress.annotations.kubernetes\.io\/tls-acme': "true"
+      Values:
+        "grafana.enabled": true
+        "grafana.ingress.enabled": true
+        "grafana.ingress.hosts": '{"grafana.dev.optimizor.app"}'
+        "prometheus.enabled": true
+        "grafana.sidecar.datasources.enabled": true
+        "grafana.sidecar.dashboards.enabled": true
+#        "grafana.enabled": true
+#        "grafana.ingress.enabled": true
+#        # "grafana.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
+#        "grafana.ingress.hosts": '{"grafana.capten.intelops.app"}'
+#        "grafana.ingress.tls[0].hosts[0]": grafana.capten.intelops.app
+#        "grafana.ingress.tls[0].secretName": grafana.ingress.tls[0].secretName|cert-dev
+#        "prometheus.enabled": true
+#        "grafana.sidecar.datasources.enabled": true
+#        "grafana.sidecar.dashboards.enabled": true
+#        "grafana.plugins": vertamedia-clickhouse-datasource
+  - Name: "cert-manager"
+    ChartName: "jetstack/cert-manager"
+    RepoName: "jetstack"
+    RepoURL: "https://charts.jetstack.io"
+    Namespace: "cert-manager"
+    ReleaseName: "cert-manager"
+    Version: "v1.11.0"
+    CreateNamespace: true
+    Override:
+      Values:
+        "installCRDs": true
   - Name: "kubviz-client"
     ChartName: "kubviz/client"
     RepoName: "kubviz"
@@ -128,18 +163,19 @@ PostInstall:
     Version: "0.14.0"
     CreateNamespace: true
     Override:
-      "clickhouse.password": admin
-      "frontend.ingress.enabled": true
-      # "frontend.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
-      # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
-      # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
-      # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
-      "frontend.ingress.hosts[0].host": "signoz.capten.intelops.app"
-      "frontend.ingress.hosts[0].paths[0].path": "/"
-      "frontend.ingress.hosts[0].paths[0].pathType": frontend.ingress.hosts[0].paths[0].pathType|ImplementationSpecific
-      "frontend.ingress.hosts[0].paths[0].port": 3301
-      "frontend.ingress.tls[0].hosts[0]": signoz.capten.intelops.app
-      "frontend.ingress.tls[0].secretName": frontend.ingress.tls[0].secretName|cert-sig
+      Values:
+        "clickhouse.password": admin
+        "frontend.ingress.enabled": true
+        # "frontend.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
+        # "frontend.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
+        "frontend.ingress.hosts[0].host": "signoz.capten.intelops.app"
+        "frontend.ingress.hosts[0].paths[0].path": "/"
+        "frontend.ingress.hosts[0].paths[0].pathType": frontend.ingress.hosts[0].paths[0].pathType|ImplementationSpecific
+        "frontend.ingress.hosts[0].paths[0].port": 3301
+        "frontend.ingress.tls[0].hosts[0]": signoz.capten.intelops.app
+        "frontend.ingress.tls[0].secretName": frontend.ingress.tls[0].secretName|cert-sig
   - Name: "temporal"
     ChartName: "tools/temporal"
     RepoName: "tools"
@@ -157,7 +193,8 @@ PostInstall:
     Version: "0.1.16"
     CreateNamespace: true
     Override:
-      "ingressroute.mtls.enabled": true
+      Values:
+        "ingressroute.mtls.enabled": true
     SecretInfos:
       - FilePath: "./intermediate/cert-chain.pem"
         Key: "ingressroute.mtls.caCrt"
@@ -182,12 +219,13 @@ PostInstall:
     Version: "2.18.3"
     CreateNamespace: true  
     Override:
-      "metrics.enabled": true
-      "kyvernoPlugin.enabled": kyvernoPlugin.enabled|true
-      "global.plugins.kyverno": true
-      "target.loki.host": http://loki.observability:3100
-      "target.loki.path": /loki/api/v1/push
-      "target.loki.minimumPriority": target.loki.minimumPriority|warning
+      Values:
+        "metrics.enabled": true
+        "kyvernoPlugin.enabled": kyvernoPlugin.enabled|true
+        "global.plugins.kyverno": true
+        "target.loki.host": http://loki.observability:3100
+        "target.loki.path": /loki/api/v1/push
+        "target.loki.minimumPriority": target.loki.minimumPriority|warning
   - Name: "kubescape"
     ChartName: "kubescape/kubescape-prometheus-integrator"
     RepoName: "kubescape"
@@ -197,8 +235,9 @@ PostInstall:
     CreateNamespace: true
     Version: "0.0.11"
     Override:
-      "kubescape.prometheusAnnotation.enabled": kubescape.prometheusAnnotation.enabled|true
-      "kubescape.serviceMonitor.enabled": kubescape.serviceMonitor.enabled|false
+      Values:
+        "kubescape.prometheusAnnotation.enabled": kubescape.prometheusAnnotation.enabled|true
+        "kubescape.serviceMonitor.enabled": kubescape.serviceMonitor.enabled|false
   # - Name: "falco"
   #   ChartName: "falcosecurity/falco"
   #   RepoName: "falcosecurity"
