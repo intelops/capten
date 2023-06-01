@@ -20,13 +20,13 @@ jobs:
           go-version: 1.16
       
       - name: Build my CLI for Linux
-        run: cd cmd && go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux main.go
+        run: go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux cmd/main.go
       
       - name: Build my CLI for macOS
-        run: cd cmd && go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos
+        run: go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos cmd/main.go
       
       - name: Build my CLI for Windows
-        run: cd cmd && go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe
+        run: go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe cmd/main.go
        
       - name: Get release name from tag
         id: release
