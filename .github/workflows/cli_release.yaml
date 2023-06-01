@@ -1,4 +1,4 @@
-name: Build and publish qt CLI
+name: Build and publish capten CLI
 
 on:
   push:
@@ -20,13 +20,13 @@ jobs:
           go-version: 1.16
       
       - name: Build my CLI for Linux
-        run: cd cmd && main go download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o qt-linux main.go
+        run: cd cmd && go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux main.go
       
       - name: Build my CLI for macOS
-        run: cd cmd && main go download && GOOS=darwin GOARCH=amd64 go build -o qt-macos
+        run: cd cmd && go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos
       
       - name: Build my CLI for Windows
-        run: cd cmd && main go download && GOOS=windows GOARCH=amd64 go build -o qt-windows.exe
+        run: cd cmd && go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe
        
       - name: Get release name from tag
         id: release
