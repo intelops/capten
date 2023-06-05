@@ -37,7 +37,7 @@ jobs:
       - name: Create release for Linux
         uses: softprops/action-gh-release@v1
         with:
-          files: cli/capten-linux
+          files: cmd/capten-linux
           tag_name: ${{ github.ref }}
           name: ${{ steps.release.outputs.name }} - Linux
           draft: false
@@ -48,7 +48,7 @@ jobs:
       - name: Create release for macOS
         uses: softprops/action-gh-release@v1
         with:
-          files: cli/capten-macos
+          files: cmd/capten-macos
           tag_name: ${{ github.ref }}
           name: ${{ steps.release.outputs.name }} - macOS
           draft: false
@@ -59,7 +59,7 @@ jobs:
       - name: Create release for Windows
         uses: softprops/action-gh-release@v1
         with:
-          files: cli/capten-windows.exe
+          files: cmd/capten-windows.exe
           tag_name: ${{ github.ref }}
           name: ${{ steps.release.outputs.name }} - Windows
           draft: false
