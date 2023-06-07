@@ -30,7 +30,7 @@ jobs:
        
       - name: Get release name from tag
         id: release
-        run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" >> "$GITHUB_REF"
+        run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" >> "$GITHUB_TAG"
         env:
           GITHUB_REF: ${{ github.ref }}
       
