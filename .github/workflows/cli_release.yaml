@@ -38,7 +38,7 @@ jobs:
         if: steps.release.outputs.name != ''
         uses: softprops/action-gh-release@v1
         with:
-          files: cmd/capten-linux
+          files: capten-linux
           tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - Linux
           draft: false
@@ -50,7 +50,7 @@ jobs:
         if: steps.release.outputs.name != ''
         uses: softprops/action-gh-release@v1
         with:
-          files: cmd/capten-macos
+          files: capten-macos
           tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - macOS
           draft: false
@@ -62,7 +62,7 @@ jobs:
         if: steps.release.outputs.name != ''
         uses: softprops/action-gh-release@v1
         with:
-          files: cmd/capten-windows.exe
+          files: capten-windows.exe
           tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - Windows
           draft: false
@@ -76,6 +76,6 @@ jobs:
         with:
           name: capten-binaries
           path: |
-            cmd/capten-linux
-            cmd/capten-macos
-            cmd/capten-windows.exe
+            capten-linux
+            capten-macos
+            capten-windows.exe
