@@ -38,7 +38,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: cmd/capten-linux
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - Linux
           draft: false
           prerelease: false
@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: cmd/capten-macos
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - macOS
           draft: false
           prerelease: false
@@ -60,7 +60,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: cmd/capten-windows.exe
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.release.outputs.name }}
           name: ${{ steps.release.outputs.name }} - Windows
           draft: false
           prerelease: false
