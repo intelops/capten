@@ -28,10 +28,13 @@ type ClusterInfo struct {
 	WorkerCount           string
 	TraefikHttpPort       string
 	TraefikHttpsPort      string
+	TalosTg               string
+	TraefikTg80Name       string
+	TraefikTg443Name      string
+	TraefikLbName         string
 }
 
 func Create(config *viper.Viper, workDir string) error {
-	fmt.Println(config.GetString(types.AwsAccessKey))
 	clusterInfo := ClusterInfo{
 		ClusterType:           "k3s",
 		AwsAccessKey:          config.GetString(types.AwsAccessKey),
@@ -48,6 +51,10 @@ func Create(config *viper.Viper, workDir string) error {
 		WorkerCount:           config.GetString(types.WorkerCount),
 		TraefikHttpPort:       config.GetString(types.TraefikHttpPort),
 		TraefikHttpsPort:      config.GetString(types.TraefikHttpsPort),
+		TalosTg:               config.GetString(types.TalosTg),
+		TraefikTg80Name:       config.GetString(types.TraefikTg80Name),
+		TraefikTg443Name:      config.GetString(types.TraefikTg443Name),
+		TraefikLbName:         config.GetString(types.TraefikLbName),
 	}
 
 	content, err := os.ReadFile("./templates/k3s/values.tfvars.tmpl")
@@ -74,7 +81,7 @@ func Create(config *viper.Viper, workDir string) error {
 		return err
 	}
 
-	tf, err := terraform.New(workDir)
+	tf, err := terraform.New(config, workDir)
 	if err != nil {
 		log.Println("failed to initialise the terraform", err)
 		return err
@@ -83,8 +90,8 @@ func Create(config *viper.Viper, workDir string) error {
 	return tf.Apply()
 }
 
-func Destroy(workDir string) error {
-	tf, err := terraform.New(workDir)
+func Destroy(config *viper.Viper, workDir string) error {
+	tf, err := terraform.New(config, workDir)
 	if err != nil {
 		log.Println("failed to initialise the terraform", err)
 		return err
