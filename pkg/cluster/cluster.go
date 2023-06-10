@@ -19,8 +19,14 @@ func Create(configPath, clusterType, workingDir string) {
 	}
 }
 
-func Destroy(workingDir string) {
-	if err := k3s.Destroy(workingDir); err != nil {
+func Destroy(configPath, workingDir string) {
+	cfg, err := config.GetClusterConfig(configPath)
+	if err != nil {
+		log.Println("failed to read config", err)
+		return
+	}
+
+	if err := k3s.Destroy(cfg, workingDir); err != nil {
 		log.Println("failed to destroy cluster", err)
 	}
 }
