@@ -1,0 +1,81 @@
+name: Build and publish capten CLI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      
+      - name: Build my CLI for Linux
+        run: go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux cmd/main.go
+      
+      - name: Build my CLI for macOS
+        run: go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos cmd/main.go
+      
+      - name: Build my CLI for Windows
+        run: go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe cmd/main.go
+       
+      - name: Get release name from tag
+        id: release
+        run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" > "env.txt"
+        env:
+          GITHUB_REF: ${{ github.ref }}
+      
+      - name: Create release for Linux
+        if: steps.release.outputs.name != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          files: capten-linux
+          tag_name: ${{ steps.release.outputs.name }}
+          name: ${{ steps.release.outputs.name }} - Linux
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release for macOS
+        if: steps.release.outputs.name != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          files: capten-macos
+          tag_name: ${{ steps.release.outputs.name }}
+          name: ${{ steps.release.outputs.name }} - macOS
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release for Windows
+        if: steps.release.outputs.name != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          files: capten-windows.exe
+          tag_name: ${{ steps.release.outputs.name }}
+          name: ${{ steps.release.outputs.name }} - Windows
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        if: steps.release.outputs.name == ''
+        uses: actions/upload-artifact@v2
+        with:
+          name: capten-binaries
+          path: |
+            capten-linux
+            capten-macos
+            capten-windows.exe
