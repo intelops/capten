@@ -69,10 +69,10 @@ var clusterDestroySubCmd = &cobra.Command{
 	Short: "cluster create/destroy operations",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		//configPath, _ := cmd.Flags().GetString("config")
+		configPath, _ := cmd.Flags().GetString("config")
 		//clusterType, _ := cmd.Flags().GetString("type")
 		workingDir, _ := cmd.Flags().GetString("work-dir")
-		cluster.Destroy(workingDir)
+		cluster.Destroy(configPath, workingDir)
 	},
 }
 
@@ -94,7 +94,12 @@ var registerAgentCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		agentHost, _ := cmd.Flags().GetString("host")
+		apps, _ := cmd.Flags().GetBool("apps")
 		customerId, _ := cmd.Flags().GetString("customerId")
+		if apps {
+
+		}
+
 		api.RegisterAgentInfo(customerId, agentHost)
 	},
 }
@@ -114,8 +119,9 @@ func init() {
 	_ = appsCmd.MarkPersistentFlagRequired("kubeconfig")
 
 	registerAgentCmd.PersistentFlags().String("host", "", "endpoint of agent that needs to be registered")
+	registerAgentCmd.PersistentFlags().Bool("apps", true, "endpoint of agent that needs to be registered")
 	registerAgentCmd.PersistentFlags().String("customerId", "", "customerId to be registered for")
-	_ = registerAgentCmd.MarkPersistentFlagRequired("host")
+	//_ = registerAgentCmd.MarkPersistentFlagRequired("host")
 	_ = registerAgentCmd.MarkPersistentFlagRequired("customerId")
 
 	createCmd.AddCommand(clusterCreateSubCmd)

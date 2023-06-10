@@ -10,17 +10,21 @@ import (
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/spf13/viper"
+
+	"capten/pkg/cluster/types"
 )
 
 type terraform struct {
+	config     *viper.Viper
 	exec       *tfexec.Terraform
 	workingDir string
 }
 
-func New(workingDir string) (*terraform, error) {
+func New(config *viper.Viper, workingDir string) (*terraform, error) {
 	installer := &releases.ExactVersion{
 		Product:    product.Terraform,
-		Version:    version.Must(version.NewVersion("1.0.6")),
+		Version:    version.Must(version.NewVersion("1.3.7")),
 		InstallDir: "./",
 	}
 
@@ -39,11 +43,25 @@ func New(workingDir string) (*terraform, error) {
 	//set the output files, defaulted to terminal
 	tf.SetStdout(os.Stdout)
 	tf.SetStderr(os.Stderr)
-	return &terraform{exec: tf, workingDir: workingDir}, nil
+	return &terraform{config: config, exec: tf, workingDir: workingDir}, nil
 }
 
 func (t *terraform) Apply() error {
-	err := t.exec.Init(context.Background(), tfexec.Upgrade(true))
+	backendConfigs := t.config.GetStringSlice(types.TerraformBackendConfigs)
+	backendConfigOptionsStr := []string{
+		"region=" + t.config.GetString(types.Region),
+		"access_key=" + t.config.GetString(types.AwsAccessKey),
+		"secret_key=" + t.config.GetString(types.AwsSecretKey),
+	}
+	backendConfigOptionsStr = append(backendConfigOptionsStr, backendConfigs...)
+	fmt.Println(backendConfigOptionsStr)
+	initOptions := make([]tfexec.InitOption, 0)
+	for _, backendConfigOption := range backendConfigOptionsStr {
+		initOptions = append(initOptions, tfexec.BackendConfig(backendConfigOption))
+	}
+
+	initOptions = append(initOptions, tfexec.Upgrade(true))
+	err := t.exec.Init(context.Background(), initOptions...)
 	if err != nil {
 		log.Printf("error running Init: %s", err)
 		return err

@@ -21,6 +21,7 @@ import (
 
 	"capten/pkg/config"
 	"capten/pkg/k8s"
+	"capten/pkg/types"
 	"capten/pkg/util"
 )
 
@@ -28,30 +29,6 @@ type helm struct {
 	config         *viper.Viper
 	settings       *cli.EnvSettings
 	defaultTimeout time.Duration
-}
-
-type SecretInfo struct {
-	FilePath string `mapstructure:"FilePath"`
-	Key      string `mapstructure:"Key"`
-}
-
-type Override struct {
-	StringValues map[string]interface{} `mapstructure:"StringValues"`
-	Values       map[string]interface{} `mapstructure:"Values"`
-}
-
-type ChartInfo struct {
-	Name            string       `mapstructure:"Name"`
-	ChartName       string       `mapstructure:"ChartName"`
-	RepoName        string       `mapstructure:"RepoName"`
-	RepoURL         string       `mapstructure:"RepoURL"`
-	Namespace       string       `mapstructure:"Namespace"`
-	ReleaseName     string       `mapstructure:"ReleaseName"`
-	Version         string       `mapstructure:"Version"`
-	Override        Override     `mapstructure:"Override"`
-	CreateNamespace bool         `mapstructure:"CreateNamespace"`
-	MakeNsPrivilege bool         `mapstructure:"CreateNamespace"`
-	SecretInfos     []SecretInfo `mapstructure:"SecretInfos"`
 }
 
 func NewHelm(configPath, kubeConfigPath string) (*helm, error) {
@@ -71,7 +48,7 @@ func NewHelm(configPath, kubeConfigPath string) (*helm, error) {
 }
 
 func (h *helm) Install() {
-	chartInfos := make([]ChartInfo, 0)
+	chartInfos := make([]types.ChartInfo, 0)
 	if err := h.config.UnmarshalKey("PostInstall", &chartInfos); err != nil {
 		log.Println("failed to get postInstall app info from config", err)
 		return
@@ -82,7 +59,7 @@ func (h *helm) Install() {
 	for _, chartInfo := range chartInfos {
 		if err := populateSecretValues(&chartInfo); err != nil {
 			logrus.Error("failed to populate secret values", err)
-			return
+			continue
 		}
 
 		chartInfo.Override.StringValues = util.MergeMap(util.ProcessMap(globalStringValues), util.ProcessMap(chartInfo.Override.StringValues))
@@ -90,20 +67,21 @@ func (h *helm) Install() {
 		logrus.Debugf("chart Overrides are %v", chartInfo.Override)
 		if err := h.Run(context.Background(), chartInfo); err != nil {
 			logrus.Error("install failed", err)
-			return
+			continue
 		}
 
 		if chartInfo.MakeNsPrivilege {
 			err := k8s.MakeNamespacePrivilege(h.settings.KubeConfig, chartInfo.Namespace)
 			if err != nil {
 				logrus.Error("failed to patch namespace with privilege", err)
-				return
+				continue
 			}
 		}
 	}
+
 }
 
-func (h *helm) Run(ctx context.Context, chartInfo ChartInfo) error {
+func (h *helm) Run(ctx context.Context, chartInfo types.ChartInfo) error {
 	repoEntry := &repo.Entry{
 		Name: chartInfo.RepoName,
 		URL:  chartInfo.RepoURL,
@@ -118,8 +96,6 @@ func (h *helm) Run(ctx context.Context, chartInfo ChartInfo) error {
 	}
 
 	r.CachePath = settings.RepositoryCache
-	fmt.Println("cache path", settings.RepositoryCache)
-	fmt.Println("repo config", settings.RepositoryConfig)
 	_, err = r.DownloadIndexFile()
 	if err != nil {
 		return errors.Wrap(err, "unable to download the index file")
@@ -190,7 +166,7 @@ func getValues(values map[string]interface{}) []string {
 }
 
 // populateSecretValues reads the data from secretInfo converts file content to base64 encoded overrides for helm
-func populateSecretValues(info *ChartInfo) error {
+func populateSecretValues(info *types.ChartInfo) error {
 	if info.Override.StringValues == nil {
 		info.Override.StringValues = make(map[string]interface{})
 	}
