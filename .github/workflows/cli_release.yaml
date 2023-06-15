@@ -17,7 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: '1.20'
       
       - name: Build my CLI for Linux
         run: go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux cmd/main.go
@@ -34,48 +34,83 @@ jobs:
         env:
           GITHUB_REF: ${{ github.ref }}
       
-      - name: Create release for Linux
+      # - name: Create release for Linux
+      #   if: steps.release.outputs.name != ''
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: capten-linux
+      #     tag_name: ${{ steps.release.outputs.name }}
+      #     name: ${{ steps.release.outputs.name }} - Linux
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Create release for macOS
+      #   if: steps.release.outputs.name != ''
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: capten-macos
+      #     tag_name: ${{ steps.release.outputs.name }}
+      #     name: ${{ steps.release.outputs.name }} - macOS
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Create release for Windows
+      #   if: steps.release.outputs.name != ''
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: capten-windows.exe
+      #     tag_name: ${{ steps.release.outputs.name }}
+      #     name: ${{ steps.release.outputs.name }} - Windows
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload artifacts
+      #   if: steps.release.outputs.name == ''
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: capten-binaries
+      #     path: |
+      #       capten-linux
+      #       capten-macos
+      #       capten-windows.exe
+
+      - name: Zip artifacts
         if: steps.release.outputs.name != ''
-        uses: softprops/action-gh-release@v1
-        with:
-          files: capten-linux
-          tag_name: ${{ steps.release.outputs.name }}
-          name: ${{ steps.release.outputs.name }} - Linux
-          draft: false
-          prerelease: false
+        run: |
+          mkdir artifacts
+          mv capten-linux artifacts
+          mv capten-macos artifacts
+          mv capten-windows.exe artifacts
+          cp config/aws_talos_config.yaml artifacts/aws_talos_config.yaml
+          zip -r artifacts.zip artifacts
+      
+      - name: Create Github release
+        if: steps.release.outputs.name != ''
+        id: create-release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create release for macOS
-        if: steps.release.outputs.name != ''
-        uses: softprops/action-gh-release@v1
         with:
-          files: capten-macos
-          tag_name: ${{ steps.release.outputs.name }}
-          name: ${{ steps.release.outputs.name }} - macOS
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create release for Windows
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+      
+      - name: Upload Artifacts
         if: steps.release.outputs.name != ''
-        uses: softprops/action-gh-release@v1
-        with:
-          files: capten-windows.exe
-          tag_name: ${{ steps.release.outputs.name }}
-          name: ${{ steps.release.outputs.name }} - Windows
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifacts
-        if: steps.release.outputs.name == ''
         uses: actions/upload-artifact@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: capten-binaries
-          path: |
-            capten-linux
-            capten-macos
-            capten-windows.exe
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts.zip
+          asset_name: binary.zip
+          asset_content_type: application
+
+
+
+      
