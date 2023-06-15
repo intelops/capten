@@ -28,11 +28,23 @@ jobs:
       - name: Build my CLI for Windows
         run: go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe cmd/main.go
        
-      - name: Get release name from tag
+      # - name: Get release name from tag
+      #   id: release
+      #   run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" > "env.txt"
+      #   env:
+      #     GITHUB_REF: ${{ github.ref }}
+
+      - name: Set release tag as env
         id: release
-        run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" > "env.txt"
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+      - name: Check release tag
         env:
-          GITHUB_REF: ${{ github.ref }}
+          RELEASE_VERSION: ${{ steps.release.outputs.tag }}
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ steps.release.outputs.tag }}
+          echo ${{ github.ref }}
       
       # - name: Create release for Linux
       #   if: steps.release.outputs.name != ''
@@ -80,33 +92,40 @@ jobs:
       #       capten-macos
       #       capten-windows.exe
 
+      # Todo: We can use this action to get tag value too
+      - uses: nowsprinting/check-version-format-action@v3
+        id: version
+        with:
+          prefix: 'v'
+
       - name: Zip artifacts
-        if: steps.release.outputs.name != ''
+        if: steps.version.outputs.is_stable == 'true'
         run: |
           mkdir artifacts
           mv capten-linux artifacts
           mv capten-macos artifacts
           mv capten-windows.exe artifacts
+          cp README.md artifacts/README.md
           cp config/aws_talos_config.yaml artifacts/aws_talos_config.yaml
           zip -r artifacts.zip artifacts
       
       - name: Create Github release
-        if: steps.release.outputs.name != ''
+        if: steps.version.outputs.is_stable == 'true'
         id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          tag_name: ${{ steps.release.outputs.tag }}
+          release_name: ${{ steps.release.outputs.tag }}
       
       - name: Upload Artifacts
-        if: steps.release.outputs.name != ''
-        uses: actions/upload-artifact@v2
+        if: steps.version.outputs.is_stable == 'true'
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ./artifacts.zip
-          asset_name: binary.zip
+          asset_name: artifacts.zip
           asset_content_type: application
