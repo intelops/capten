@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/release
     tags:
       - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
 
