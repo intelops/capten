@@ -99,7 +99,7 @@ jobs:
           prefix: 'v'
 
       - name: Zip artifacts
-        if: steps.version.outputs.is_stable == 'true'
+        if: steps.version.outputs.is_valid == 'true'
         run: |
           mkdir artifacts
           mv capten-linux artifacts
@@ -110,7 +110,7 @@ jobs:
           zip -r artifacts.zip artifacts
       
       - name: Create Github release
-        if: steps.version.outputs.is_stable == 'true'
+        if: steps.version.outputs.is_valid == 'true'
         id: create-release
         uses: actions/create-release@v1
         env:
@@ -120,7 +120,7 @@ jobs:
           release_name: ${{ steps.release.outputs.tag }}
       
       - name: Upload Artifacts
-        if: steps.version.outputs.is_stable == 'true'
+        if: steps.version.outputs.is_valid == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
