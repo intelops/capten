@@ -1,0 +1,14 @@
+
+ChartName: "traefik/traefik"
+RepoName: "traefik"
+RepoURL: "https://traefik.github.io/charts"
+Namespace: "traefik"
+ReleaseName: "traefik"
+Version: "20.8.0"
+CreateNamespace: true
+Override:
+  Values:
+    "service.type": NodePort
+    # note: need to provide the case-sensitive key as part of value
+    "ports.websecure.nodePort": ports.websecure.nodePort|32443
+    "ports.web.nodePort": ports.web.nodePort|32080

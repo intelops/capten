@@ -102,11 +102,36 @@ jobs:
         if: steps.version.outputs.is_valid == 'true'
         run: |
           mkdir artifacts
-          mv capten-linux artifacts
-          mv capten-macos artifacts
-          mv capten-windows.exe artifacts
+          mkdir artifacts/config artifacts/certs artifacts/terraform artifacts/apps
+
+          # move binaries
+          mv capten-* artifacts
+
+          # move config
+          cp config/aws_config.yaml artifacts/config/aws_config.yaml
+
+          # git pull dataplane repo, versioning needs to be confirmed
+          git clone https://github.com/kube-tarian/controlplane-dataplane.git
+          rm -rf controlplane-dataplane
+          mkdir artifacts/terraform/aws
+          cp -rf controlplane-dataplane/aws/* artifacts/terraform/aws/
+          rm -rf controlplane-dataplane
+
+          # move apps
+          mkdir artifacts/apps/values
+          cp config/apps.yaml artifacts/apps/apps.yaml
+          cp -rf config/values/* artifacts/apps/values
+
+          # generate and move certs
+          chmod +x generate.sh
+          # ./generate.sh # throwing errors in local
+          # mv intermediate artifacts/certs/
+          # mv root artifacts/certs/
+          # mv server artifacts/certs/
+
+          # copy readme
           cp README.md artifacts/README.md
-          cp config/aws_talos_config.yaml artifacts/aws_talos_config.yaml
+
           zip -r artifacts.zip artifacts
       
       - name: Create Github release

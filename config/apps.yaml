@@ -1,0 +1,18 @@
+
+apps:
+  - "openebs-jiva"
+  - "traefik"
+  - "temporal"
+  - "cert-manager"
+  - "pre-install"
+  - "vault-operator"
+  - "vault-post"
+  - "vault-secrets-webhook"
+  - "loki"
+  - "kubviz-client"
+  - "kubviz-agent"
+  - "signoz"
+  - "kad"
+  - "kyverno"
+  - "policy-reporter"
+  - "kubescape"
