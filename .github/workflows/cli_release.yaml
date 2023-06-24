@@ -112,7 +112,6 @@ jobs:
 
           # git pull dataplane repo, versioning needs to be confirmed
           git clone https://github.com/kube-tarian/controlplane-dataplane.git
-          rm -rf controlplane-dataplane
           mkdir artifacts/terraform/aws
           cp -rf controlplane-dataplane/aws/* artifacts/terraform/aws/
           rm -rf controlplane-dataplane
