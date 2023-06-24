@@ -1,0 +1,9 @@
+
+ChartName: "tools/openebs-jiva"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "openebs-jiva"
+ReleaseName: "openebs-jiva"
+Version: "1.0.5"
+CreateNamespace: true
+MakeNsPrivilege: true

@@ -1,0 +1,8 @@
+
+ChartName: "tools/temporal"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "capten"
+ReleaseName: "temporal"
+Version: "0.1.1"
+CreateNamespace: true
