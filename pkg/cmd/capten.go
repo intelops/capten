@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"capten/pkg/api"
+	"capten/pkg/cert"
 	"capten/pkg/cluster"
 	"capten/pkg/helm"
-	"capten/pkg/util"
 )
 
 // createCmd represents the create command
@@ -41,7 +41,9 @@ var appsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath, _ := cmd.Flags().GetString("config")
 		kubeCfgPath, _ := cmd.Flags().GetString("kubeconfig")
-		if err := util.OsExec("bash", "./generate.sh"); err != nil {
+
+		// generating certificates
+		if err := cert.GenerateCerts(); err != nil {
 			logrus.Errorf("failed to generate certificate %v", err)
 			return
 		}
