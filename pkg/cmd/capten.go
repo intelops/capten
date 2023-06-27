@@ -43,8 +43,8 @@ var appsCmd = &cobra.Command{
 		kubeCfgPath, _ := cmd.Flags().GetString("kubeconfig")
 
 		// generating certificates
-		if err := cert.GenerateCerts(); err != nil {
-			logrus.Errorf("failed to generate certificate %v", err)
+		if err := cert.GenerateCerts("certs", "config/capten.yaml"); err != nil {
+			logrus.Errorf("failed to generate certificate. Error - %v", err)
 			return
 		}
 
