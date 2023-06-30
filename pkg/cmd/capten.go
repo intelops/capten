@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"capten/pkg/api"
 	"capten/pkg/cert"
 	"capten/pkg/cluster"
+	"capten/pkg/config"
 	"capten/pkg/helm"
+	"capten/pkg/k8s"
 )
 
 // createCmd represents the create command
@@ -39,22 +39,31 @@ var appsCmd = &cobra.Command{
 	Short: "sets up apps cluster for usage",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		configPath, _ := cmd.Flags().GetString("config")
-		kubeCfgPath, _ := cmd.Flags().GetString("kubeconfig")
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			logrus.Error("failed to read capten config", err)
+			return
+		}
 
-		// generating certificates
-		if err := cert.GenerateCerts("certs", "config/capten.yaml"); err != nil {
+		if err := cert.GenerateCerts(captenConfig); err != nil {
 			logrus.Errorf("failed to generate certificate. Error - %v", err)
 			return
 		}
+		logrus.Info("Generated Certificates")
 
-		helmObj, err := helm.NewHelm(configPath, kubeCfgPath)
-		if err != nil {
-			log.Println("failed to setup apps", err)
+		if err := k8s.CreateOrUpdateAgnetCertSecret(captenConfig); err != nil {
+			logrus.Error("failed to patch namespace with privilege", err)
 			return
 		}
+		logrus.Info("Configured Certificates on Capten Cluster")
 
+		helmObj, err := helm.NewHelm(captenConfig)
+		if err != nil {
+			logrus.Error("applications installation failed", err)
+			return
+		}
 		helmObj.Install()
+		logrus.Info("Default Applications Installed")
 	},
 }
 
@@ -114,11 +123,6 @@ func init() {
 
 	clusterDestroySubCmd.PersistentFlags().String("work-dir", "", "terraform work directory path")
 	_ = clusterDestroySubCmd.MarkPersistentFlagRequired("config")
-
-	appsCmd.PersistentFlags().String("config", "", "config path")
-	appsCmd.PersistentFlags().String("kubeconfig", "", "kube config path")
-	_ = appsCmd.MarkPersistentFlagRequired("config")
-	_ = appsCmd.MarkPersistentFlagRequired("kubeconfig")
 
 	registerAgentCmd.PersistentFlags().String("host", "", "endpoint of agent that needs to be registered")
 	registerAgentCmd.PersistentFlags().Bool("apps", true, "endpoint of agent that needs to be registered")

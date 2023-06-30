@@ -31,14 +31,14 @@ type helm struct {
 	defaultTimeout time.Duration
 }
 
-func NewHelm(configPath, kubeConfigPath string) (*helm, error) {
-	cfg, err := config.GetClusterConfig(configPath)
+func NewHelm(captenConfig config.CaptenConfig) (*helm, error) {
+	cfg, err := config.GetClusterConfig(captenConfig.LegacyAppConfigFilePath)
 	if err != nil {
 		return nil, err
 	}
 
 	settings := cli.New()
-	settings.KubeConfig = kubeConfigPath
+	settings.KubeConfig = captenConfig.KubeConfigPath
 
 	return &helm{
 		config:         cfg,
