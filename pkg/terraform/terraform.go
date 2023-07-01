@@ -3,25 +3,26 @@ package terraform
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/spf13/viper"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
-	"capten/pkg/cluster/types"
+	"capten/pkg/config"
+	"capten/pkg/types"
 )
 
 type terraform struct {
-	config     *viper.Viper
-	exec       *tfexec.Terraform
-	workingDir string
+	config       types.ClusterInfo
+	exec         *tfexec.Terraform
+	captenConfig config.CaptenConfig
 }
 
-func New(config *viper.Viper, workingDir string) (*terraform, error) {
+func New(captenConfig config.CaptenConfig, config types.ClusterInfo) (*terraform, error) {
 	installer := &releases.ExactVersion{
 		Product:    product.Terraform,
 		Version:    version.Must(version.NewVersion("1.3.7")),
@@ -30,31 +31,31 @@ func New(config *viper.Viper, workingDir string) (*terraform, error) {
 
 	execPath, err := installer.Install(context.Background())
 	if err != nil {
-		log.Printf("error installing Terraform: %s", err)
-		return nil, err
+		logrus.Infof("execPath: %s", execPath)
+
+		return nil, errors.WithMessage(err, "error installing Terraform")
 	}
 
-	tf, err := tfexec.NewTerraform(workingDir, execPath)
+	workDir := captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath + config.CloudService)
+	logrus.Debugf("terraform workingDir: %s, execPath: %s", workDir, execPath)
+	tf, err := tfexec.NewTerraform(workDir, execPath)
 	if err != nil {
-		log.Printf("error running NewTerraform: %s", err)
-		return nil, err
+		return nil, errors.WithMessage(err, "error running NewTerraform")
 	}
 
 	//set the output files, defaulted to terminal
 	tf.SetStdout(os.Stdout)
 	tf.SetStderr(os.Stderr)
-	return &terraform{config: config, exec: tf, workingDir: workingDir}, nil
+	return &terraform{config: config, exec: tf, captenConfig: captenConfig}, nil
 }
 
 func (t *terraform) Apply() error {
-	backendConfigs := t.config.GetStringSlice(types.TerraformBackendConfigs)
 	backendConfigOptionsStr := []string{
-		"region=" + t.config.GetString(types.Region),
-		"access_key=" + t.config.GetString(types.AwsAccessKey),
-		"secret_key=" + t.config.GetString(types.AwsSecretKey),
+		"region=" + t.config.Region,
+		"access_key=" + t.config.AwsAccessKey,
+		"secret_key=" + t.config.AwsSecretKey,
 	}
-	backendConfigOptionsStr = append(backendConfigOptionsStr, backendConfigs...)
-	fmt.Println(backendConfigOptionsStr)
+	backendConfigOptionsStr = append(backendConfigOptionsStr, t.config.TerraformBackendConfigs...)
 	initOptions := make([]tfexec.InitOption, 0)
 	for _, backendConfigOption := range backendConfigOptionsStr {
 		initOptions = append(initOptions, tfexec.BackendConfig(backendConfigOption))
@@ -63,33 +64,27 @@ func (t *terraform) Apply() error {
 	initOptions = append(initOptions, tfexec.Upgrade(true))
 	err := t.exec.Init(context.Background(), initOptions...)
 	if err != nil {
-		log.Printf("error running Init: %s", err)
-		return err
+		return errors.WithMessage(err, "terraform init failed")
 	}
 
 	_, err = t.exec.Show(context.Background())
 	if err != nil {
-		log.Printf("error running show: %s", err)
-		return err
+		return errors.WithMessage(err, "error running show")
 	}
 
-	varFile := fmt.Sprintf("%s/%s", t.workingDir, "values.tfvars")
+	varFile := fmt.Sprintf("%s%s%s", t.captenConfig.CurrentDirPath, t.captenConfig.TerraformTemplateDirPath, t.captenConfig.TerraformVarFileName)
 	_, err = t.exec.Plan(context.Background(), tfexec.VarFile(varFile))
 	if err != nil {
-		log.Printf("error running plan: %s", err)
-		return err
+		return errors.WithMessage(err, "error running plan")
 	}
 
-	log.Println("terraform plan is completed")
 	if err := t.exec.Apply(context.Background(), tfexec.VarFile(varFile)); err != nil {
-		log.Printf("error running apply: %s", err)
-		return err
+		return errors.WithMessage(err, "error running apply")
 	}
-
 	return nil
 }
 
 func (t *terraform) Destroy() error {
-	varFile := fmt.Sprintf("%s/%s", t.workingDir, "values.tfvars")
+	varFile := fmt.Sprintf("%s%s%s", t.captenConfig.CurrentDirPath, t.captenConfig.TerraformTemplateDirPath, t.captenConfig.TerraformVarFileName)
 	return t.exec.Destroy(context.Background(), tfexec.VarFile(varFile))
 }
