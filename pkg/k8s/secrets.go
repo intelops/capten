@@ -15,7 +15,7 @@ import (
 )
 
 func CreateOrUpdateAgnetCertSecret(captenConfig config.CaptenConfig) error {
-	config, err := clientcmd.BuildConfigFromFlags("", captenConfig.KubeConfigPath)
+	config, err := clientcmd.BuildConfigFromFlags("", captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while building kubeconfig")
 	}
@@ -25,15 +25,15 @@ func CreateOrUpdateAgnetCertSecret(captenConfig config.CaptenConfig) error {
 		return errors.WithMessage(err, "error while getting k8s config")
 	}
 
-	certData, err := ioutil.ReadFile(captenConfig.CertPath + captenConfig.AgentCertFileName)
+	certData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client cert")
 	}
-	keyData, err := ioutil.ReadFile(captenConfig.CertPath + captenConfig.AgentKeyFileName)
+	keyData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client key")
 	}
-	caCertChainData, err := ioutil.ReadFile(captenConfig.CertPath + captenConfig.CAFileName)
+	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
@@ -63,7 +63,7 @@ func CreateOrUpdateAgnetCertSecret(captenConfig config.CaptenConfig) error {
 
 	_, err = clientSet.CoreV1().Secrets(secret.Namespace).Update(context.Background(), secret, metav1.UpdateOptions{})
 	if err != nil {
-		return errors.WithMessage(err, "error in creating secret")
+		return errors.WithMessage(err, "error in updating secret")
 	}
 	return nil
 }

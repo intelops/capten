@@ -1,0 +1,8 @@
+Name: "pre-install"
+ChartName: "tools/pre-install"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "observability"
+ReleaseName: "pre-install"
+Version: "1.0.1"
+CreateNamespace: true

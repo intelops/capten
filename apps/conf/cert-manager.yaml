@@ -1,0 +1,11 @@
+Name: "cert-manager"
+ChartName: "jetstack/cert-manager"
+RepoName: "jetstack"
+RepoURL: "https://charts.jetstack.io"
+Namespace: "cert-manager"
+ReleaseName: "cert-manager"
+Version: "v1.11.0"
+CreateNamespace: true
+Override:
+  Values:
+    installCRDs: true

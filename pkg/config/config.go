@@ -1,31 +1,32 @@
 package config
 
 import (
-	"io/ioutil"
-	"log"
-
-	"capten/pkg/util"
+	"capten/pkg/types"
+	"fmt"
+	"os"
+	"strings"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
-)
-
-const (
-	defaultCaptenConfigPath = "config.yaml"
-	configEnvKey            = "CAPTEN_CONFIG"
 )
 
 type CaptenConfig struct {
 	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
-	ConfigPath                 string   `envconfig:"CONFIG_PATH" default:"./config/"`
-	CertPath                   string   `envconfig:"CERT_PATH" default:"./cert/"`
-	KubeConfigPath             string   `envconfig:"KUBE_CONFIG_PATH" default:"./config/kubeconfig"`
-	CaptenValuesFilePath       string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/capten.yaml"`
-	LegacyAppConfigFilePath    string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/legacy_app_config.yaml"`
+	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
+	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
+	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/temp/"`
+	ConfigDirPath              string   `envconfig:"CONFIG_DIR_PATH" default:"/config/"`
+	CertDirPath                string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
+	TerraformModulesDirPath    string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
+	TerraformTemplateDirPath   string   `envconfig:"TERRAFORM_TEMPLATE_DIR_PATH" default:"/templates/k3s/"`
+	AppListFileName            string   `envconfig:"APP_LIST_FILE_NAME" default:"app_list.yaml"`
+	CaptenGlobalValuesFileName string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
+	KubeConfigFileName         string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
+	TerraformTemplateFileName  string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
+	TerraformVarFileName       string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
 	AgentCertFileName          string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
 	AgentKeyFileName           string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
 	ClientCertFileName         string   `envconfig:"CLIENT_CERT_FILE_NAME" default:"client.crt"`
@@ -39,33 +40,11 @@ type CaptenConfig struct {
 	AgentDNSNamePrefixes       []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AgentDNSNames              []string
+	CurrentDirPath             string
 }
 
 type CaptenClusterValues struct {
-	DomainName          string `yaml:"domain"`
-	CaptenNamespace     string `yaml:"captenNamespace"`
-	AgentCertSecretName string `yaml:"agentCertSecretName"`
-}
-
-// GetClusterConfig config for cluster creation
-func GetClusterConfig(configPath string) (*viper.Viper, error) {
-	config := viper.New()
-	config.SetConfigFile(configPath)
-	if err := config.ReadInConfig(); err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func GetConfig() (*viper.Viper, error) {
-	config := viper.New()
-	config.SetConfigFile(util.GetEnv(configEnvKey, defaultCaptenConfigPath))
-	if err := config.ReadInConfig(); err != nil {
-		log.Println("viper cli config read error", err)
-		return nil, err
-	}
-
-	return config, nil
+	DomainName string `yaml:"DomainName"`
 }
 
 func GetCaptenConfig() (CaptenConfig, error) {
@@ -74,7 +53,16 @@ func GetCaptenConfig() (CaptenConfig, error) {
 	if err != nil {
 		return cfg, err
 	}
-	values, err := GetCaptenClusterValues(cfg.CaptenValuesFilePath)
+	cfg.CurrentDirPath, err = os.Getwd()
+	if err != nil {
+		return cfg, errors.WithMessage(err, "error getting current directory")
+	}
+	err = addCurrentDirToPath(cfg.CurrentDirPath)
+	if err != nil {
+		return cfg, errors.WithMessage(err, "error adding current directory to env")
+	}
+
+	values, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName))
 	if err != nil {
 		return cfg, err
 	}
@@ -92,7 +80,7 @@ func GetCaptenConfig() (CaptenConfig, error) {
 
 func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) {
 	var values CaptenClusterValues
-	data, err := ioutil.ReadFile(valuesFilePath)
+	data, err := os.ReadFile(valuesFilePath)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to read values file, %s", valuesFilePath)
 	}
@@ -102,4 +90,40 @@ func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) 
 		return values, errors.WithMessagef(err, "failed to unmarshal values file, %s", valuesFilePath)
 	}
 	return values, nil
+}
+
+func GetClusterInfo(clusterInfoFilePath string) (types.ClusterInfo, error) {
+	var values types.ClusterInfo
+	data, err := os.ReadFile(clusterInfoFilePath)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to read cluster info file, %s", clusterInfoFilePath)
+	}
+
+	err = yaml.Unmarshal(data, &values)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to unmarshal cluster info file, %s", clusterInfoFilePath)
+	}
+	return values, err
+}
+
+func (c CaptenConfig) PrepareFilePath(dir, path string) string {
+	return fmt.Sprintf("%s%s%s", c.CurrentDirPath, dir, path)
+}
+
+func (c CaptenConfig) PrepareDirPath(dir string) string {
+	return fmt.Sprintf("%s%s", c.CurrentDirPath, dir)
+}
+
+func addCurrentDirToPath(dir string) error {
+	path := os.Getenv("PATH")
+	if strings.Contains(path, dir) {
+		return nil
+	}
+
+	newPath := fmt.Sprintf("%s:%s", dir, path)
+	err := os.Setenv("PATH", newPath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
