@@ -1,11 +1,1 @@
-Domain: "xyz.com"
-CertConfig:
-  OrgName: "Intelops"
-  RootCertCommonName: "Root CA"
-  IntermediateCertCommonName: "Optimizor CA"
-  ServerCertCommonName: "*.dev.optimizor.app"
-  ServerDNSNames:
-    - "captenagent.dev.optimizor.app"
-    - "dev.optimizor.app"
-    - "localhost"
-  ClientCertCommonName: "*.dev.optimizor.app"
+domain: "dev.intelops.ai"

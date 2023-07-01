@@ -29,15 +29,15 @@ func RegisterAgentInfo(customerId, agentHost string) {
 	filesToUpload := []fileInfo{
 		{
 			fileKey: "ca_crt",
-			path:    "./intermediate/cert-chain.pem",
+			path:    "./cert/ca.crt",
 		},
 		{
 			fileKey: "client_crt",
-			path:    "./client/client.crt",
+			path:    "./cert/client.crt",
 		},
 		{
 			fileKey: "client_key",
-			path:    "./client/client.key",
+			path:    "./cert/client.key",
 		},
 	}
 
