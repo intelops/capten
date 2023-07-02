@@ -20,6 +20,9 @@ TerraformBackendConfigs:
   - "bucket=intelops-tf-state-3"
   - "dynamodb_table=intelops-tf-state"
 
+
+# Todo: Remove this file later
+
 #GlobalValues:
 #  StringValues:
 #    ingress.hostname: "test.optimizer.com"

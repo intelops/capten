@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"text/template"
 
 	"capten/pkg/cluster/types"
@@ -70,7 +71,7 @@ func Create(config *viper.Viper, workDir string) error {
 		return err
 	}
 
-	templateFile, err := os.Create(fmt.Sprintf("%s/%s", workDir, "values.tfvars"))
+	templateFile, err := os.Create(path.Join(workDir, "values.tfvars"))
 	if err != nil {
 		fmt.Println(err)
 		return err

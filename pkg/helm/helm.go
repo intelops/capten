@@ -4,13 +4,16 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -32,27 +35,37 @@ type helm struct {
 }
 
 func NewHelm(captenConfig config.CaptenConfig) (*helm, error) {
-	cfg, err := config.GetClusterConfig(captenConfig.LegacyAppConfigFilePath)
-	if err != nil {
-		return nil, err
-	}
+	// cfg, err := config.GetClusterConfig(captenConfig.LegacyAppConfigFilePath)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	settings := cli.New()
 	settings.KubeConfig = captenConfig.KubeConfigPath
 
 	return &helm{
-		config:         cfg,
+		// config:         cfg,
 		settings:       settings,
 		defaultTimeout: time.Second * 900,
 	}, nil
 }
 
-func (h *helm) Install() {
-	chartInfos := make([]types.ChartInfo, 0)
-	if err := h.config.UnmarshalKey("PostInstall", &chartInfos); err != nil {
-		log.Println("failed to get postInstall app info from config", err)
-		return
+func (h *helm) Install(cnf config.CaptenConfig) error {
+	appListFile, err := os.Open(cnf.AppsFilePath)
+	if err != nil {
+		return errors.Wrap(err, "helm install failed")
 	}
+	appsList, err := getAppsList(appListFile, "apps")
+	if err != nil {
+		return errors.Wrap(err, "helm install failed")
+	}
+
+	chartInfos := readAppValuesDir(cnf.AppValuesDir, appsList)
+	// chartInfos := make([]types.ChartInfo, 0)
+	// if err := h.config.UnmarshalKey("PostInstall", &chartInfos); err != nil {
+	// 	log.Println("failed to get postInstall app info from config", err)
+	// 	return err
+	// }
 
 	globalStringValues := h.config.GetStringMap("GlobalValues.StringValues")
 	globalValues := h.config.GetStringMap("GlobalValues.Values")
@@ -78,6 +91,7 @@ func (h *helm) Install() {
 			}
 		}
 	}
+	return nil
 
 }
 
@@ -122,6 +136,9 @@ func (h *helm) Run(ctx context.Context, chartInfo types.ChartInfo) error {
 	client.CreateNamespace = chartInfo.CreateNamespace
 	//client.DryRun = true
 	cp, err := client.ChartPathOptions.LocateChart(chartInfo.ChartName, settings)
+	if err != nil {
+		return errors.Wrap(err, "locate chart error")
+	}
 	chartReq, err := loader.Load(cp)
 	if err != nil {
 		return errors.Wrap(err, "chart load error")
@@ -151,9 +168,9 @@ func (h *helm) Run(ctx context.Context, chartInfo types.ChartInfo) error {
 	return nil
 }
 
-func debug(format string, v ...interface{}) {
+func debug(format string, args ...interface{}) {
 	//format = fmt.Sprintf("[debug] %v\n", format)
-	log.Output(2, fmt.Sprintf(format, v))
+	log.Output(2, fmt.Sprintf(format, args...))
 }
 
 func getValues(values map[string]interface{}) []string {
@@ -181,4 +198,39 @@ func populateSecretValues(info *types.ChartInfo) error {
 	}
 
 	return nil
+}
+
+// basePath: dir path with all the app values
+func readAppValuesDir(basePath string, appsList []string) (ret []types.ChartInfo) {
+
+	for _, app := range appsList {
+		filePath := path.Join(basePath, app+".yaml")
+		yamlFile, err := os.Open(filePath)
+		if err != nil {
+			logrus.Errorf("err: %v, yamlfile missing: %s", err, filePath)
+			continue
+		}
+		var charInfo types.ChartInfo
+		if err := yaml.NewDecoder(yamlFile).Decode(&charInfo); err != nil {
+			logrus.Errorf("err: %v, decoding file: %s", err, filePath)
+			continue
+		}
+		ret = append(ret, charInfo)
+	}
+
+	return
+}
+
+// useful for reading list like yaml files
+func getAppsList(r io.Reader, key string) (ret []string, err error) {
+
+	var appMapping map[string][]string
+	err = yaml.NewDecoder(r).Decode(&appMapping)
+	if err != nil {
+		logrus.Errorf("decode yaml, err: %v", err)
+		return nil, err
+	}
+	ret = append(ret, appMapping[key]...)
+
+	return
 }

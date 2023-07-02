@@ -1,0 +1,33 @@
+Name: "loki"
+ChartName: "grafana/loki-stack"
+RepoName: "grafana"
+RepoURL: "https://grafana.github.io/helm-charts"
+Namespace: "observability"
+ReleaseName: "loki"
+CreateNamespace: true
+Override:
+  StringValues:
+    'grafana.ingress.annotations.cert-manager\.io\/cluster-issuer': "letsencrypt-prod-cluster"
+    'grafana.ingress.annotations.kubernetes\.io\/force-ssl-redirect': "true"
+    'grafana.ingress.annotations.kubernetes\.io\/ssl-redirect': "true"
+    'grafana.ingress.annotations.kubernetes\.io\/tls-acme': "true"
+  Values:
+    "grafana.enabled": true
+    "grafana.ingress.enabled": true
+    "grafana.ingress.hosts": '{"grafana.dev.optimizor.app"}'
+    "prometheus.enabled": true
+    "grafana.sidecar.datasources.enabled": true
+    "grafana.sidecar.dashboards.enabled": true
+#        "grafana.enabled": true
+#        "grafana.ingress.enabled": true
+#        # "grafana.ingress.annotations.cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/force-ssl-redirect": true
+#        # "grafana.ingress.annotations.nginx.ingress.kubernetes.io/ssl-redirect": true
+#        "grafana.ingress.hosts": '{"grafana.capten.intelops.app"}'
+#        "grafana.ingress.tls[0].hosts[0]": grafana.capten.intelops.app
+#        "grafana.ingress.tls[0].secretName": grafana.ingress.tls[0].secretName|cert-dev
+#        "prometheus.enabled": true
+#        "grafana.sidecar.datasources.enabled": true
+#        "grafana.sidecar.dashboards.enabled": true
+#        "grafana.plugins": vertamedia-clickhouse-datasource

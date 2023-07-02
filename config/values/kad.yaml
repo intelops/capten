@@ -1,0 +1,18 @@
+Name: "kad"
+ChartName: "kad/kad"
+RepoName: "kad"
+RepoURL: "https://kube-tarian.github.io/kad"
+Namespace: "capten"
+ReleaseName: "kad"
+Version: "0.1.16"
+CreateNamespace: true
+Override:
+  Values:
+    "ingressroute.mtls.enabled": true
+SecretInfos:
+  - FilePath: "./intermediate/cert-chain.pem"
+    Key: "ingressroute.mtls.caCrt"
+  - FilePath: "./server/server.crt"
+    Key: "ingressroute.mtls.tlsCrt"
+  - FilePath: "./server/server.key"
+    Key: "ingressroute.mtls.tlsKey"

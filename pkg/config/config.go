@@ -18,14 +18,14 @@ const (
 )
 
 type CaptenConfig struct {
-	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
-	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
-	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
-	ConfigPath                 string   `envconfig:"CONFIG_PATH" default:"./config/"`
-	CertPath                   string   `envconfig:"CERT_PATH" default:"./cert/"`
-	KubeConfigPath             string   `envconfig:"KUBE_CONFIG_PATH" default:"./config/kubeconfig"`
-	CaptenValuesFilePath       string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/capten.yaml"`
-	LegacyAppConfigFilePath    string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/legacy_app_config.yaml"`
+	DomainName           string `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	CaptenNamespace      string `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
+	AgentCertSecretName  string `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
+	ConfigPath           string `envconfig:"CONFIG_PATH" default:"./config/"`
+	CertPath             string `envconfig:"CERT_PATH" default:"./cert/"`
+	KubeConfigPath       string `envconfig:"KUBE_CONFIG_PATH" default:"./config/kubeconfig"`
+	CaptenValuesFilePath string `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/capten.yaml"`
+	// LegacyAppConfigFilePath    string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"./config/legacy_app_config.yaml"`
 	AgentCertFileName          string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
 	AgentKeyFileName           string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
 	ClientCertFileName         string   `envconfig:"CLIENT_CERT_FILE_NAME" default:"client.crt"`
@@ -38,6 +38,8 @@ type CaptenConfig struct {
 	AgentCertCommonName        string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
 	AgentDNSNamePrefixes       []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
+	AppsFilePath               string   `envconfig:"APPS_FILE_PATH" default:"./config/apps.yaml"`
+	AppValuesDir               string   `envconfig:"APP_VALUES_DIR" default:"./config/values/"`
 	AgentDNSNames              []string
 }
 

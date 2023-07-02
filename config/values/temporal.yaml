@@ -1,4 +1,4 @@
-
+Name: "temporal"
 ChartName: "tools/temporal"
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"

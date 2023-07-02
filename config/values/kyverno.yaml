@@ -1,0 +1,9 @@
+
+Name: "kyverno"
+ChartName: "kyverno/kyverno"
+RepoName: "kyverno"
+RepoURL: "https://kyverno.github.io/kyverno/"
+Namespace: "kyverno"
+ReleaseName: "kyverno"
+Version: "2.7.2"
+CreateNamespace: true

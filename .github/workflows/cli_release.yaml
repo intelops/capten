@@ -6,6 +6,7 @@ on:
       - main
     tags:
       - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
+      # Todo: this doesn't seem to work
 
 jobs:
   build:
@@ -19,20 +20,11 @@ jobs:
         with:
           go-version: '1.20'
       
-      - name: Build my CLI for Linux
-        run: go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux cmd/main.go
-      
-      - name: Build my CLI for macOS
-        run: go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos cmd/main.go
-      
-      - name: Build my CLI for Windows
-        run: go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe cmd/main.go
-       
-      # - name: Get release name from tag
-      #   id: release
-      #   run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" > "env.txt"
-      #   env:
-      #     GITHUB_REF: ${{ github.ref }}
+      - name: Get release name from tag
+        id: release
+        run: echo "name=$(echo ${GITHUB_REF#refs/tags/})" > "env.txt"
+        env:
+          GITHUB_REF: ${{ github.ref }}
 
       - name: Set release tag as env
         id: release
@@ -45,52 +37,6 @@ jobs:
           echo $RELEASE_VERSION
           echo ${{ steps.release.outputs.tag }}
           echo ${{ github.ref }}
-      
-      # - name: Create release for Linux
-      #   if: steps.release.outputs.name != ''
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: capten-linux
-      #     tag_name: ${{ steps.release.outputs.name }}
-      #     name: ${{ steps.release.outputs.name }} - Linux
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Create release for macOS
-      #   if: steps.release.outputs.name != ''
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: capten-macos
-      #     tag_name: ${{ steps.release.outputs.name }}
-      #     name: ${{ steps.release.outputs.name }} - macOS
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Create release for Windows
-      #   if: steps.release.outputs.name != ''
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: capten-windows.exe
-      #     tag_name: ${{ steps.release.outputs.name }}
-      #     name: ${{ steps.release.outputs.name }} - Windows
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Upload artifacts
-      #   if: steps.release.outputs.name == ''
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: capten-binaries
-      #     path: |
-      #       capten-linux
-      #       capten-macos
-      #       capten-windows.exe
 
       # Todo: We can use this action to get tag value too
       - uses: nowsprinting/check-version-format-action@v3
@@ -100,38 +46,7 @@ jobs:
 
       - name: Zip artifacts
         if: steps.version.outputs.is_valid == 'true'
-        run: |
-          mkdir artifacts
-          mkdir artifacts/config artifacts/certs artifacts/terraform artifacts/apps
-
-          # move binaries
-          mv capten-* artifacts
-
-          # move config
-          cp config/aws_config.yaml artifacts/config/aws_config.yaml
-
-          # git pull dataplane repo, versioning needs to be confirmed
-          git clone https://github.com/kube-tarian/controlplane-dataplane.git
-          mkdir artifacts/terraform/aws
-          cp -rf controlplane-dataplane/aws/* artifacts/terraform/aws/
-          rm -rf controlplane-dataplane
-
-          # move apps
-          mkdir artifacts/apps/values
-          cp config/apps.yaml artifacts/apps/apps.yaml
-          cp -rf config/values/* artifacts/apps/values
-
-          # generate and move certs
-          chmod +x generate.sh
-          # ./generate.sh # throwing errors in local
-          # mv intermediate artifacts/certs/
-          # mv root artifacts/certs/
-          # mv server artifacts/certs/
-
-          # copy readme
-          cp README.md artifacts/README.md
-
-          zip -r artifacts.zip artifacts
+        run: make build.release
       
       - name: Create Github release
         if: steps.version.outputs.is_valid == 'true'
@@ -150,6 +65,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./artifacts.zip
-          asset_name: artifacts.zip
+          asset_path: ./capten.zip
+          asset_name: capten.zip
           asset_content_type: application

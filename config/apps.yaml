@@ -16,3 +16,6 @@ apps:
   - "kyverno"
   - "policy-reporter"
   - "kubescape"
+
+# Note: the app file expects a corresponding values file
+# later we can have explicity entry of a values file path as well

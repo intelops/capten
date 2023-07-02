@@ -41,7 +41,7 @@ var appsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		captenConfig, err := config.GetCaptenConfig()
 		if err != nil {
-			logrus.Error("failed to read capten config", err)
+			logrus.Errorf("failed to read capten config, err: %v", err)
 			return
 		}
 
@@ -52,17 +52,20 @@ var appsCmd = &cobra.Command{
 		logrus.Info("Generated Certificates")
 
 		if err := k8s.CreateOrUpdateAgnetCertSecret(captenConfig); err != nil {
-			logrus.Error("failed to patch namespace with privilege", err)
+			logrus.Errorf("failed to patch namespace with privilege, err: %v", err)
 			return
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
 		helmObj, err := helm.NewHelm(captenConfig)
 		if err != nil {
-			logrus.Error("applications installation failed", err)
+			logrus.Errorf("apps installation failed, err: %v", err)
 			return
 		}
-		helmObj.Install()
+		if err := helmObj.Install(captenConfig); err != nil {
+			logrus.Error(err)
+			return
+		}
 		logrus.Info("Default Applications Installed")
 	},
 }

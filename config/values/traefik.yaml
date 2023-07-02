@@ -1,4 +1,5 @@
 
+Name: "traefik"
 ChartName: "traefik/traefik"
 RepoName: "traefik"
 RepoURL: "https://traefik.github.io/charts"
