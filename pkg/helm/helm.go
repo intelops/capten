@@ -12,7 +12,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 
 	"helm.sh/helm/v3/pkg/action"
@@ -29,7 +28,7 @@ import (
 )
 
 type helm struct {
-	config         *viper.Viper
+	// config         *viper.Viper
 	settings       *cli.EnvSettings
 	defaultTimeout time.Duration
 }
@@ -67,8 +66,9 @@ func (h *helm) Install(cnf config.CaptenConfig) error {
 	// 	return err
 	// }
 
-	globalStringValues := h.config.GetStringMap("GlobalValues.StringValues")
-	globalValues := h.config.GetStringMap("GlobalValues.Values")
+	// globalStringValues := h.config.GetStringMap("GlobalValues.StringValues")
+	// globalValues := h.config.GetStringMap("GlobalValues.Values")
+	globalStringValues, globalValues := map[string]any{}, map[string]any{}
 	for _, chartInfo := range chartInfos {
 		if err := populateSecretValues(&chartInfo); err != nil {
 			logrus.Error("failed to populate secret values", err)
