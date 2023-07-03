@@ -1,5 +1,5 @@
 
-apps:
+Apps:
   - "openebs-jiva"
   - "traefik"
   - "temporal"

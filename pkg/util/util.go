@@ -1,8 +1,11 @@
 package util
 
 import (
+	"bytes"
 	"os"
-	"strings"
+	"text/template"
+
+	"gopkg.in/yaml.v2"
 )
 
 func GetEnv(key, defaultValue string) string {
@@ -14,32 +17,28 @@ func GetEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-func MergeMap(global, override map[string]interface{}) map[string]interface{} {
-	if len(global) == 0 {
-		return override
+func ReplaceTemplateValues(templateData map[string]interface{},
+	values map[string]interface{}) (transformedData map[string]interface{}, err error) {
+	yamlData, err := yaml.Marshal(templateData)
+	if err != nil {
+		return
 	}
 
-	if len(override) == 0 {
-		return global
+	tmpl, err := template.New("templateVal").Parse(string(yamlData))
+	if err != nil {
+		return
 	}
 
-	for key, val := range override {
-		global[key] = val
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, values)
+	if err != nil {
+		return
 	}
 
-	return global
-}
-
-func ProcessMap(mapToProcess map[string]interface{}) map[string]interface{} {
-	for key, val := range mapToProcess {
-		if _, ok := val.(string); ok {
-			processedVal := strings.Split(val.(string), "|")
-			if len(processedVal) > 1 {
-				delete(mapToProcess, key)
-				mapToProcess[processedVal[0]] = processedVal[1]
-			}
-		}
+	transformedData = map[string]interface{}{}
+	err = yaml.Unmarshal(buf.Bytes(), &transformedData)
+	if err != nil {
+		return
 	}
-
-	return mapToProcess
+	return
 }

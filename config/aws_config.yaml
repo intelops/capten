@@ -1,5 +1,5 @@
-AwsAccessKey: ""
-AwsSecretKey: ""
+AwsAccessKey: "accesskey"
+AwsSecretKey: "secretkey"
 AlbName: "talosalb-3"
 PrivateSubnet: "10.0.1.0/24"
 Region: "us-west-2"
