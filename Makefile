@@ -38,4 +38,6 @@ build.release: build.all
 	@cp README.md release/README.md
 
 	@zip -r capten.zip release
+	# remove this release folder as ci pipeline is complaining
+	@rm -rf release
 	@echo "✅ Release Build Complete ✅"
