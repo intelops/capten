@@ -1,0 +1,18 @@
+Name: "traefik"
+ChartName: "traefik/traefik"
+RepoName: "traefik"
+RepoURL: "https://traefik.github.io/charts"
+Namespace: "traefik"
+ReleaseName: "traefik"
+Version: "20.8.0"
+CreateNamespace: true
+Override:
+  Values:
+    service:
+      type: NodePort
+    ports:
+      websecure:
+        nodePort: 32443
+      ports:
+        web:
+          nodePort": 32080

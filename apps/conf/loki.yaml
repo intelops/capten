@@ -1,0 +1,67 @@
+Name: "loki"
+ChartName: "grafana/loki-stack"
+RepoName: "grafana"
+RepoURL: "https://grafana.github.io/helm-charts"
+Namespace: "observability"
+ReleaseName: "loki"
+CreateNamespace: true
+LaunchUI:
+  RedirectURL: https://grafana.{{.DomainName}}/sso/
+  LaunchURL: https://grafana.{{.DomainName}}/
+Override:
+  LaunchUI-Auth-Values:
+    sso:
+     client-id: {{.ClientId}}
+     client-secret: {{.ClientSecret}}
+     oryAdress: {{.OryURL}}
+  StringValues:
+    'grafana.ingress.annotations.cert-manager\.io\/cluster-issuer': "letsencrypt-prod-cluster"
+    'grafana.ingress.annotations.kubernetes\.io\/force-ssl-redirect': "true"
+    'grafana.ingress.annotations.kubernetes\.io\/ssl-redirect': "true"
+    'grafana.ingress.annotations.kubernetes\.io\/tls-acme': "true"
+  Values:
+    grafana:
+      enabled: true
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+          kubernetes.io/force-ssl-redirect: "true"
+          kubernetes.io/ssl-redirect: "true"
+          kubernetes.io/tls-acme: "true"
+        enabled: true
+        hosts:
+        - "grafana.{{.DomainName}}"
+        tls:
+        - hosts:
+          - "grafana.{{.DomainName}}"
+          secretName: cert-grafana
+      plugins:
+      - vertamedia-clickhouse-datasource
+      sidecar:
+        dashboards:
+          enabled: true
+          folderAnnotation: grafana_folder
+          provider:
+            foldersFromFilesStructure: true
+        datasources:
+          enabled: true
+    prometheus:
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+          kubernetes.io/force-ssl-redirect: "true"
+          kubernetes.io/ssl-redirect: "true"
+          kubernetes.io/tls-acme: "true"
+        enabled: true
+        hosts:
+        - "prometheus.{{.DomainName}}"
+        paths:
+        - /
+        tls:
+        - hosts:
+          - "prometheus.{{.DomainName}}"
+          secretName: cert-prometheus
+      prometheusSpec:
+        enableRemoteWriteReceiver: true
+        externalLabels:
+          cluster_name: aws-capten
