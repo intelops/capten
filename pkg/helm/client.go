@@ -15,18 +15,14 @@ import (
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 
-	"capten/pkg/app"
 	"capten/pkg/config"
-	"capten/pkg/k8s"
 	"capten/pkg/types"
-	"capten/pkg/util"
 )
 
 type Client struct {
 	settings       *cli.EnvSettings
 	defaultTimeout time.Duration
 	captenConfig   config.CaptenConfig
-	appConfigs     []types.AppConfig
 }
 
 func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
@@ -39,58 +35,7 @@ func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
 	}, nil
 }
 
-func (h *Client) PrepareAppValues() error {
-	globalValues, err := app.GetClusterGlobalValues(h.captenConfig.PrepareFilePath(h.captenConfig.ConfigDirPath, h.captenConfig.CaptenGlobalValuesFileName))
-	if err != nil {
-		return err
-	}
-
-	logrus.Debugf("cluster globalValues: %s", globalValues)
-	apps, err := app.GetAppList(h.captenConfig.PrepareFilePath(h.captenConfig.AppsDirPath, h.captenConfig.AppListFileName))
-	if err != nil {
-		return err
-	}
-
-	appConfigs := []types.AppConfig{}
-	for _, appName := range apps {
-		appConfig, err := app.GetAppConfig(h.captenConfig.PrepareFilePath(h.captenConfig.AppsConfigDirPath, appName+".yaml"))
-		if err != nil {
-			return errors.WithMessagef(err, "failed load %s config", appName)
-		}
-		appConfig.Override.Values, err = util.ReplaceTemplateValues(appConfig.Override.Values, globalValues)
-		if err != nil {
-			return errors.WithMessagef(err, "failed transform %s values", appName)
-		}
-		appConfigs = append(appConfigs, appConfig)
-		logrus.Debug(appName, " : ", appConfig)
-	}
-	h.appConfigs = appConfigs
-	return nil
-}
-
-func (h *Client) Install() {
-	for _, appConfig := range h.appConfigs {
-		logrus.Infof("[app: %s] installing", appConfig.Name)
-		if err := h.Run(context.Background(), appConfig); err != nil {
-			logrus.Errorf("%s installation failed, %v", appConfig.Name, err)
-			continue
-		}
-		logrus.Infof("[app: %s] installed", appConfig.Name)
-		if err := app.WriteAppConfig(h.captenConfig, appConfig); err != nil {
-			logrus.Errorf("failed to write %s config, %v", appConfig.Name, err)
-			continue
-		}
-		if appConfig.PrivilegedNamespace {
-			err := k8s.MakeNamespacePrivilege(h.settings.KubeConfig, appConfig.Namespace)
-			if err != nil {
-				logrus.Error("failed to patch namespace with privilege", err)
-				continue
-			}
-		}
-	}
-}
-
-func (h *Client) Run(ctx context.Context, appConfig types.AppConfig) error {
+func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) error {
 	repoEntry := &repo.Entry{
 		Name: appConfig.RepoName,
 		URL:  appConfig.RepoURL,
@@ -129,6 +74,8 @@ func (h *Client) Run(ctx context.Context, appConfig types.AppConfig) error {
 	client.Version = appConfig.Version
 	client.Timeout = h.defaultTimeout
 	client.CreateNamespace = appConfig.CreateNamespace
+	client.DryRun = h.captenConfig.AppDeployDryRun
+	client.Devel = h.captenConfig.AppDeployDebug
 
 	cp, err := client.ChartPathOptions.LocateChart(appConfig.ChartName, settings)
 	if err != nil {

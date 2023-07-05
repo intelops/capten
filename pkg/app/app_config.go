@@ -29,7 +29,21 @@ func GetClusterGlobalValues(valuesFilePath string) (map[string]interface{}, erro
 	return values, nil
 }
 
-func GetAppList(appListFilePath string) ([]string, error) {
+func GetAppGroups(appGroupsFilePath string) ([]string, error) {
+	var values types.AppGroupList
+	data, err := ioutil.ReadFile(appGroupsFilePath)
+	if err != nil {
+		return nil, errors.WithMessagef(err, "failed to read file, %s", appGroupsFilePath)
+	}
+
+	err = yaml.Unmarshal(data, &values)
+	if err != nil {
+		return nil, errors.WithMessagef(err, "failed to unmarshal file, %s", appGroupsFilePath)
+	}
+	return values.Groups, err
+}
+
+func GetApps(appListFilePath string) ([]string, error) {
 	var values types.AppList
 	data, err := ioutil.ReadFile(appListFilePath)
 	if err != nil {

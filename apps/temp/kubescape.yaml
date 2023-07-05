@@ -1,0 +1,19 @@
+Name: kubescape
+ChartName: kubescape/kubescape-prometheus-integrator
+RepoName: kubescape
+RepoURL: https://kubescape.github.io/helm-charts/
+Namespace: kubescape-prometheus
+ReleaseName: kubescape-prometheus
+Version: 0.0.11
+Override:
+  LaunchUIConfig:
+    RedirectURL: ""
+  LaunchUIValues: {}
+  Values:
+    kubescape:
+      prometheusAnnotation:
+        enabled: true
+      serviceMonitor:
+        enabled: false
+CreateNamespace: true
+PrivilegedNamespace: false

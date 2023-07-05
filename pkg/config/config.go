@@ -14,7 +14,7 @@ import (
 type CaptenConfig struct {
 	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
-	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
+	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
 	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/temp/"`
@@ -22,7 +22,8 @@ type CaptenConfig struct {
 	CertDirPath                string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
 	TerraformModulesDirPath    string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
 	TerraformTemplateDirPath   string   `envconfig:"TERRAFORM_TEMPLATE_DIR_PATH" default:"/templates/k3s/"`
-	AppListFileName            string   `envconfig:"APP_LIST_FILE_NAME" default:"app_list.yaml"`
+	CoreAppGroupsFileName      string   `envconfig:"CORE_APP_GROUPS_FILE_NAME" default:"core_group_apps.yaml"`
+	DefaultAppGroupsFileName   string   `envconfig:"DEFAULT_APP_GROUPS_FILE_NAME" default:"default_group_apps.yaml"`
 	CaptenGlobalValuesFileName string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
 	KubeConfigFileName         string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
 	TerraformTemplateFileName  string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
@@ -39,6 +40,8 @@ type CaptenConfig struct {
 	AgentCertCommonName        string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
 	AgentDNSNamePrefixes       []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
+	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
+	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
 }

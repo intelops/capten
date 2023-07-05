@@ -8,6 +8,5 @@ Version: "0.1.16"
 CreateNamespace: true
 Override:
   Values:
-    service:
-      type: ClusterIP
-      port: 8081
+    cert:
+      secretName: "kad-agent-cert"
