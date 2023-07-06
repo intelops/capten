@@ -23,3 +23,9 @@ type ChartInfo struct {
 	MakeNsPrivilege bool         `mapstructure:"createNamespace"`
 	SecretInfos     []SecretInfo `mapstructure:"secretInfos"`
 }
+
+type AWSConfig struct {
+	AwsAccessKey            string   `yaml:"AwsAccessKey"`
+	AwsSecretKey            string   `yaml:"AwsSecretKey"`
+	TerraformBackendConfigs []string `yaml:"TerraformBackendConfigs"`
+}

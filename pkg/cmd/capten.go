@@ -1,8 +1,14 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+	"io/ioutil"
+
+	vaultcredclient "github.com/intelops/go-common/vault-cred-client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
 	"capten/pkg/api"
 	"capten/pkg/cert"
@@ -10,6 +16,7 @@ import (
 	"capten/pkg/config"
 	"capten/pkg/helm"
 	"capten/pkg/k8s"
+	"capten/pkg/types"
 )
 
 // createCmd represents the create command
@@ -63,6 +70,52 @@ var appsCmd = &cobra.Command{
 			return
 		}
 		helmObj.Install()
+
+		configContent, err := ioutil.ReadFile(captenConfig.KubeConfigPath)
+		if err != nil {
+			logrus.Error("error while reading kube config file", err)
+			return
+		}
+		credAdmin, err := vaultcredclient.NewGerericCredentailAdmin()
+		if err != nil {
+			logrus.Error("error in initializing vault credential client", err)
+			return
+		}
+		ctx := context.Background()
+		err = credAdmin.PutGenericCredential(ctx, "k8s", "kubeconfig", vaultcredclient.GerericCredentail{
+			Credential: map[string]string{
+				"kubeconfig": string(configContent),
+			},
+		})
+		if err != nil {
+			logrus.Error("error in adding kubeconfig to vault", err)
+			return
+		}
+
+		awsConfigByte, err := ioutil.ReadFile(captenConfig.ConfigPath)
+		if err != nil {
+			logrus.Error("Error reading aws config YAML file", err)
+			return
+		}
+		var awsconfig types.AWSConfig
+		err = yaml.Unmarshal(awsConfigByte, &awsconfig)
+		if err != nil {
+			logrus.Error("Error unmarshaling AWS YAML config file", err)
+		}
+
+		err = credAdmin.PutGenericCredential(ctx, "bucket", "terraform-state", vaultcredclient.GerericCredentail{
+			Credential: map[string]string{
+				"bucketName": awsconfig.TerraformBackendConfigs[0],
+				"awsKey":     awsconfig.AwsAccessKey,
+				"awsSecrete": awsconfig.AwsSecretKey,
+			},
+		})
+		if err != nil {
+			logrus.Error(err, "error in adding bucket credentials to vault", err)
+			return
+		}
+
+		// push kubeconfig and bucket credentials to cluster
 		logrus.Info("Default Applications Installed")
 	},
 }
@@ -115,6 +168,21 @@ var registerAgentCmd = &cobra.Command{
 	},
 }
 
+var showClusterInfoCmd = &cobra.Command{
+	Use:   "clusterinfo",
+	Short: "show the clinster info",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			logrus.Error("failed to read capten config", err)
+			return
+		}
+		fmt.Println("Agetnt hostname:", "agent."+captenConfig.DomainName)
+		fmt.Println("Agent IP:", "0.0.0.127")
+	},
+}
+
 func init() {
 	clusterCreateSubCmd.PersistentFlags().String("config", "", "config path")
 	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster")
@@ -137,4 +205,5 @@ func init() {
 	rootCmd.AddCommand(destroyCmd)
 	rootCmd.AddCommand(setupCmd)
 	rootCmd.AddCommand(registerAgentCmd)
+	rootCmd.AddCommand(showClusterInfoCmd)
 }
