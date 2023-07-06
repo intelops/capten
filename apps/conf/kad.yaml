@@ -1,0 +1,13 @@
+Name: "kad"
+ChartName: "kad/kad"
+RepoName: "kad"
+RepoURL: "https://kube-tarian.github.io/kad"
+Namespace: "capten"
+ReleaseName: "kad"
+Version: "0.1.16"
+CreateNamespace: true
+Override:
+  Values:
+    service:
+      type: ClusterIP
+      port: 8081

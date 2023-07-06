@@ -1,101 +1,69 @@
 package k3s
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"text/template"
 
-	"capten/pkg/cluster/types"
+	"capten/pkg/config"
 	"capten/pkg/terraform"
+	"capten/pkg/types"
 
-	"github.com/spf13/viper"
+	"github.com/pkg/errors"
 )
 
-type ClusterInfo struct {
-	ClusterType           string
-	AwsAccessKey          string
-	AwsSecretKey          string
-	AlbName               string
-	PrivateSubnet         string
-	Region                string
-	SecurityGroupName     string
-	VpcCidr               string
-	VpcName               string
-	InstanceType          string
-	NodeMonitoringEnabled string
-	MasterCount           string
-	WorkerCount           string
-	TraefikHttpPort       string
-	TraefikHttpsPort      string
-	TalosTg               string
-	TraefikTg80Name       string
-	TraefikTg443Name      string
-	TraefikLbName         string
-}
-
-func Create(config *viper.Viper, workDir string) error {
-	clusterInfo := ClusterInfo{
-		ClusterType:           "k3s",
-		AwsAccessKey:          config.GetString(types.AwsAccessKey),
-		AwsSecretKey:          config.GetString(types.AwsSecretKey),
-		AlbName:               config.GetString(types.AlbName),
-		PrivateSubnet:         config.GetString(types.PrivateSubnet),
-		Region:                config.GetString(types.Region),
-		SecurityGroupName:     config.GetString(types.SecurityGroupName),
-		VpcCidr:               config.GetString(types.VpcCidr),
-		VpcName:               config.GetString(types.VpcName),
-		InstanceType:          config.GetString(types.InstanceType),
-		NodeMonitoringEnabled: config.GetString(types.NodeMonitoringEnabled),
-		MasterCount:           config.GetString(types.MasterCount),
-		WorkerCount:           config.GetString(types.WorkerCount),
-		TraefikHttpPort:       config.GetString(types.TraefikHttpPort),
-		TraefikHttpsPort:      config.GetString(types.TraefikHttpsPort),
-		TalosTg:               config.GetString(types.TalosTg),
-		TraefikTg80Name:       config.GetString(types.TraefikTg80Name),
-		TraefikTg443Name:      config.GetString(types.TraefikTg443Name),
-		TraefikLbName:         config.GetString(types.TraefikLbName),
+func Create(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
+	clusterInfo, err := prepareClusterInfo(captenConfig, clusterType, cloudType)
+	if err != nil {
+		return err
 	}
 
-	content, err := os.ReadFile("./templates/k3s/values.tfvars.tmpl")
+	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.TerraformTemplateFileName))
 	if err != nil {
-		log.Printf("failed to read %s template file\n", clusterInfo.ClusterType)
-		return err
+		return errors.WithMessage(err, "failed to read template file")
 	}
 
 	contentStr := string(content)
-	templateObj, err := template.New(clusterInfo.ClusterType).Parse(contentStr)
+	templateObj, err := template.New("terraformTemplate").Parse(contentStr)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
-	templateFile, err := os.Create(fmt.Sprintf("%s/%s", workDir, "values.tfvars"))
+	templateFile, err := os.Create(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.TerraformVarFileName))
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
 	if err := templateObj.Execute(templateFile, clusterInfo); err != nil {
-		fmt.Println(err)
 		return err
 	}
 
-	tf, err := terraform.New(config, workDir)
+	tf, err := terraform.New(captenConfig, clusterInfo)
 	if err != nil {
-		log.Println("failed to initialise the terraform", err)
-		return err
+		return errors.WithMessage(err, "failed to initialise the terraform")
 	}
-
 	return tf.Apply()
 }
 
-func Destroy(config *viper.Viper, workDir string) error {
-	tf, err := terraform.New(config, workDir)
+func Destroy(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
+	clusterInfo, err := prepareClusterInfo(captenConfig, clusterType, cloudType)
 	if err != nil {
-		log.Println("failed to initialise the terraform", err)
 		return err
 	}
 
+	tf, err := terraform.New(captenConfig, clusterInfo)
+	if err != nil {
+		return errors.WithMessage(err, "failed to initialise the terraform")
+	}
+
 	return tf.Destroy()
+}
+
+func prepareClusterInfo(captenConfig config.CaptenConfig, clusterType, cloudType string) (clusterInfo types.ClusterInfo, err error) {
+	clusterInfo, err = config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, cloudType+"_config.yaml"))
+	if err != nil {
+		return clusterInfo, err
+	}
+	clusterInfo.ClusterType = clusterType
+	clusterInfo.CloudService = cloudType
+	return clusterInfo, nil
 }

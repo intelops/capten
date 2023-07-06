@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	vaultcredclient "github.com/intelops/go-common/vault-cred-client"
+
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	"capten/pkg/api"
 	"capten/pkg/cert"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
@@ -18,6 +20,42 @@ import (
 	"capten/pkg/k8s"
 	"capten/pkg/types"
 )
+
+type CLIFormatter struct {
+}
+
+func (f *CLIFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	var levelColor *color.Color
+	switch entry.Level {
+	case logrus.InfoLevel:
+		levelColor = color.New(color.FgGreen)
+	case logrus.WarnLevel:
+		levelColor = color.New(color.FgYellow)
+	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
+		levelColor = color.New(color.FgRed, color.Bold)
+	default:
+		levelColor = color.New()
+	}
+	message := fmt.Sprintf("[%s] %s\n", levelColor.Sprint(strings.ToUpper(entry.Level.String())), entry.Message)
+	return []byte(message), nil
+}
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "capten",
+	Short: "",
+	Long:  `command line tool for building cluster`,
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	// Run: func(cmd *cobra.Command, args []string) { },
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	logrus.SetFormatter(&CLIFormatter{})
+	cobra.CheckErr(rootCmd.Execute())
+}
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
@@ -48,30 +86,36 @@ var appsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		captenConfig, err := config.GetCaptenConfig()
 		if err != nil {
-			logrus.Error("failed to read capten config", err)
+			logrus.Errorf("failed to read capten config, %v", err)
 			return
 		}
 
 		if err := cert.GenerateCerts(captenConfig); err != nil {
-			logrus.Errorf("failed to generate certificate. Error - %v", err)
+			logrus.Errorf("failed to generate certificate, %v", err)
 			return
 		}
 		logrus.Info("Generated Certificates")
 
 		if err := k8s.CreateOrUpdateAgnetCertSecret(captenConfig); err != nil {
-			logrus.Error("failed to patch namespace with privilege", err)
+			logrus.Errorf("failed to patch namespace with privilege, %v", err)
 			return
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
-		helmObj, err := helm.NewHelm(captenConfig)
+		hc, err := helm.NewClient(captenConfig)
 		if err != nil {
-			logrus.Error("applications installation failed", err)
+			logrus.Errorf("applications installation failed, %v", err)
 			return
 		}
-		helmObj.Install()
+		err = hc.PrepareAppValues()
+		if err != nil {
+			logrus.Errorf("applications installation failed, %v", err)
+			return
+		}
+		hc.Install()
 
-		configContent, err := ioutil.ReadFile(captenConfig.KubeConfigPath)
+		//push kubeconfig and bucket credential to cluster
+		configContent, err := ioutil.ReadFile(captenConfig.ConfigDirPath + "/" + captenConfig.KubeConfigFileName)
 		if err != nil {
 			logrus.Error("error while reading kube config file", err)
 			return
@@ -92,7 +136,7 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		awsConfigByte, err := ioutil.ReadFile(captenConfig.ConfigPath)
+		awsConfigByte, err := ioutil.ReadFile(captenConfig.ConfigDirPath + "/aws_config.yaml")
 		if err != nil {
 			logrus.Error("Error reading aws config YAML file", err)
 			return
@@ -115,57 +159,82 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		// push kubeconfig and bucket credentials to cluster
+		//push the app config to cluster
+		//prepare agent proto to push app config
+		//agent store data on cassandra
 		logrus.Info("Default Applications Installed")
-	},
-}
-
-var uninstallCmd = &cobra.Command{
-	Use:   "uninstall",
-	Short: "uninstall intelop's admin apps",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
 
 var clusterDestroySubCmd = &cobra.Command{
 	Use:   "cluster",
-	Short: "cluster create/destroy operations",
+	Short: "cluster destroy operations",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		configPath, _ := cmd.Flags().GetString("config")
-		//clusterType, _ := cmd.Flags().GetString("type")
-		workingDir, _ := cmd.Flags().GetString("work-dir")
-		cluster.Destroy(configPath, workingDir)
+		clusterType, cloudType, err := readAndValidClusterFlags(cmd)
+		if err != nil {
+			logrus.Error(err)
+			return
+		}
+
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			logrus.Errorf("failed to read capten config, %v", err)
+			return
+		}
+		err = cluster.Destroy(captenConfig, clusterType, cloudType)
+		if err != nil {
+			logrus.Errorf("failed to destroy cluster, %v", err)
+			return
+		}
+		logrus.Info("Cluster Destroyed")
 	},
 }
 
 var clusterCreateSubCmd = &cobra.Command{
 	Use:   "cluster",
-	Short: "cluster create/destroy operations",
+	Short: "cluster create operations",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		configPath, _ := cmd.Flags().GetString("config")
-		clusterType, _ := cmd.Flags().GetString("type")
-		workingDir, _ := cmd.Flags().GetString("work-dir")
-		cluster.Create(configPath, clusterType, workingDir)
+		clusterType, cloudType, err := readAndValidClusterFlags(cmd)
+		if err != nil {
+			logrus.Error(err)
+			return
+		}
+
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			logrus.Errorf("failed to read capten config, %v", err)
+			return
+		}
+		err = cluster.Create(captenConfig, clusterType, cloudType)
+		if err != nil {
+			logrus.Errorf("failed to create cluster, %v", err)
+			return
+		}
+		logrus.Info("Cluster Created")
 	},
 }
 
-var registerAgentCmd = &cobra.Command{
-	Use:   "register",
-	Short: "registers the endpoint and certs of agent",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		agentHost, _ := cmd.Flags().GetString("host")
-		apps, _ := cmd.Flags().GetBool("apps")
-		customerId, _ := cmd.Flags().GetString("customerId")
-		if apps {
+func readAndValidClusterFlags(cmd *cobra.Command) (clusterType string, cloudType string, err error) {
+	clusterType, _ = cmd.Flags().GetString("type")
+	if len(clusterType) == 0 {
+		clusterType = "k3s"
+	}
+	if clusterType != "k3s" {
+		err = fmt.Errorf("cluster type '%s' is not supported, supported types: k3s", clusterType)
+		return
+	}
 
-		}
-
-		api.RegisterAgentInfo(customerId, agentHost)
-	},
+	cloudType, _ = cmd.Flags().GetString("cloud")
+	if len(cloudType) == 0 {
+		cloudType = "aws"
+	}
+	if cloudType != "aws" {
+		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudType)
+		return
+	}
+	return
 }
 
 var showClusterInfoCmd = &cobra.Command{
@@ -184,19 +253,10 @@ var showClusterInfoCmd = &cobra.Command{
 }
 
 func init() {
-	clusterCreateSubCmd.PersistentFlags().String("config", "", "config path")
-	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster")
-	clusterCreateSubCmd.PersistentFlags().String("work-dir", "", "terraform work directory path")
-	_ = clusterCreateSubCmd.MarkPersistentFlagRequired("config")
-
-	clusterDestroySubCmd.PersistentFlags().String("work-dir", "", "terraform work directory path")
-	_ = clusterDestroySubCmd.MarkPersistentFlagRequired("config")
-
-	registerAgentCmd.PersistentFlags().String("host", "", "endpoint of agent that needs to be registered")
-	registerAgentCmd.PersistentFlags().Bool("apps", true, "endpoint of agent that needs to be registered")
-	registerAgentCmd.PersistentFlags().String("customerId", "", "customerId to be registered for")
-	//_ = registerAgentCmd.MarkPersistentFlagRequired("host")
-	_ = registerAgentCmd.MarkPersistentFlagRequired("customerId")
+	clusterCreateSubCmd.PersistentFlags().String("cloud", "", "cloud service (default: aws)")
+	clusterDestroySubCmd.PersistentFlags().String("cloud", "", "cloud service (default: aws)")
+	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
+	clusterDestroySubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
 
 	createCmd.AddCommand(clusterCreateSubCmd)
 	destroyCmd.AddCommand(clusterDestroySubCmd)

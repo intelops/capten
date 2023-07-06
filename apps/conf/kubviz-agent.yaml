@@ -1,0 +1,11 @@
+Name: "kubviz-agent"
+ChartName: "kubviz/agent"
+RepoName: "kubviz"
+RepoURL: "https://kube-tarian.github.io/kubviz/"
+Namespace: "observability"
+ReleaseName: "kubviz-agent"
+Version: "0.1.6"
+CreateNamespace: true
+Override:
+  nats:
+    host: kubviz-client-nats.observability.svc.cluster.local
