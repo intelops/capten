@@ -1,24 +1,19 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"io/ioutil"
 	"strings"
-
-	vaultcredclient "github.com/intelops/go-common/vault-cred-client"
 
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 
+	"capten/pkg/agent"
 	"capten/pkg/cert"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
 	"capten/pkg/helm"
 	"capten/pkg/k8s"
-	"capten/pkg/types"
 )
 
 type CLIFormatter struct {
@@ -114,48 +109,13 @@ var appsCmd = &cobra.Command{
 		}
 		hc.Install()
 
-		//push kubeconfig and bucket credential to cluster
-		configContent, err := ioutil.ReadFile(captenConfig.ConfigDirPath + "/" + captenConfig.KubeConfigFileName)
-		if err != nil {
-			logrus.Error("error while reading kube config file", err)
+		// push kubeconfig and bucket credential to cluster
+		if err = agent.PushKubeConfigToVault(captenConfig); err != nil {
+			logrus.Errorf("error while pushing kubeconfig to vault, %v", err)
 			return
 		}
-		credAdmin, err := vaultcredclient.NewGerericCredentailAdmin()
-		if err != nil {
-			logrus.Error("error in initializing vault credential client", err)
-			return
-		}
-		ctx := context.Background()
-		err = credAdmin.PutGenericCredential(ctx, "k8s", "kubeconfig", vaultcredclient.GerericCredentail{
-			Credential: map[string]string{
-				"kubeconfig": string(configContent),
-			},
-		})
-		if err != nil {
-			logrus.Error("error in adding kubeconfig to vault", err)
-			return
-		}
-
-		awsConfigByte, err := ioutil.ReadFile(captenConfig.ConfigDirPath + "/aws_config.yaml")
-		if err != nil {
-			logrus.Error("Error reading aws config YAML file", err)
-			return
-		}
-		var awsconfig types.AWSConfig
-		err = yaml.Unmarshal(awsConfigByte, &awsconfig)
-		if err != nil {
-			logrus.Error("Error unmarshaling AWS YAML config file", err)
-		}
-
-		err = credAdmin.PutGenericCredential(ctx, "bucket", "terraform-state", vaultcredclient.GerericCredentail{
-			Credential: map[string]string{
-				"bucketName": awsconfig.TerraformBackendConfigs[0],
-				"awsKey":     awsconfig.AwsAccessKey,
-				"awsSecrete": awsconfig.AwsSecretKey,
-			},
-		})
-		if err != nil {
-			logrus.Error(err, "error in adding bucket credentials to vault", err)
+		if err = agent.PushBucketConfigToVault(captenConfig, "aws"); err != nil {
+			logrus.Errorf("error while pushing kubeconfig to vault, %v", err)
 			return
 		}
 
@@ -247,8 +207,8 @@ var showClusterInfoCmd = &cobra.Command{
 			logrus.Error("failed to read capten config", err)
 			return
 		}
-		fmt.Println("Agetnt hostname:", "agent."+captenConfig.DomainName)
-		fmt.Println("Agent IP:", "0.0.0.127")
+		fmt.Println("Agent hostname :", captenConfig.AgentHostName)
+		fmt.Println("Agent LB hostname :", captenConfig.AgentLBHostName)
 	},
 }
 
