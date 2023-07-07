@@ -224,6 +224,5 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 	rootCmd.AddCommand(destroyCmd)
 	rootCmd.AddCommand(setupCmd)
-	rootCmd.AddCommand(registerAgentCmd)
 	rootCmd.AddCommand(showClusterInfoCmd)
 }
