@@ -1,10 +1,7 @@
 package agent
 
 import (
-	"context"
 	"os"
-
-	vaultcredclient "github.com/intelops/go-common/vault-cred-client"
 
 	"capten/pkg/config"
 
@@ -22,31 +19,30 @@ const (
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 )
 
+func StoreCredential(captenConfig config.CaptenConfig) error {
+	err := StoreKubeConfig(captenConfig)
+	if err != nil {
+		return err
+	}
+	return StoreTerraformStateConfig(captenConfig)
+}
+
 func StoreKubeConfig(captenConfig config.CaptenConfig) error {
 	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName))
 	if err != nil {
 		return err
 	}
 
-	credAdmin, err := vaultcredclient.NewGerericCredentailAdmin()
-	if err != nil {
-		return err
-	}
-
-	credential := map[string]string{
+	_ = map[string]string{
 		kubeconfigCredIdentifier: string(configContent),
 	}
 
-	return credAdmin.PutCredential(context.Background(), k8sCredEntityName, kubeconfigCredIdentifier, credential)
+	// call agent to store cred
+	return nil
 }
 
-func StoreTerraformStateConfig(captenConfig config.CaptenConfig, cloudType string) error {
-	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, cloudType+"_config.yaml"))
-	if err != nil {
-		return err
-	}
-
-	credAdmin, err := vaultcredclient.NewGerericCredentailAdmin()
+func StoreTerraformStateConfig(captenConfig config.CaptenConfig) error {
+	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -55,11 +51,12 @@ func StoreTerraformStateConfig(captenConfig config.CaptenConfig, cloudType strin
 		return errors.New("Terraform backend configs are missing")
 	}
 
-	credential := map[string]string{
+	_ = map[string]string{
 		terraformStateBucketNameKey: clusterInfo.TerraformBackendConfigs[0],
 		terraformStateAwsAccessKey:  clusterInfo.AwsAccessKey,
 		terraformStateAwsSecretKey:  clusterInfo.AwsSecretKey,
 	}
 
-	return credAdmin.PutCredential(context.Background(), s3BucketCredEntityName, terraformStateCredIdentifier, credential)
+	// call agent to store cred
+	return nil
 }

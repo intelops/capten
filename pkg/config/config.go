@@ -3,6 +3,7 @@ package config
 import (
 	"capten/pkg/types"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -12,11 +13,11 @@ import (
 )
 
 type CaptenConfig struct {
-	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	CaptenClusterValues
 	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
-	ClusterLBHost              string   `envconfig:"CLUSTER_LB_HOST" default:""`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
+	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
 	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/temp/"`
@@ -44,13 +45,16 @@ type CaptenConfig struct {
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
+	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"true"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
 }
 
 type CaptenClusterValues struct {
-	DomainName       string `yaml:"DomainName"`
-	LoadBalancerHost string `yaml:"LoadBalancerHost"`
+	DomainName       string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
+	CloudService     string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
+	ClusterType      string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
 }
 
 func GetCaptenConfig() (CaptenConfig, error) {
@@ -76,8 +80,14 @@ func GetCaptenConfig() (CaptenConfig, error) {
 	if len(values.DomainName) != 0 {
 		cfg.DomainName = values.DomainName
 	}
+	if len(values.CloudService) != 0 {
+		cfg.CloudService = values.CloudService
+	}
+	if len(values.ClusterType) != 0 {
+		cfg.ClusterType = values.ClusterType
+	}
 	if len(values.LoadBalancerHost) != 0 {
-		cfg.ClusterLBHost = values.LoadBalancerHost
+		cfg.LoadBalancerHost = values.LoadBalancerHost
 	}
 
 	cfg.AgentDNSNames = []string{}
@@ -134,5 +144,27 @@ func addCurrentDirToPath(dir string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) error {
+	clusterValuesPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName)
+	clusterValues, err := GetCaptenClusterValues(clusterValuesPath)
+	if err != nil {
+		return err
+	}
+	clusterValues.CloudService = cloudService
+	clusterValues.ClusterType = clusterType
+	clusterValuesData, err := yaml.Marshal(&clusterValues)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(clusterValuesPath, clusterValuesData, 0644)
+	if err != nil {
+		return err
+	}
+	cfg.CloudService = cloudService
+	cfg.ClusterType = clusterType
 	return nil
 }

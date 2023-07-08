@@ -64,22 +64,33 @@ var setupCmd = &cobra.Command{
 	Long:  ``,
 }
 
-func readAndValidClusterFlags(cmd *cobra.Command) (clusterType string, cloudType string, err error) {
+var showCmd = &cobra.Command{
+	Use:   "show",
+	Short: "show cluster details",
+	Long:  ``,
+}
+
+func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterType string, err error) {
+	cloudService, _ = cmd.Flags().GetString("cloud")
+	if len(cloudService) == 0 {
+		cloudService = "aws"
+	}
 	clusterType, _ = cmd.Flags().GetString("type")
 	if len(clusterType) == 0 {
-		clusterType = "k3s"
+		clusterType = "talos"
 	}
-	if clusterType != "k3s" {
-		err = fmt.Errorf("cluster type '%s' is not supported, supported types: k3s", clusterType)
+	err = validateClusterFlags(cloudService, clusterType)
+	return
+}
+
+func validateClusterFlags(cloudService, clusterType string) (err error) {
+	if cloudService != "aws" {
+		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
 		return
 	}
 
-	cloudType, _ = cmd.Flags().GetString("cloud")
-	if len(cloudType) == 0 {
-		cloudType = "aws"
-	}
-	if cloudType != "aws" {
-		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudType)
+	if clusterType != "talos" {
+		err = fmt.Errorf("cluster type '%s' is not supported, supported types: talos", clusterType)
 		return
 	}
 	return
@@ -87,15 +98,14 @@ func readAndValidClusterFlags(cmd *cobra.Command) (clusterType string, cloudType
 
 func init() {
 	clusterCreateSubCmd.PersistentFlags().String("cloud", "", "cloud service (default: aws)")
-	clusterDestroySubCmd.PersistentFlags().String("cloud", "", "cloud service (default: aws)")
-	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
-	clusterDestroySubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
+	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: talos)")
 
 	createCmd.AddCommand(clusterCreateSubCmd)
 	destroyCmd.AddCommand(clusterDestroySubCmd)
+	showCmd.AddCommand(showClusterInfoCmd)
 	setupCmd.AddCommand(appsCmd)
 	rootCmd.AddCommand(createCmd)
 	rootCmd.AddCommand(destroyCmd)
 	rootCmd.AddCommand(setupCmd)
-	rootCmd.AddCommand(showClusterInfoCmd)
+	rootCmd.AddCommand(showCmd)
 }

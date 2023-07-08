@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"capten/pkg/agent"
 	"capten/pkg/app"
 	"capten/pkg/cert"
 	"capten/pkg/config"
@@ -27,19 +28,25 @@ var appsCmd = &cobra.Command{
 		}
 		logrus.Info("Generated Certificates")
 
-		if err := k8s.CreateOrUpdateAgnetCertSecret(captenConfig); err != nil {
-			logrus.Errorf("failed to patch namespace with privilege, %v", err)
+		if err := k8s.CreateOrUpdateCertSecrets(captenConfig); err != nil {
+			logrus.Errorf("failed to create secret for certs, %v", err)
 			return
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
 		err = app.DeployApps(captenConfig)
 		if err != nil {
-			logrus.Errorf("setup applications failed, %v", err)
+			logrus.Errorf("applications deployment failed, %v", err)
 			return
 		}
 
-		//push kubeconfig and bucket credential to cluster
+		if captenConfig.StoreCredOnAgent {
+			err = agent.StoreCredential(captenConfig)
+			if err != nil {
+				logrus.Errorf("store cluster credentials failed, %v", err)
+				return
+			}
+		}
 
 		//push the app config to cluster
 		//prepare agent proto to push app config

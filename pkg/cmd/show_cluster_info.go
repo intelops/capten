@@ -4,13 +4,14 @@ import (
 	"capten/pkg/config"
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var showClusterInfoCmd = &cobra.Command{
 	Use:   "clusterinfo",
-	Short: "show the clinster info",
+	Short: "show cluster info",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		captenConfig, err := config.GetCaptenConfig()
@@ -18,7 +19,7 @@ var showClusterInfoCmd = &cobra.Command{
 			logrus.Error("failed to read capten config", err)
 			return
 		}
-		fmt.Println("Capten Agent Hostname :", captenConfig.AgentHostName)
-		fmt.Println("Cluster LB Host :", captenConfig.ClusterLBHost)
+		fmt.Println(color.New(color.FgGreen).Sprint("Cluster LB Host:"), captenConfig.LoadBalancerHost)
+		fmt.Println(color.New(color.FgGreen).Sprint("Capten Agent Hostname:"), captenConfig.AgentHostName)
 	},
 }
