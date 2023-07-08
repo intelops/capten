@@ -15,4 +15,9 @@
 vendor/
 .idea/
 cert/
-terraform/
+terraform
+apps/temp/
+terraform_modules/
+config/kubeconfig
+capten
+templates/k3s/values.tfvars
