@@ -9,3 +9,4 @@ CreateNamespace: true
 Override:
   nats:
     host: kubviz-client-nats.observability.svc.cluster.local
+

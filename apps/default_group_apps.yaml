@@ -1,13 +1,10 @@
 
 Apps:
-  - "openebs-jiva"
-  - "traefik"
-  - "temporal"
-  - "cert-manager"
-  - "pre-install"
   - "vault-operator"
   - "vault-post"
   - "vault-secrets-webhook"
+  - "temporal"
+  - "pre-install"
   - "loki"
   - "kubviz-client"
   - "kubviz-agent"
