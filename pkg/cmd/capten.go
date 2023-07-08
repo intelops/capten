@@ -8,7 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"capten/pkg/agent"
 	"capten/pkg/cert"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
@@ -109,15 +108,7 @@ var appsCmd = &cobra.Command{
 		}
 		hc.Install()
 
-		// push kubeconfig and bucket credential to cluster
-		if err = agent.PushKubeConfigToVault(captenConfig); err != nil {
-			logrus.Errorf("error while pushing kubeconfig to vault, %v", err)
-			return
-		}
-		if err = agent.PushBucketConfigToVault(captenConfig, "aws"); err != nil {
-			logrus.Errorf("error while pushing kubeconfig to vault, %v", err)
-			return
-		}
+		//push kubeconfig and bucket credential to cluster
 
 		//push the app config to cluster
 		//prepare agent proto to push app config
@@ -195,21 +186,6 @@ func readAndValidClusterFlags(cmd *cobra.Command) (clusterType string, cloudType
 		return
 	}
 	return
-}
-
-var showClusterInfoCmd = &cobra.Command{
-	Use:   "clusterinfo",
-	Short: "show the clinster info",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		captenConfig, err := config.GetCaptenConfig()
-		if err != nil {
-			logrus.Error("failed to read capten config", err)
-			return
-		}
-		fmt.Println("Agent hostname :", captenConfig.AgentHostName)
-		fmt.Println("Agent LB hostname :", captenConfig.AgentLBHostName)
-	},
 }
 
 func init() {

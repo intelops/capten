@@ -14,7 +14,7 @@ import (
 type CaptenConfig struct {
 	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
 	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
-	AgentLBHostName            string   `envconfig:"AGENT_LB_NAME" default:""`
+	ClusterLBHost              string   `envconfig:"CLUSTER_LB_HOST" default:""`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
@@ -74,7 +74,7 @@ func GetCaptenConfig() (CaptenConfig, error) {
 		cfg.DomainName = values.DomainName
 	}
 	if len(values.LoadBalancerHost) != 0 {
-		cfg.AgentLBHostName = values.LoadBalancerHost
+		cfg.ClusterLBHost = values.LoadBalancerHost
 	}
 
 	cfg.AgentDNSNames = []string{}
