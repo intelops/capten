@@ -5,10 +5,10 @@ import (
 	"capten/pkg/config"
 )
 
-func Create(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
-	return k3s.Create(captenConfig, clusterType, cloudType)
+func Create(captenConfig config.CaptenConfig) error {
+	return k3s.Create(captenConfig)
 }
 
-func Destroy(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
-	return k3s.Destroy(captenConfig, clusterType, cloudType)
+func Destroy(captenConfig config.CaptenConfig) error {
+	return k3s.Destroy(captenConfig)
 }

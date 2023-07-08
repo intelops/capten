@@ -13,7 +13,7 @@ var clusterCreateSubCmd = &cobra.Command{
 	Short: "cluster create operations",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		clusterType, cloudType, err := readAndValidClusterFlags(cmd)
+		cloudService, clusterType, err := readAndValidClusterFlags(cmd)
 		if err != nil {
 			logrus.Error(err)
 			return
@@ -24,7 +24,14 @@ var clusterCreateSubCmd = &cobra.Command{
 			logrus.Errorf("failed to read capten config, %v", err)
 			return
 		}
-		err = cluster.Create(captenConfig, clusterType, cloudType)
+
+		err = config.UpdateClusterValues(&captenConfig, cloudService, clusterType)
+		if err != nil {
+			logrus.Errorf("failed to update capten config, %v", err)
+			return
+		}
+
+		err = cluster.Create(captenConfig)
 		if err != nil {
 			logrus.Errorf("failed to create cluster, %v", err)
 			return

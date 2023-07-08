@@ -6,13 +6,12 @@ import (
 
 	"capten/pkg/config"
 	"capten/pkg/terraform"
-	"capten/pkg/types"
 
 	"github.com/pkg/errors"
 )
 
-func Create(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
-	clusterInfo, err := prepareClusterInfo(captenConfig, clusterType, cloudType)
+func Create(captenConfig config.CaptenConfig) error {
+	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -44,8 +43,8 @@ func Create(captenConfig config.CaptenConfig, clusterType, cloudType string) err
 	return tf.Apply()
 }
 
-func Destroy(captenConfig config.CaptenConfig, clusterType, cloudType string) error {
-	clusterInfo, err := prepareClusterInfo(captenConfig, clusterType, cloudType)
+func Destroy(captenConfig config.CaptenConfig) error {
+	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
 	}
@@ -54,16 +53,5 @@ func Destroy(captenConfig config.CaptenConfig, clusterType, cloudType string) er
 	if err != nil {
 		return errors.WithMessage(err, "failed to initialise the terraform")
 	}
-
 	return tf.Destroy()
-}
-
-func prepareClusterInfo(captenConfig config.CaptenConfig, clusterType, cloudType string) (clusterInfo types.ClusterInfo, err error) {
-	clusterInfo, err = config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, cloudType+"_config.yaml"))
-	if err != nil {
-		return clusterInfo, err
-	}
-	clusterInfo.ClusterType = clusterType
-	clusterInfo.CloudService = cloudType
-	return clusterInfo, nil
 }

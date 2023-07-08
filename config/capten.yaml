@@ -1,2 +1,4 @@
-DomainName: "dev.intelops.ai"
+DomainName: dev.intelops.ai
 LoadBalancerHost: ""
+CloudService: aws
+ClusterType: talos
