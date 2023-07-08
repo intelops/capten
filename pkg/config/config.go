@@ -13,8 +13,9 @@ import (
 
 type CaptenConfig struct {
 	DomainName                 string   `envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
-	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
+	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"default"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"capten-agent-cert"`
+	InterCertSecretName        string   `envconfig:"INTER_CERT_SECRET_NAME" default:"capten-ca-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
 	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/temp/"`
@@ -29,6 +30,8 @@ type CaptenConfig struct {
 	TerraformVarFileName       string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
 	AgentCertFileName          string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
 	AgentKeyFileName           string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
+	InterCACertFileName        string   `envconfig:"INTER_CERT_FILE_NAME" default:"inter-ca.crt"`
+	InterCAKeyFileName         string   `envconfig:"INTER_CERT_KEY_FILE_NAME" default:"inter-ca.key"`
 	ClientCertFileName         string   `envconfig:"CLIENT_CERT_FILE_NAME" default:"client.crt"`
 	ClientKeyFileName          string   `envconfig:"CLIENT_KEY_FILE_NAME" default:"client.key"`
 	CAFileName                 string   `envconfig:"CA_FILE_NAME" default:"ca.crt"`

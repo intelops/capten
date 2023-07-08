@@ -16,3 +16,4 @@ vendor/
 .idea/
 cert/
 terraform/
+config/kubeconfig

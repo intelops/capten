@@ -11,7 +11,8 @@ import (
 	"capten/pkg/cert"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
-	"capten/pkg/helm"
+
+	//	"capten/pkg/helm"
 	"capten/pkg/k8s"
 )
 
@@ -95,18 +96,29 @@ var appsCmd = &cobra.Command{
 			return
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
+		//
+		if err = k8s.CreateOrUpdateCASecret(captenConfig); err != nil {
+			logrus.Errorf("failed to patch namespace with privilege, %v", err)
+			return
+		}
+		logrus.Info("Configured InterCA cert on captencluster")
+		if err = k8s.CreateOrUpdateClusterSecret(captenConfig); err != nil {
+			logrus.Errorf("failed to patch cluster secret  with privilege, %v", err)
+			return
+		}
+		logrus.Info("Configured Cluster Issuer in capten cluster")
 
-		hc, err := helm.NewClient(captenConfig)
-		if err != nil {
-			logrus.Errorf("applications installation failed, %v", err)
-			return
-		}
-		err = hc.PrepareAppValues()
-		if err != nil {
-			logrus.Errorf("applications installation failed, %v", err)
-			return
-		}
-		hc.Install()
+		// hc, err := helm.NewClient(captenConfig)
+		// if err != nil {
+		// 	logrus.Errorf("applications installation failed, %v", err)
+		// 	return
+		// }
+		//	err = hc.PrepareAppValues()
+		// if err != nil {
+		// 	logrus.Errorf("applications installation failed, %v", err)
+		// 	return
+		// }
+		// hc.Install()
 
 		//push kubeconfig and bucket credential to cluster
 
@@ -194,10 +206,10 @@ func init() {
 	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
 	clusterDestroySubCmd.PersistentFlags().String("type", "", "type of cluster (default: k3s)")
 
-	createCmd.AddCommand(clusterCreateSubCmd)
-	destroyCmd.AddCommand(clusterDestroySubCmd)
+	//	createCmd.AddCommand(clusterCreateSubCmd)
+	//	destroyCmd.AddCommand(clusterDestroySubCmd)
 	setupCmd.AddCommand(appsCmd)
-	rootCmd.AddCommand(createCmd)
-	rootCmd.AddCommand(destroyCmd)
+	//	rootCmd.AddCommand(createCmd)
+	//	rootCmd.AddCommand(destroyCmd)
 	rootCmd.AddCommand(setupCmd)
 }
