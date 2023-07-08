@@ -1,16 +1,20 @@
 # capten
 
-## Cluster Creation
+## Create Cluster
 ```
-./capten create cluster --config=<config-path> --work-dir=<work-dir-terraform>
-```
-
-## Cluster Destruction
-```
-./capten destroy cluster --config=<config-path> --work-dir=<work-dir-terraform>
+./capten create cluster --cloud=aws --type=talos
 ```
 
-## Setup apps 
+## Destroy Cluster
 ```
-./capten setup apps --config=<config-path> --kubeconfig=<kube-config-path>
+./capten destroy cluster
+```
+
+## Setup Apps
+```
+./capten setup apps
+```
+## Show Cluster Info
+```
+./capten show cluster info
 ```
