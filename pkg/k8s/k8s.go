@@ -16,19 +16,7 @@ func MakeNamespacePrivilege(kubeconfigPath string, ns string) error {
 	if err != nil {
 		return err
 	}
-	// //
-	// }
-	// home := homedir.HomeDir()
-	// kubeconfig := filepath.Join(home, ".kube", "config")
-
-	// Build the client configuration
-	// config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	// if err != nil {
-	// 	return errors.WithMessage(err, "Failed to build config")
-
-	// }
-
-	//
+	
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return err
