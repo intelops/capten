@@ -41,9 +41,9 @@ var appsCmd = &cobra.Command{
 		}
 
 		if captenConfig.StoreCredOnAgent {
-			err = agent.StoreCredential(captenConfig)
+			err = agent.StoreCredentials(captenConfig)
 			if err != nil {
-				logrus.Errorf("store cluster credentials failed, %v", err)
+				logrus.Errorf("failed to store cluster credentials, %v", err)
 				return
 			}
 		}

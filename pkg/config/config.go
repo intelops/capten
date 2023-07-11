@@ -15,6 +15,7 @@ import (
 type CaptenConfig struct {
 	CaptenClusterValues
 	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
+	AgentHostPort              string   `envconfig:"AGENT_HOST_PORT" default:":443"`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
 	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
@@ -95,6 +96,10 @@ func GetCaptenConfig() (CaptenConfig, error) {
 		cfg.AgentDNSNames = append(cfg.AgentDNSNames, prefixName+"."+cfg.DomainName)
 	}
 	return cfg, err
+}
+
+func (c CaptenConfig) GetCaptenAgentEndpoint() string {
+	return fmt.Sprintf("%s.%s%s", c.AgentHostName, c.DomainName, c.AgentHostPort)
 }
 
 func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) {
