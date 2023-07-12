@@ -1,14 +1,18 @@
 package agent
 
 import (
+	"context"
+	"fmt"
 	"os"
 
+	"capten/pkg/agent/agentpb"
 	"capten/pkg/config"
 
 	"github.com/pkg/errors"
 )
 
 const (
+	clusterCredentailType        string = "cluster-cred"
 	k8sCredEntityName            string = "k8s"
 	kubeconfigCredIdentifier     string = "kubeconfig"
 	s3BucketCredEntityName       string = "s3bucket"
@@ -19,29 +23,46 @@ const (
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 )
 
-func StoreCredential(captenConfig config.CaptenConfig) error {
-	err := StoreKubeConfig(captenConfig)
+func StoreCredentials(captenConfig config.CaptenConfig) error {
+	agentClient, err := GetAgentClient(captenConfig)
 	if err != nil {
 		return err
 	}
-	return StoreTerraformStateConfig(captenConfig)
+
+	err = storeKubeConfig(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
+	return StoreTerraformStateConfig(captenConfig, agentClient)
 }
 
-func StoreKubeConfig(captenConfig config.CaptenConfig) error {
+func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
 	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName))
 	if err != nil {
 		return err
 	}
 
-	_ = map[string]string{
+	credentail := map[string]string{
 		kubeconfigCredIdentifier: string(configContent),
 	}
 
-	// call agent to store cred
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: clusterCredentailType,
+		CredEntityName: k8sCredEntityName,
+		CredIdentifier: kubeconfigCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
 	return nil
 }
 
-func StoreTerraformStateConfig(captenConfig config.CaptenConfig) error {
+func StoreTerraformStateConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
 	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
@@ -51,12 +72,24 @@ func StoreTerraformStateConfig(captenConfig config.CaptenConfig) error {
 		return errors.New("Terraform backend configs are missing")
 	}
 
-	_ = map[string]string{
+	credentail := map[string]string{
 		terraformStateBucketNameKey: clusterInfo.TerraformBackendConfigs[0],
 		terraformStateAwsAccessKey:  clusterInfo.AwsAccessKey,
 		terraformStateAwsSecretKey:  clusterInfo.AwsSecretKey,
 	}
 
-	// call agent to store cred
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: clusterCredentailType,
+		CredEntityName: s3BucketCredEntityName,
+		CredIdentifier: terraformStateCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
 	return nil
 }
