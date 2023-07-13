@@ -7,37 +7,37 @@ build:
 
 .PHONY: build.all
 build.all:
-	@echo "👷👷 Building captain clis"
-	@go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten-linux cmd/main.go
-	@go mod download && GOOS=darwin GOARCH=amd64 go build -o capten-macos cmd/main.go
-	@go mod download && GOOS=windows GOARCH=amd64 go build -o capten-windows.exe cmd/main.go
+	@echo "👷👷 Building Capten CLIs"
+	@rm -rf capten
+	@mkdir capten
+	@go mod download && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o capten/capten cmd/main.go
+	@go mod download && GOOS=darwin GOARCH=amd64 go build -o capten/capten.app cmd/main.go
+	@go mod download && GOOS=windows GOARCH=amd64 go build -o capten/capten.exe cmd/main.go
 
 .PHONY: build.release
 build.release: build.all
 	@echo "👷👷 Building release ..."
-	@mkdir release
-	@mkdir release/config release/cert release/terraform_modules release/apps release/templates
+	@mkdir capten/config capten/cert capten/terraform_modules capten/apps capten/templates
 
-	# move binaries and configs
-	@mv capten-* release
-	@cp -rf config/* release/config/
+	# move configs
+	@cp -rf config/* capten/config/
 
 	# move templates
-	@cp -rf templates/* release/templates/
+	@cp -rf templates/* capten/templates/
 
 	# git pull dataplane repo, versioning needs to be confirmed
 	@git clone https://github.com/kube-tarian/controlplane-dataplane.git
-	@cp -rf controlplane-dataplane/* release/terraform_modules/
+	@cp -rf controlplane-dataplane/* capten/terraform_modules/
 	@rm -rf controlplane-dataplane
 
 	# move apps
-	@mkdir release/apps/values
-	@cp -rf apps/* release/apps/
+	@mkdir capten/apps/values
+	@cp -rf apps/* capten/apps/
 
 	# copy readme
-	@cp README.md release/README.md
+	@cp README.md capten/README.md
 
-	@zip -r capten.zip release
+	@zip -r capten.zip capten/*
 	# remove this release folder as ci pipeline is complaining
-	@rm -rf release
+	@rm -rf capten
 	@echo "✅ Release Build Complete ✅"
