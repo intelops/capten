@@ -46,15 +46,7 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		if captenConfig.SKipAppsDeploy {
-			err = app.DeployApps(captenConfig, globalValues)
-			if err != nil {
-				logrus.Errorf("applications deployment failed, %v", err)
-				return
-			}
-		}
-
-		if !captenConfig.SKipAppsDeploy {
+		if !captenConfig.SkipAppsDeploy {
 			err = app.DeployApps(captenConfig, globalValues)
 			if err != nil {
 				logrus.Errorf("applications deployment failed, %v", err)
