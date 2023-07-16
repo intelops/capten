@@ -33,7 +33,7 @@ func PrepareCerts(captenConfig config.CaptenConfig) error {
 	if !checkCertsExist(captenConfig) || captenConfig.ForceGenerateCerts {
 		return generateCerts(captenConfig)
 	}
-	logrus.Info("Cert files exist, not generating")
+	logrus.Debug("Cert files exist, skipped generating certs")
 	return nil
 }
 

@@ -13,6 +13,23 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+func createOrUpdateSecret(k8sClient *kubernetes.Clientset, secret *corev1.Secret) error {
+	_, err := k8sClient.CoreV1().Secrets(secret.Namespace).Get(context.Background(), secret.Name, metav1.GetOptions{})
+	if err != nil && k8serrors.IsNotFound(err) {
+		_, err := k8sClient.CoreV1().Secrets(secret.Namespace).Create(context.Background(), secret, metav1.CreateOptions{})
+		if err != nil {
+			return errors.WithMessage(err, "error in creating secret")
+		}
+		return nil
+	}
+
+	_, err = k8sClient.CoreV1().Secrets(secret.Namespace).Update(context.Background(), secret, metav1.UpdateOptions{})
+	if err != nil {
+		return errors.WithMessage(err, "error in updating secret")
+	}
+	return nil
+}
+
 func CreateOrUpdateCertSecrets(captenConfig config.CaptenConfig) error {
 	kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
 	clientSet, err := getK8SClient(kubeconfigPath)
@@ -20,6 +37,10 @@ func CreateOrUpdateCertSecrets(captenConfig config.CaptenConfig) error {
 		return err
 	}
 	err = createOrUpdateAgentCertSecret(captenConfig, clientSet)
+	if err != nil {
+		return err
+	}
+	err = createOrUpdateClusterCAIssuerSecret(captenConfig, clientSet)
 	if err != nil {
 		return err
 	}
@@ -40,7 +61,6 @@ func createOrUpdateAgentCertSecret(captenConfig config.CaptenConfig, k8sClient *
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
 
-	// Create the Secret object
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      captenConfig.AgentCertSecretName,
@@ -62,7 +82,6 @@ func createOrUpdateAgentCACert(captenConfig config.CaptenConfig, k8sClient *kube
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
 
-	// Create the Secret object
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      captenConfig.AgentCACertSecretName,
@@ -76,19 +95,32 @@ func createOrUpdateAgentCACert(captenConfig config.CaptenConfig, k8sClient *kube
 	return createOrUpdateSecret(k8sClient, secret)
 }
 
-func createOrUpdateSecret(k8sClient *kubernetes.Clientset, secret *corev1.Secret) error {
-	_, err := k8sClient.CoreV1().Secrets(secret.Namespace).Get(context.Background(), secret.Name, metav1.GetOptions{})
-	if err != nil && k8serrors.IsNotFound(err) {
-		_, err := k8sClient.CoreV1().Secrets(secret.Namespace).Create(context.Background(), secret, metav1.CreateOptions{})
-		if err != nil {
-			return errors.WithMessage(err, "error in creating secret")
-		}
-		return nil
+func createOrUpdateClusterCAIssuerSecret(captenConfig config.CaptenConfig, k8sClient *kubernetes.Clientset) error {
+	interCACertData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCACertFileName))
+	if err != nil {
+		return errors.WithMessage(err, "error while reading client cert")
+	}
+	interCAKeyData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCAKeyFileName))
+	if err != nil {
+		return errors.WithMessage(err, "error while reading client key")
+	}
+	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
+	if err != nil {
+		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
 
-	_, err = k8sClient.CoreV1().Secrets(secret.Namespace).Update(context.Background(), secret, metav1.UpdateOptions{})
-	if err != nil {
-		return errors.WithMessage(err, "error in updating secret")
+	// Create the Secret object
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      captenConfig.ClusterCACertSecretName,
+			Namespace: captenConfig.CertManagerNamespace,
+		},
+		Data: map[string][]byte{
+			corev1.TLSCertKey:       interCACertData,
+			corev1.TLSPrivateKeyKey: interCAKeyData,
+			"ca.crt":                caCertChainData,
+		},
+		Type: corev1.SecretTypeTLS,
 	}
-	return nil
+	return createOrUpdateSecret(k8sClient, secret)
 }

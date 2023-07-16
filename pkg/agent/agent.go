@@ -27,13 +27,14 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 	return agentpb.NewAgentClient(conn), nil
 }
 
-func loadTLSCredentials(config config.CaptenConfig) (credentials.TransportCredentials, error) {
-	cert, err := tls.LoadX509KeyPair(config.CertDirPath+"/"+config.ClientCertFileName, config.CertDirPath+"/"+config.ClientKeyFileName)
+func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.TransportCredentials, error) {
+	cert, err := tls.LoadX509KeyPair(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientCertFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientKeyFileName))
 	if err != nil {
 		return nil, err
 	}
 
-	caCertChain, err := os.ReadFile(config.CertDirPath + "/" + config.CAFileName)
+	caCertChain, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
 	if err != nil {
 		return nil, err
 	}

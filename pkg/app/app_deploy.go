@@ -14,12 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func DeployApps(captenConfig config.CaptenConfig) error {
-	globalValues, err := GetClusterGlobalValues(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CaptenGlobalValuesFileName))
-	if err != nil {
-		return err
-	}
-
+func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interface{}) error {
 	coreAppGroupAppConfigs, err := prepareAppGroupConfigs(captenConfig, globalValues, captenConfig.CoreAppGroupsFileName)
 	if err != nil {
 		return err

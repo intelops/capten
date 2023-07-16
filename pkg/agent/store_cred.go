@@ -12,6 +12,9 @@ import (
 )
 
 const (
+	natsCredEntity     string = "nats"
+	natsCredIdentifier string = "auth-token"
+
 	clusterCredentailType        string = "cluster-cred"
 	k8sCredEntityName            string = "k8s"
 	kubeconfigCredIdentifier     string = "kubeconfig"
@@ -23,7 +26,7 @@ const (
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 )
 
-func StoreCredentials(captenConfig config.CaptenConfig) error {
+func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
 	agentClient, err := GetAgentClient(captenConfig)
 	if err != nil {
 		return err
@@ -33,7 +36,17 @@ func StoreCredentials(captenConfig config.CaptenConfig) error {
 	if err != nil {
 		return err
 	}
-	return StoreTerraformStateConfig(captenConfig, agentClient)
+
+	err = storeTerraformStateConfig(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
+
+	err = storeNatsCredentials(captenConfig, appGlobalVaules, agentClient)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
@@ -62,7 +75,7 @@ func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.Agent
 	return nil
 }
 
-func StoreTerraformStateConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
 	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
@@ -82,6 +95,31 @@ func StoreTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 		CredentialType: clusterCredentailType,
 		CredEntityName: s3BucketCredEntityName,
 		CredIdentifier: terraformStateCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
+	return nil
+}
+
+func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
+	val, ok := appGlobalVaules["NatsToken"]
+	if !ok {
+		return fmt.Errorf("NatsToken is missing")
+	}
+	credentail := map[string]string{
+		natsCredEntity: val.(string),
+	}
+
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: clusterCredentailType,
+		CredEntityName: natsCredEntity,
+		CredIdentifier: natsCredIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
