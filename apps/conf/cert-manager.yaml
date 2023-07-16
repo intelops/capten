@@ -6,6 +6,5 @@ Namespace: "cert-manager"
 ReleaseName: "cert-manager"
 Version: "v1.11.0"
 CreateNamespace: true
-Override:
-  Values:
-    installCRDs: true
+OverrideValues:  
+  installCRDs: true

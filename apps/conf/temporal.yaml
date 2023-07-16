@@ -6,5 +6,4 @@ Namespace: "capten"
 ReleaseName: "temporal"
 Version: "0.1.1"
 CreateNamespace: true
-Override:
-  Values:
+OverrideValues:

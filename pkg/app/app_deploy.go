@@ -92,7 +92,7 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 			err = errors.WithMessagef(err, "failed load %s config", appName)
 			return
 		}
-		appConfig.Override.Values, err = replaceTemplateValues(appConfig.Override.Values, globalValues)
+		appConfig.OverrideValues, err = replaceTemplateValues(appConfig.OverrideValues, globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed transform %s values", appName)
 			return

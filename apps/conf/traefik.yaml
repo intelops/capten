@@ -4,15 +4,23 @@ RepoName: "traefik"
 RepoURL: "https://traefik.github.io/charts"
 Namespace: "traefik"
 ReleaseName: "traefik"
-Version: "20.8.0"
+Version: "23.1.0"
 CreateNamespace: true
-Override:
-  Values:
-    service:
-      type: NodePort
-    ports:
-      websecure:
-        nodePort: 32443
-      ports:
-        web:
-          nodePort": 32080
+LaunchUIConfig:
+  RedirectURL: ""
+LaunchUIValues: {}
+OverrideValues:
+  traefik:
+    expose: false
+    port: 9000
+  web:
+    expose: true
+    port: 8000
+    nodePort: 32080
+  websecure:
+    expose: true
+    port: 8443
+    nodePort: 32443
+  service:
+    enabled: "true"
+    type: NodePort

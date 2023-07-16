@@ -6,25 +6,24 @@ Namespace: "observability"
 ReleaseName: "signoz"
 Version: "0.14.0"
 CreateNamespace: true
-Override:
-  Values:
-    clickhouse:
-      password": admin
-    frontend:
-      ingress:
-        enabled": true
+OverrideValues:
+  clickhouse:
+    password": admin
+  frontend:
+    ingress:
+      enabled": true
+      hosts:
+      - host: "signoz.{{.DomainName}}"
+        paths:
+        - path: /
+          pathType: ImplementationSpecific
+          port: 3301
+      tls:
         hosts:
-        - host: "signoz.{{.DomainName}}"
-          paths:
-          - path: /
-            pathType: ImplementationSpecific
-            port: 3301
-        tls:
-          hosts:
-          - "signoz.{{.DomainName}}"
-          secretName: cert-signoz
-      annotations:
-        cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
-        nginx.ingress.kubernetes.io/backend-protocol": HTTPS
-        nginx.ingress.kubernetes.io/force-ssl-redirect": true
-        nginx.ingress.kubernetes.io/ssl-redirect": true
+        - "signoz.{{.DomainName}}"
+        secretName: cert-signoz
+    annotations:
+      cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
+      nginx.ingress.kubernetes.io/backend-protocol": HTTPS
+      nginx.ingress.kubernetes.io/force-ssl-redirect": true
+      nginx.ingress.kubernetes.io/ssl-redirect": true

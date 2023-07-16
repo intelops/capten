@@ -6,7 +6,6 @@ Namespace: "capten"
 ReleaseName: "kad"
 Version: "0.1.16"
 CreateNamespace: true
-Override:
-  Values:
-    cert:
-      secretName: "kad-agent-cert"
+OverrideValues:
+  cert:
+    secretName: "kad-agent-cert"

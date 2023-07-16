@@ -5,63 +5,57 @@ RepoURL: "https://grafana.github.io/helm-charts"
 Namespace: "observability"
 ReleaseName: "loki"
 CreateNamespace: true
-LaunchUI:
+LaunchUIConfig:  
   RedirectURL: https://grafana.{{.DomainName}}/sso/
   LaunchURL: https://grafana.{{.DomainName}}/
-Override:
-  LaunchUI-Auth-Values:
-    sso:
-     client-id: {{.ClientId}}
-     client-secret: {{.ClientSecret}}
-     oryAdress: {{.OryURL}}
-  StringValues:
-    'grafana.ingress.annotations.cert-manager\.io\/cluster-issuer': "letsencrypt-prod-cluster"
-    'grafana.ingress.annotations.kubernetes\.io\/force-ssl-redirect': "true"
-    'grafana.ingress.annotations.kubernetes\.io\/ssl-redirect': "true"
-    'grafana.ingress.annotations.kubernetes\.io\/tls-acme': "true"
-  Values:
-    grafana:
+LaunchUIValues:
+  sso:
+    client-id: {{.ClientId}}
+    client-secret: {{.ClientSecret}}
+    oryAdress: {{.OryURL}}
+OverrideValues:    
+  grafana:
+    enabled: true
+    ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+        kubernetes.io/force-ssl-redirect: "true"
+        kubernetes.io/ssl-redirect: "true"
+        kubernetes.io/tls-acme: "true"
       enabled: true
-      ingress:
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
-          kubernetes.io/force-ssl-redirect: "true"
-          kubernetes.io/ssl-redirect: "true"
-          kubernetes.io/tls-acme: "true"
-        enabled: true
-        hosts:
+      hosts:
+      - "grafana.{{.DomainName}}"
+      tls:
+      - hosts:
         - "grafana.{{.DomainName}}"
-        tls:
-        - hosts:
-          - "grafana.{{.DomainName}}"
-          secretName: cert-grafana
-      plugins:
-      - vertamedia-clickhouse-datasource
-      sidecar:
-        dashboards:
-          enabled: true
-          folderAnnotation: grafana_folder
-          provider:
-            foldersFromFilesStructure: true
-        datasources:
-          enabled: true
-    prometheus:
-      ingress:
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
-          kubernetes.io/force-ssl-redirect: "true"
-          kubernetes.io/ssl-redirect: "true"
-          kubernetes.io/tls-acme: "true"
+        secretName: cert-grafana
+    plugins:
+    - vertamedia-clickhouse-datasource
+    sidecar:
+      dashboards:
         enabled: true
-        hosts:
+        folderAnnotation: grafana_folder
+        provider:
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+  prometheus:
+    ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+        kubernetes.io/force-ssl-redirect: "true"
+        kubernetes.io/ssl-redirect: "true"
+        kubernetes.io/tls-acme: "true"
+      enabled: true
+      hosts:
+      - "prometheus.{{.DomainName}}"
+      paths:
+      - /
+      tls:
+      - hosts:
         - "prometheus.{{.DomainName}}"
-        paths:
-        - /
-        tls:
-        - hosts:
-          - "prometheus.{{.DomainName}}"
-          secretName: cert-prometheus
-      prometheusSpec:
-        enableRemoteWriteReceiver: true
-        externalLabels:
-          cluster_name: aws-capten
+        secretName: cert-prometheus
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
+      externalLabels:
+        cluster_name: aws-capten

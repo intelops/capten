@@ -11,23 +11,19 @@ type LaunchUIConfig struct {
 	RedirectURL string `yaml:"RedirectURL"`
 }
 
-type Override struct {
-	LaunchUIConfig LaunchUIConfig         `yaml:"LaunchUIConfig"`
-	LaunchUIValues map[string]interface{} `yaml:"LaunchUIValues"`
-	Values         map[string]interface{} `yaml:"Values"`
-}
-
 type AppConfig struct {
-	Name                string   `yaml:"Name"`
-	ChartName           string   `yaml:"ChartName"`
-	RepoName            string   `yaml:"RepoName"`
-	RepoURL             string   `yaml:"RepoURL"`
-	Namespace           string   `yaml:"Namespace"`
-	ReleaseName         string   `yaml:"ReleaseName"`
-	Version             string   `yaml:"Version"`
-	Override            Override `yaml:"Override"`
-	CreateNamespace     bool     `yaml:"CreateNamespace"`
-	PrivilegedNamespace bool     `yaml:"PrivilegedNamespace"`
+	Name                string                 `yaml:"Name"`
+	ChartName           string                 `yaml:"ChartName"`
+	RepoName            string                 `yaml:"RepoName"`
+	RepoURL             string                 `yaml:"RepoURL"`
+	Namespace           string                 `yaml:"Namespace"`
+	ReleaseName         string                 `yaml:"ReleaseName"`
+	Version             string                 `yaml:"Version"`
+	LaunchUIConfig      LaunchUIConfig         `yaml:"LaunchUIConfig"`
+	LaunchUIValues      map[string]interface{} `yaml:"LaunchUIValues"`
+	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
+	CreateNamespace     bool                   `yaml:"CreateNamespace"`
+	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
 }
 
 type ClusterInfo struct {
