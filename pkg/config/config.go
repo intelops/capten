@@ -17,6 +17,10 @@ type CaptenConfig struct {
 	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
 	AgentHostPort              string   `envconfig:"AGENT_HOST_PORT" default:":443"`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
+	CertManagerNamespace       string   `envconfig:"CERT_MANAGER_NAMESPACE" default:"cert-manager"`
+	ClusterCACertSecretName    string   `envconfig:"INTER_CERT_SECRET_NAME" default:"capten-ca-cert"`
+	InterCACertFileName        string   `envconfig:"INTER_CERT_FILE_NAME" default:"inter-ca.crt"`
+	InterCAKeyFileName         string   `envconfig:"INTER_CERT_KEY_FILE_NAME" default:"inter-ca.key"`
 	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
 	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
@@ -46,8 +50,8 @@ type CaptenConfig struct {
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
-	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"false"`
-	SKipAppsDeploy             bool     `envconfig:"SKIP_APPS_DEPLOY" default:"true"`
+	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"true"`
+	SKipAppsDeploy             bool     `envconfig:"SKIP_APPS_DEPLOY" default:"false"`
 	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
@@ -58,6 +62,7 @@ type CaptenClusterValues struct {
 	LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
 	CloudService     string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
 	ClusterType      string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
+	ClusterCAIssuer  string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
 }
 
 func GetCaptenConfig() (CaptenConfig, error) {

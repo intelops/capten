@@ -32,8 +32,20 @@ var appsCmd = &cobra.Command{
 			logrus.Errorf("failed to create secret for certs, %v", err)
 			return
 		}
+
+		err = k8s.CreateOrUpdateClusterIssuer(captenConfig)
+		if err != nil {
+			logrus.Errorf("failed to create cluster issuer, %v", err)
+			return
+		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
+		globalValues, err := app.PrepareGlobalVaules(captenConfig)
+		if err != nil {
+			logrus.Errorf("applications values preparation failed, %v", err)
+			return
+    }
+    
 		if captenConfig.SKipAppsDeploy {
 			err = app.DeployApps(captenConfig)
 			if err != nil {
@@ -42,8 +54,16 @@ var appsCmd = &cobra.Command{
 			}
 		}
 
+		if !captenConfig.SKipAppsDeploy {
+			err = app.DeployApps(captenConfig, globalValues)
+			if err != nil {
+				logrus.Errorf("applications deployment failed, %v", err)
+				return
+			}
+		}
+
 		if captenConfig.StoreCredOnAgent {
-			err = agent.StoreCredentials(captenConfig)
+			err = agent.StoreCredentials(captenConfig, globalValues)
 			if err != nil {
 				logrus.Errorf("failed to store cluster credentials, %v", err)
 				return
