@@ -22,11 +22,11 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		if err := cert.GenerateCerts(captenConfig); err != nil {
+		if err := cert.PrepareCerts(captenConfig); err != nil {
 			logrus.Errorf("failed to generate certificate, %v", err)
 			return
 		}
-		logrus.Info("Generated Certificates")
+		logrus.Info("Certificates prepared for cluster")
 
 		if err := k8s.CreateOrUpdateCertSecrets(captenConfig); err != nil {
 			logrus.Errorf("failed to create secret for certs, %v", err)
@@ -34,10 +34,12 @@ var appsCmd = &cobra.Command{
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
-		err = app.DeployApps(captenConfig)
-		if err != nil {
-			logrus.Errorf("applications deployment failed, %v", err)
-			return
+		if captenConfig.SKipAppsDeploy {
+			err = app.DeployApps(captenConfig)
+			if err != nil {
+				logrus.Errorf("applications deployment failed, %v", err)
+				return
+			}
 		}
 
 		if captenConfig.StoreCredOnAgent {

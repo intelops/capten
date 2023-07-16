@@ -10,9 +10,9 @@ LaunchUIConfig:
   LaunchURL: https://grafana.{{.DomainName}}/
 LaunchUIValues:
   sso:
-    client-id: {{.ClientId}}
-    client-secret: {{.ClientSecret}}
-    oryAdress: {{.OryURL}}
+    clientId: "{{.ClientId}}"
+    clientSecret: "{{.ClientSecret}}"
+    oryAdress: "{{.OryURL}}"
 OverrideValues:    
   grafana:
     enabled: true

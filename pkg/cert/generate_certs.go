@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -28,7 +29,37 @@ const (
 	interCACertFileName             = "inter-ca.crt"
 )
 
-func GenerateCerts(captenConfig config.CaptenConfig) error {
+func PrepareCerts(captenConfig config.CaptenConfig) error {
+	if !checkCertsExist(captenConfig) || captenConfig.ForceGenerateCerts {
+		return generateCerts(captenConfig)
+	}
+	logrus.Debug("Cert files exist, skipped generating certs")
+	return nil
+}
+
+func checkCertsExist(captenConfig config.CaptenConfig) bool {
+	certFiles := []string{
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCACertFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCAKeyFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCACertFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCAKeyFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientCertFileName),
+		captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientKeyFileName),
+	}
+
+	for _, certFile := range certFiles {
+		if _, err := os.Stat(certFile); os.IsNotExist(err) {
+			logrus.Debugf("Cert file %s does not exist", certFile)
+			return false
+		}
+	}
+	return true
+}
+
+func generateCerts(captenConfig config.CaptenConfig) error {
+
 	err := os.MkdirAll(captenConfig.PrepareDirPath(captenConfig.CertDirPath), folderPrmission)
 	if err != nil {
 		return errors.WithMessagef(err, "failed to create directory %s", captenConfig.CertDirPath)
