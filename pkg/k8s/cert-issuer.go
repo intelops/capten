@@ -38,20 +38,22 @@ func CreateOrUpdateClusterIssuer(captenConfig config.CaptenConfig) error {
 		},
 	}
 
-	_, err = cmClient.CertmanagerV1().ClusterIssuers().Get(context.Background(), issuer.Name, metav1.GetOptions{})
+	serverIssuer, err := cmClient.CertmanagerV1().ClusterIssuers().Get(context.Background(), issuer.Name, metav1.GetOptions{})
 	if err != nil && k8serrors.IsNotFound(err) {
-		_, err := cmClient.CertmanagerV1().ClusterIssuers().Create(context.Background(), issuer, metav1.CreateOptions{})
+		result, err := cmClient.CertmanagerV1().ClusterIssuers().Create(context.Background(), issuer, metav1.CreateOptions{})
 		if err != nil {
 			return errors.WithMessage(err, "error in creating cert issuer")
 		}
+		logrus.Debugf("ClusterIssuer %s created successfully", result.Name)
 		return nil
 	}
 
+	serverIssuer.Spec.IssuerConfig.CA.SecretName = captenConfig.ClusterCACertSecretName
 	issuerClient := cmClient.CertmanagerV1().ClusterIssuers()
-	result, err := issuerClient.Update(context.TODO(), issuer, metav1.UpdateOptions{})
+	result, err := issuerClient.Update(context.TODO(), serverIssuer, metav1.UpdateOptions{})
 	if err != nil {
 		return errors.WithMessage(err, "error while updating cluster issuer")
 	}
-	logrus.Infof("ClusterIssuer %s created successfully", result.Name)
+	logrus.Debugf("ClusterIssuer %s updated successfully", result.Name)
 	return nil
 }
