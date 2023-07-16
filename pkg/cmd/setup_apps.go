@@ -44,6 +44,14 @@ var appsCmd = &cobra.Command{
 		if err != nil {
 			logrus.Errorf("applications values preparation failed, %v", err)
 			return
+    }
+    
+		if captenConfig.SKipAppsDeploy {
+			err = app.DeployApps(captenConfig)
+			if err != nil {
+				logrus.Errorf("applications deployment failed, %v", err)
+				return
+			}
 		}
 
 		if !captenConfig.SKipAppsDeploy {
