@@ -22,11 +22,11 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		if err := cert.GenerateCerts(captenConfig); err != nil {
+		if err := cert.PrepareCerts(captenConfig); err != nil {
 			logrus.Errorf("failed to generate certificate, %v", err)
 			return
 		}
-		logrus.Info("Generated Certificates")
+		logrus.Info("Certificates prepared for cluster")
 
 		if err := k8s.CreateOrUpdateCertSecrets(captenConfig); err != nil {
 			logrus.Errorf("failed to create secret for certs, %v", err)

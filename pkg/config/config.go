@@ -47,6 +47,7 @@ type CaptenConfig struct {
 	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
 	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"true"`
+	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
 }
