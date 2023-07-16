@@ -35,6 +35,10 @@ func createOrUpdateAgentCertSecret(captenConfig config.CaptenConfig, k8sClient *
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client key")
 	}
+	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
+	if err != nil {
+		return errors.WithMessage(err, "error while reading ca cert chain")
+	}
 
 	// Create the Secret object
 	secret := &corev1.Secret{
@@ -45,6 +49,7 @@ func createOrUpdateAgentCertSecret(captenConfig config.CaptenConfig, k8sClient *
 		Data: map[string][]byte{
 			corev1.TLSCertKey:       certData,
 			corev1.TLSPrivateKeyKey: keyData,
+			"ca.crt":                caCertChainData,
 		},
 		Type: corev1.SecretTypeTLS,
 	}

@@ -6,7 +6,7 @@ Namespace: "policy-reporter"
 ReleaseName: "policy-reporter"
 Version: "2.18.3"
 CreateNamespace: true  
-Override:
+OverrideValues:
   Values:
     metrics:
       enabled: true

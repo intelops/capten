@@ -3,7 +3,6 @@ package helm
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -12,6 +11,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 
@@ -63,7 +63,7 @@ func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) error {
 	}
 
 	actionConfig := new(action.Configuration)
-	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", debug)
+	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", logHelmDebug)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup actionConfig for helm")
 	}
@@ -76,6 +76,7 @@ func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) error {
 	client.CreateNamespace = appConfig.CreateNamespace
 	client.DryRun = h.captenConfig.AppDeployDryRun
 	client.Devel = h.captenConfig.AppDeployDebug
+	client.ClientOnly = true
 
 	cp, err := client.ChartPathOptions.LocateChart(appConfig.ChartName, settings)
 	if err != nil {
@@ -86,12 +87,20 @@ func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) error {
 		return errors.Wrap(err, "chart load error")
 	}
 
-	if len(appConfig.Override.Values) == 0 {
+	if len(appConfig.OverrideValues) == 0 {
 		_, err = client.Run(chartReq, nil)
 		return errors.Wrap(err, "chart run error")
 	}
 
-	releaseInfo, err := client.Run(chartReq, appConfig.Override.Values)
+	stringValues := getValues(appConfig.OverrideValues)
+	valueOpts := &values.Options{StringValues: stringValues}
+	vals, err := valueOpts.MergeValues(nil)
+	if err != nil {
+		return errors.Wrap(err, "chart run error")
+	}
+	appConfig.OverrideValues = vals
+
+	releaseInfo, err := client.Run(chartReq, vals)
 	if err != nil {
 		return errors.Wrap(err, "chart run error")
 	}
@@ -100,8 +109,8 @@ func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) error {
 	return nil
 }
 
-func debug(format string, v ...interface{}) {
-	log.Output(2, fmt.Sprintf(format, v))
+func logHelmDebug(format string, v ...interface{}) {
+	logrus.Debug(format, v)
 }
 
 func getValues(values map[string]interface{}) []string {

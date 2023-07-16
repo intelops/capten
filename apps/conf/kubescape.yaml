@@ -6,10 +6,9 @@ Namespace: "kubescape-prometheus"
 ReleaseName: "kubescape-prometheus"
 CreateNamespace: true
 Version: "0.0.11"
-Override:
-  Values:
-    kubescape:
-      prometheusAnnotation:
-        enabled: true
-      serviceMonitor:
-        enabled: false
+OverrideValues:
+  kubescape:
+    prometheusAnnotation:
+      enabled: true
+    serviceMonitor:
+      enabled: false

@@ -6,7 +6,7 @@ Namespace: "observability"
 ReleaseName: "kubviz-agent"
 Version: "0.1.6"
 CreateNamespace: true
-Override:
+OverrideValues:
   nats:
     host: kubviz-client-nats.observability.svc.cluster.local
 

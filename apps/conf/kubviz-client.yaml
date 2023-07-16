@@ -6,3 +6,4 @@ Namespace: "observability"
 ReleaseName: "kubviz-client"
 Version: "0.1.9"
 CreateNamespace: true
+OverrideValues:

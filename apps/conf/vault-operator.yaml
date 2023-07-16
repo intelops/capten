@@ -6,3 +6,4 @@ Namespace: "capten"
 ReleaseName: "vault-operator"
 Version: "1.19.0"
 CreateNamespace: true
+OverrideValues:
