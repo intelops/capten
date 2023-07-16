@@ -34,10 +34,12 @@ var appsCmd = &cobra.Command{
 		}
 		logrus.Info("Configured Certificates on Capten Cluster")
 
-		err = app.DeployApps(captenConfig)
-		if err != nil {
-			logrus.Errorf("applications deployment failed, %v", err)
-			return
+		if captenConfig.SKipAppsDeploy {
+			err = app.DeployApps(captenConfig)
+			if err != nil {
+				logrus.Errorf("applications deployment failed, %v", err)
+				return
+			}
 		}
 
 		if captenConfig.StoreCredOnAgent {
