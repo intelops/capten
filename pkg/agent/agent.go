@@ -11,19 +11,30 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
-	tlsCredentials, err := loadTLSCredentials(config)
-	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
-	}
+	agentEndpoint := config.GetCaptenAgentEndpoint()
 
-	conn, err := grpc.Dial(config.GetCaptenAgentEndpoint(), grpc.WithTransportCredentials(tlsCredentials))
-	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to connect to capten agent")
-	}
+	var conn *grpc.ClientConn
+	var err error
+	if config.AgentSecure {
+		tlsCredentials, err := loadTLSCredentials(config)
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
+		}
 
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials))
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
+		}
+	} else {
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
+		}
+	}
 	return agentpb.NewAgentClient(conn), nil
 }
 
