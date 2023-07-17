@@ -16,6 +16,7 @@ type CaptenConfig struct {
 	CaptenClusterValues
 	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
 	AgentHostPort              string   `envconfig:"AGENT_HOST_PORT" default:":443"`
+	AgentSecure                bool     `envconfig:"AGENT_SECURE" default:"true"`
 	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
 	CertManagerNamespace       string   `envconfig:"CERT_MANAGER_NAMESPACE" default:"cert-manager"`
 	ClusterCACertSecretName    string   `envconfig:"INTER_CERT_SECRET_NAME" default:"capten-ca-cert"`
@@ -106,7 +107,10 @@ func GetCaptenConfig() (CaptenConfig, error) {
 }
 
 func (c CaptenConfig) GetCaptenAgentEndpoint() string {
-	return fmt.Sprintf("%s.%s%s", c.AgentHostName, c.DomainName, c.AgentHostPort)
+	if c.AgentSecure {
+		return fmt.Sprintf("%s.%s%s", c.AgentHostName, c.DomainName, c.AgentHostPort)
+	}
+	return fmt.Sprintf("%s.%s:80", c.AgentHostName, c.DomainName)
 }
 
 func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) {
