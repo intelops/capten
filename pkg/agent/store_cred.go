@@ -112,6 +112,8 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	if !ok {
 		return fmt.Errorf("NatsToken is missing")
 	}
+
+	//
 	credentail := map[string]string{
 		natsCredEntity: val.(string),
 	}
