@@ -10,7 +10,7 @@ import (
 )
 
 func MakeNamespacePrivilege(kubeconfigPath string, ns string) error {
-	clientSet, err := getK8SClient(kubeconfigPath)
+	clientSet, err := GetK8SClient(kubeconfigPath)
 	if err != nil {
 		return err
 	}
@@ -21,7 +21,7 @@ func MakeNamespacePrivilege(kubeconfigPath string, ns string) error {
 	}
 
 	nsObj.Labels["pod-security.kubernetes.io/enforce"] = "privileged"
-	nsObj, err = clientSet.CoreV1().Namespaces().Update(context.Background(), nsObj, metav1.UpdateOptions{})
+	_, err = clientSet.CoreV1().Namespaces().Update(context.Background(), nsObj, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func MakeNamespacePrivilege(kubeconfigPath string, ns string) error {
 	return nil
 }
 
-func getK8SClient(kubeconfigPath string) (*kubernetes.Clientset, error) {
+func GetK8SClient(kubeconfigPath string) (*kubernetes.Clientset, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	if err != nil {
 		return nil, errors.WithMessage(err, "error while building kubeconfig")

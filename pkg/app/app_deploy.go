@@ -46,12 +46,17 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 	successStatus := true
 	for _, appConfig := range appConfigs {
 		logrus.Infof("[app: %s] installing", appConfig.Name)
-		if err := hc.Install(context.Background(), appConfig); err != nil {
+		alreadyInstalled, err := hc.Install(context.Background(), appConfig)
+		if err != nil {
 			logrus.Errorf("%s installation failed, %v", appConfig.Name, err)
 			successStatus = false
 			continue
 		}
-		logrus.Infof("[app: %s] installed", appConfig.Name)
+		if alreadyInstalled {
+			logrus.Infof("[app: %s] already installed", appConfig.Name)
+		} else {
+			logrus.Infof("[app: %s] installed", appConfig.Name)
+		}
 
 		if err := WriteAppConfig(captenConfig, appConfig); err != nil {
 			logrus.Errorf("failed to write %s config, %v", appConfig.Name, err)

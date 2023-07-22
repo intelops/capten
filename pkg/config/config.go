@@ -54,6 +54,7 @@ type CaptenConfig struct {
 	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"true"`
 	SkipAppsDeploy             bool     `envconfig:"SKIP_APPS_DEPLOY" default:"false"`
 	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
+	UpgradeAppIfInstalled      bool     `envconfig:"UPGRADE_APP_IF_INSTALLED" default:"false"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
 }
