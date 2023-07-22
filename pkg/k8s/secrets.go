@@ -32,7 +32,7 @@ func createOrUpdateSecret(k8sClient *kubernetes.Clientset, secret *corev1.Secret
 
 func CreateOrUpdateCertSecrets(captenConfig config.CaptenConfig) error {
 	kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-	clientSet, err := getK8SClient(kubeconfigPath)
+	clientSet, err := GetK8SClient(kubeconfigPath)
 	if err != nil {
 		return err
 	}
