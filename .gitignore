@@ -16,7 +16,7 @@ vendor/
 .idea/
 cert/
 terraform
-apps/temp/
+apps/tmp/*
 terraform_modules/
 config/kubeconfig
 capten

@@ -3,11 +3,14 @@ package helm
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -20,6 +23,11 @@ import (
 	"capten/pkg/types"
 )
 
+const (
+	folderPrmission os.FileMode = 0755
+	filePrmission   os.FileMode = 0644
+)
+
 type Client struct {
 	settings       *cli.EnvSettings
 	defaultTimeout time.Duration
@@ -29,6 +37,11 @@ type Client struct {
 func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
 	settings := cli.New()
 	settings.KubeConfig = captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+
+	err := os.MkdirAll(captenConfig.PrepareDirPath(captenConfig.AppValuesTempDirPath), folderPrmission)
+	if err != nil {
+		return nil, errors.WithMessagef(err, "failed to create directory %s", captenConfig.AppsTempDirPath)
+	}
 	return &Client{
 		captenConfig:   captenConfig,
 		settings:       settings,
@@ -36,7 +49,7 @@ func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
 	}, nil
 }
 
-func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) (alreadyInstalled bool, err error) {
+func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alreadyInstalled bool, err error) {
 	repoEntry := &repo.Entry{
 		Name: appConfig.RepoName,
 		URL:  appConfig.RepoURL,
@@ -90,7 +103,7 @@ func (h *Client) Install(ctx context.Context, appConfig types.AppConfig) (alread
 	return
 }
 
-func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, actionConfig *action.Configuration, appConfig types.AppConfig) error {
+func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, actionConfig *action.Configuration, appConfig *types.AppConfig) error {
 	action.NewList(&action.Configuration{})
 	client := action.NewInstall(actionConfig)
 	client.Namespace = appConfig.Namespace
@@ -104,36 +117,42 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 
 	cp, err := client.ChartPathOptions.LocateChart(appConfig.ChartName, settings)
 	if err != nil {
-		return errors.Wrap(err, "chart locate error")
+		return errors.Wrap(err, "failed to locate chart locate")
 	}
 	chartReq, err := loader.Load(cp)
 	if err != nil {
-		return errors.Wrap(err, "chart load error")
+		return errors.Wrap(err, "failed load chart")
 	}
 
 	if len(appConfig.OverrideValues) == 0 {
 		_, err = client.Run(chartReq, nil)
-		return errors.Wrap(err, "chart run error")
+		return errors.Wrap(err, "failed chart install run")
 	}
 
-	stringValues := getValues(appConfig.OverrideValues)
-	valueOpts := &values.Options{StringValues: stringValues}
-	vals, err := valueOpts.MergeValues(nil)
+	appValuesFile := h.prepareAppValuesPath(appConfig)
+	err = h.createValuesFile(appValuesFile, appConfig.OverrideValues)
 	if err != nil {
-		return errors.Wrap(err, "chart run error")
+		return err
+	}
+	defer func() { _ = os.Remove(appValuesFile) }()
+
+	valueOpts := &values.Options{ValueFiles: []string{appValuesFile}}
+	vals, err := valueOpts.MergeValues(getter.All(settings))
+	if err != nil {
+		return errors.Wrap(err, "failed to merge chart values")
 	}
 	appConfig.OverrideValues = vals
 
 	releaseInfo, err := client.Run(chartReq, vals)
 	if err != nil {
-		return errors.Wrap(err, "chart run error")
+		return errors.Wrap(err, "failed chart install run with values")
 	}
 
 	logrus.Debug("release info ", releaseInfo)
 	return nil
 }
 
-func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, actionConfig *action.Configuration, appConfig types.AppConfig) error {
+func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, actionConfig *action.Configuration, appConfig *types.AppConfig) error {
 	action.NewList(&action.Configuration{})
 	client := action.NewUpgrade(actionConfig)
 	client.Namespace = appConfig.Namespace
@@ -141,32 +160,38 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	client.Timeout = h.defaultTimeout
 	client.DryRun = h.captenConfig.AppDeployDryRun
 	client.Devel = h.captenConfig.AppDeployDebug
+	client.ResetValues = true
 
 	cp, err := client.ChartPathOptions.LocateChart(appConfig.ChartName, settings)
 	if err != nil {
-		return errors.Wrap(err, "chart locate error")
+		return errors.Wrap(err, "failed to locate chart locate")
 	}
 	chartReq, err := loader.Load(cp)
 	if err != nil {
-		return errors.Wrap(err, "chart load error")
+		return errors.Wrap(err, "failed load chart")
 	}
 
 	if len(appConfig.OverrideValues) == 0 {
 		_, err = client.Run(appConfig.ReleaseName, chartReq, nil)
-		return errors.Wrap(err, "chart run error")
+		return errors.Wrap(err, "failed chart upgrade run")
 	}
 
-	stringValues := getValues(appConfig.OverrideValues)
-	valueOpts := &values.Options{StringValues: stringValues}
-	vals, err := valueOpts.MergeValues(nil)
+	appValuesFile := h.prepareAppValuesPath(appConfig)
+	err = h.createValuesFile(appValuesFile, appConfig.OverrideValues)
 	if err != nil {
-		return errors.Wrap(err, "chart run error")
+		return err
+	}
+	defer func() { _ = os.Remove(appValuesFile) }()
+
+	valueOpts := &values.Options{ValueFiles: []string{appValuesFile}}
+	vals, err := valueOpts.MergeValues(getter.All(settings))
+	if err != nil {
+		return errors.Wrap(err, "failed to merge chart values")
 	}
 	appConfig.OverrideValues = vals
-
-	releaseInfo, err := client.Run(appConfig.ReleaseName, chartReq, vals)
+	releaseInfo, err := client.Run(appConfig.ReleaseName, chartReq, appConfig.OverrideValues)
 	if err != nil {
-		return errors.Wrap(err, "chart run error")
+		return errors.Wrap(err, "failed chart upgrade run with values")
 	}
 
 	logrus.Debug("release info ", releaseInfo)
@@ -199,4 +224,21 @@ func getValues(values map[string]interface{}) []string {
 	}
 
 	return vals
+}
+
+func (h *Client) prepareAppValuesPath(appConfig *types.AppConfig) string {
+	return h.captenConfig.PrepareFilePath(h.captenConfig.AppValuesTempDirPath, appConfig.Name+"-values.yaml")
+}
+
+func (h *Client) createValuesFile(appValuesFile string, values map[string]interface{}) error {
+	data, err := yaml.Marshal(&values)
+	if err != nil {
+		return errors.WithMessage(err, "failed to unmarshal values")
+	}
+
+	err = ioutil.WriteFile(appValuesFile, data, filePrmission)
+	if err != nil {
+		return errors.WithMessagef(err, "failed to write app values to file %s", appValuesFile)
+	}
+	return nil
 }
