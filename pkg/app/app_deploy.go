@@ -46,9 +46,9 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 	successStatus := true
 	for _, appConfig := range appConfigs {
 		logrus.Infof("[app: %s] installing", appConfig.Name)
-		alreadyInstalled, err := hc.Install(context.Background(), appConfig)
+		alreadyInstalled, err := hc.Install(context.Background(), &appConfig)
 		if err != nil {
-			logrus.Errorf("%s installation failed, %v", appConfig.Name, err)
+			logrus.Errorf("[app: %s] installation failed, %v", appConfig.Name, err)
 			successStatus = false
 			continue
 		}

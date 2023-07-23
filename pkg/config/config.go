@@ -26,7 +26,8 @@ type CaptenConfig struct {
 	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
-	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/temp/"`
+	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
+	AppValuesTempDirPath       string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/val/"`
 	ConfigDirPath              string   `envconfig:"CONFIG_DIR_PATH" default:"/config/"`
 	CertDirPath                string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
 	TerraformModulesDirPath    string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
