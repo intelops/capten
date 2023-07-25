@@ -15,7 +15,7 @@ const (
 	natsCredEntity     string = "nats"
 	natsCredIdentifier string = "auth-token"
 
-	clusterCredentailType        string = "cluster-cred"
+	genericCredentailType        string = "generic"
 	k8sCredEntityName            string = "k8s"
 	kubeconfigCredIdentifier     string = "kubeconfig"
 	s3BucketCredEntityName       string = "s3bucket"
@@ -60,7 +60,7 @@ func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.Agent
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
-		CredentialType: clusterCredentailType,
+		CredentialType: genericCredentailType,
 		CredEntityName: k8sCredEntityName,
 		CredIdentifier: kubeconfigCredIdentifier,
 		Credential:     credentail,
@@ -92,7 +92,7 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
-		CredentialType: clusterCredentailType,
+		CredentialType: genericCredentailType,
 		CredEntityName: s3BucketCredEntityName,
 		CredIdentifier: terraformStateCredIdentifier,
 		Credential:     credentail,
@@ -117,7 +117,7 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
-		CredentialType: clusterCredentailType,
+		CredentialType: genericCredentailType,
 		CredEntityName: natsCredEntity,
 		CredIdentifier: natsCredIdentifier,
 		Credential:     credentail,
