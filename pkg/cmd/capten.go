@@ -2,31 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/fatih/color"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-type CLIFormatter struct {
-}
-
-func (f *CLIFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	var levelColor *color.Color
-	switch entry.Level {
-	case logrus.InfoLevel:
-		levelColor = color.New(color.FgGreen)
-	case logrus.WarnLevel:
-		levelColor = color.New(color.FgYellow)
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
-		levelColor = color.New(color.FgRed, color.Bold)
-	default:
-		levelColor = color.New()
-	}
-	message := fmt.Sprintf("[%s] %s\n", levelColor.Sprint(strings.ToUpper(entry.Level.String())), entry.Message)
-	return []byte(message), nil
-}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -41,7 +19,6 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	logrus.SetFormatter(&CLIFormatter{})
 	cobra.CheckErr(rootCmd.Execute())
 }
 
