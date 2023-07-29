@@ -4,15 +4,15 @@ import (
 	"os"
 	"text/template"
 
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/terraform"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 func Create(captenConfig config.CaptenConfig) error {
-	logrus.Debugf("creating cluster on %s cloud with %s cluster type", captenConfig.CloudService, captenConfig.ClusterType)
+	clog.Logger.Debugf("creating cluster on %s cloud with %s cluster type", captenConfig.CloudService, captenConfig.ClusterType)
 	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err

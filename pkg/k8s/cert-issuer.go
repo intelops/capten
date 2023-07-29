@@ -1,11 +1,11 @@
 package k8s
 
 import (
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 
 	certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	cmclient "github.com/cert-manager/cert-manager/pkg/client/clientset/versioned"
@@ -44,7 +44,7 @@ func CreateOrUpdateClusterIssuer(captenConfig config.CaptenConfig) error {
 		if err != nil {
 			return errors.WithMessage(err, "error in creating cert issuer")
 		}
-		logrus.Debugf("ClusterIssuer %s created successfully", result.Name)
+		clog.Logger.Debugf("ClusterIssuer %s created successfully", result.Name)
 		return nil
 	}
 
@@ -54,6 +54,6 @@ func CreateOrUpdateClusterIssuer(captenConfig config.CaptenConfig) error {
 	if err != nil {
 		return errors.WithMessage(err, "error while updating cluster issuer")
 	}
-	logrus.Debugf("ClusterIssuer %s updated successfully", result.Name)
+	clog.Logger.Debugf("ClusterIssuer %s updated successfully", result.Name)
 	return nil
 }

@@ -2,6 +2,7 @@ package cert
 
 import (
 	"archive/zip"
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"crypto/rand"
 	"crypto/rsa"
@@ -15,7 +16,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -33,7 +33,7 @@ func PrepareCerts(captenConfig config.CaptenConfig) error {
 	if !checkCertsExist(captenConfig) || captenConfig.ForceGenerateCerts {
 		return generateCerts(captenConfig)
 	}
-	logrus.Debug("Cert files exist, skipped generating certs")
+	clog.Logger.Debug("Cert files exist, skipped generating certs")
 	return nil
 }
 
@@ -51,7 +51,7 @@ func checkCertsExist(captenConfig config.CaptenConfig) bool {
 
 	for _, certFile := range certFiles {
 		if _, err := os.Stat(certFile); os.IsNotExist(err) {
-			logrus.Debugf("Cert file %s does not exist", certFile)
+			clog.Logger.Debugf("Cert file %s does not exist", certFile)
 			return false
 		}
 	}

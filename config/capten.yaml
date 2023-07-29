@@ -2,3 +2,4 @@ DomainName: dev.optimizor.app
 LoadBalancerHost: ""
 CloudService: aws
 ClusterType: talos
+ClusterCAIssuer: ""
