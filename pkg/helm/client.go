@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
 	"helm.sh/helm/v3/pkg/action"
@@ -19,6 +18,7 @@ import (
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/types"
 )
@@ -148,7 +148,7 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart install run with values")
 	}
 
-	logrus.Debug("release info ", releaseInfo)
+	clog.Logger.Debug("release info ", releaseInfo)
 	return nil
 }
 
@@ -194,7 +194,7 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart upgrade run with values")
 	}
 
-	logrus.Debug("release info ", releaseInfo)
+	clog.Logger.Debug("release info ", releaseInfo)
 	return nil
 }
 
@@ -214,7 +214,7 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 }
 
 func logHelmDebug(format string, v ...interface{}) {
-	logrus.Debug(format, v)
+	clog.Logger.Debug(format, v)
 }
 
 func getValues(values map[string]interface{}) []string {

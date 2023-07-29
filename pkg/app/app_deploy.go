@@ -9,8 +9,9 @@ import (
 	"context"
 	"html/template"
 
+	"capten/pkg/clog"
+
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -45,21 +46,21 @@ func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interf
 func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfigs []types.AppConfig) bool {
 	successStatus := true
 	for _, appConfig := range appConfigs {
-		logrus.Infof("[app: %s] installing", appConfig.Name)
+		clog.Logger.Infof("[app: %s] installing", appConfig.Name)
 		alreadyInstalled, err := hc.Install(context.Background(), &appConfig)
 		if err != nil {
-			logrus.Errorf("[app: %s] installation failed, %v", appConfig.Name, err)
+			clog.Logger.Errorf("[app: %s] installation failed, %v", appConfig.Name, err)
 			successStatus = false
 			continue
 		}
 		if alreadyInstalled {
-			logrus.Infof("[app: %s] already installed", appConfig.Name)
+			clog.Logger.Infof("[app: %s] already installed", appConfig.Name)
 		} else {
-			logrus.Infof("[app: %s] installed", appConfig.Name)
+			clog.Logger.Infof("[app: %s] installed", appConfig.Name)
 		}
 
 		if err := WriteAppConfig(captenConfig, appConfig); err != nil {
-			logrus.Errorf("failed to write %s config, %v", appConfig.Name, err)
+			clog.Logger.Errorf("failed to write %s config, %v", appConfig.Name, err)
 			successStatus = false
 			continue
 		}
@@ -67,7 +68,7 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			err := k8s.MakeNamespacePrivilege(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
 				appConfig.Namespace)
 			if err != nil {
-				logrus.Error("failed to patch namespace with privilege", err)
+				clog.Logger.Error("failed to patch namespace with privilege", err)
 				successStatus = false
 				continue
 			}
@@ -98,7 +99,7 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 			return
 		}
 		appConfigs = append(appConfigs, appConfig)
-		logrus.Debug(appName, " : ", appConfig)
+		clog.Logger.Debug(appName, " : ", appConfig)
 	}
 	return
 }

@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/types"
 )
@@ -31,18 +31,19 @@ func New(captenConfig config.CaptenConfig, config types.ClusterInfo) (*terraform
 
 	execPath, err := installer.Install(context.Background())
 	if err != nil {
-		logrus.Infof("execPath: %s", execPath)
+		clog.Logger.Infof("execPath: %s", execPath)
 
 		return nil, errors.WithMessage(err, "error installing Terraform")
 	}
 
 	workDir := captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath + captenConfig.CloudService)
-	logrus.Debugf("terraform workingDir: %s, execPath: %s", workDir, execPath)
+	clog.Logger.Debugf("terraform workingDir: %s, execPath: %s", workDir, execPath)
 	tf, err := tfexec.NewTerraform(workDir, execPath)
 	if err != nil {
 		return nil, errors.WithMessage(err, "error running NewTerraform")
 	}
 
+	tf.SetLogger(clog.Logger)
 	//set the output files, defaulted to terminal
 	tf.SetStdout(os.Stdout)
 	tf.SetStderr(os.Stderr)

@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +16,7 @@ var showClusterInfoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		captenConfig, err := config.GetCaptenConfig()
 		if err != nil {
-			logrus.Error("failed to read capten config", err)
+			clog.Logger.Error("failed to read capten config", err)
 			return
 		}
 		fmt.Println(color.New(color.FgGreen).Sprint("Cluster LB Host:"), captenConfig.LoadBalancerHost)
