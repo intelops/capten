@@ -37,6 +37,9 @@ build.release: build.all
 	# copy readme
 	@cp README.md capten/README.md
 
+	# make all scripts executable
+	@find ./capten/ -type f -name "*.sh" -exec chmod +x {} \;
+
 	@zip -r capten.zip capten/*
 	# remove this release folder as ci pipeline is complaining
 	@rm -rf capten
