@@ -1,0 +1,11 @@
+Name: "falco"
+ChartName: "falcosecurity/falco"
+RepoName: "falcosecurity"
+RepoURL: "https://falcosecurity.github.io/charts"
+Namespace: "falco"
+ReleaseName: "falco"
+Version: "3.2.0"
+CreateNamespace: true
+OverrideValues:
+  driver:
+    kind: ebpf

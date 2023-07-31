@@ -1,0 +1,25 @@
+Name: "tracetest"
+ChartName: "kubeshop/tracetest"
+RepoName: "kubeshop"
+RepoURL: "https://kubeshop.github.io/helm-charts"
+Namespace: "tracetest"
+ReleaseName: "tracetest"
+Version: "0.2.56"
+CreateNamespace: true
+OverrideValues:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+      - host: "tracetest.{{.DomainName}}"
+        paths:
+        - path: /
+          pathType: ImplementationSpecific
+      tls:
+        hosts:
+        - "tracetest.{{.DomainName}}"
+        secretName: cert-tracetest

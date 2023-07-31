@@ -1,0 +1,9 @@
+Name: "k8ssandra-cluster"
+ChartName: "tools/k8ssandra-cluster"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "capten"
+ReleaseName: "k8ssandra-cluster"
+Version: "0.1.1"
+CreateNamespace: true
+OverrideValues:

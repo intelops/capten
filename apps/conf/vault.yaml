@@ -1,0 +1,12 @@
+Name: "vault"
+ChartName: "hashicorp/vault"
+RepoName: "hashicorp"
+RepoURL: "https://helm.releases.hashicorp.com"
+Namespace: "capten"
+ReleaseName: "vault"
+Version: "0.24.1"
+CreateNamespace: true
+OverrideValues:
+  injector:
+    enabled: true
+    replicas: "3"

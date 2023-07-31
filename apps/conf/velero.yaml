@@ -1,0 +1,9 @@
+Name: "velero"
+ChartName: "vmware-tanzu/velero"
+RepoName: "vmware-tanzu"
+RepoURL: "https://vmware-tanzu.github.io/helm-charts"
+Namespace: "velero"
+ReleaseName: "velero"
+Version: "4.0.2"
+CreateNamespace: true
+OverrideValues:

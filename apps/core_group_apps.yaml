@@ -1,4 +1,4 @@
 Apps:
-  - "openebs-jiva"
+  - "openebs-cstor"
   - "cert-manager"
   - "traefik"

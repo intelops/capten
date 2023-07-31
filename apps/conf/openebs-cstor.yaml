@@ -1,10 +1,10 @@
-Name: "openebs-jiva"
-ChartName: "tools/openebs-jiva"
+Name: "openebs-cstor"
+ChartName: "tools/cstor"
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-Namespace: "openebs-jiva"
-ReleaseName: "openebs-jiva"
-Version: "1.0.5"
+Namespace: "openebs-cstor"
+ReleaseName: "openebs-cstor"
+Version: "1.0.0"
 CreateNamespace: true
 MakeNsPrivilege: true
 OverrideValues:

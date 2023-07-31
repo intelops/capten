@@ -11,6 +11,11 @@ OverrideValues:
     password": admin
   frontend:
     ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+        kubernetes.io/force-ssl-redirect: "true"
+        kubernetes.io/ssl-redirect: "true"
+        kubernetes.io/tls-acme: "true"
       enabled": true
       hosts:
       - host: "signoz.{{.DomainName}}"
@@ -22,8 +27,3 @@ OverrideValues:
         hosts:
         - "signoz.{{.DomainName}}"
         secretName: cert-signoz
-    annotations:
-      cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
-      nginx.ingress.kubernetes.io/backend-protocol": HTTPS
-      nginx.ingress.kubernetes.io/force-ssl-redirect": true
-      nginx.ingress.kubernetes.io/ssl-redirect": true
