@@ -36,7 +36,7 @@ func New(captenConfig config.CaptenConfig, config types.ClusterInfo) (*terraform
 		return nil, errors.WithMessage(err, "error installing Terraform")
 	}
 
-	workDir := captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath + captenConfig.CloudService)
+	workDir := captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath + captenConfig.CloudService + "/" + captenConfig.ClusterType)
 	clog.Logger.Debugf("terraform workingDir: %s, execPath: %s", workDir, execPath)
 	tf, err := tfexec.NewTerraform(workDir, execPath)
 	if err != nil {
