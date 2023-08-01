@@ -1,9 +1,30 @@
 Name: "velero"
-ChartName: "vmware-tanzu/velero"
-RepoName: "vmware-tanzu"
-RepoURL: "https://vmware-tanzu.github.io/helm-charts"
+ChartName: "tools/velero"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "velero"
 ReleaseName: "velero"
-Version: "4.0.2"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
+  initContainers:
+    - name: velero-plugin-for-csi
+      image: velero/velero-plugin-for-csi:v0.5.0
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+    - name: velero-plugin-for-aws
+      image: velero/velero-plugin-for-aws:v1.7.0
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+    - name: openebs-velero-plugin
+      image: openebs/velero-plugin:latest
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+  configuration:
+    features: EnableCSI

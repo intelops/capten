@@ -1,10 +1,10 @@
 Name: "falco"
-ChartName: "falcosecurity/falco"
-RepoName: "falcosecurity"
-RepoURL: "https://falcosecurity.github.io/charts"
+ChartName: "tools/falco"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "falco"
 ReleaseName: "falco"
-Version: "3.2.0"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
   driver:

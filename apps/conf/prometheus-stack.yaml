@@ -59,7 +59,7 @@ Override:
     prometheusSpec:
       enableRemoteWriteReceiver: true
       externalLabels:
-        cluster_name: aws-capten
+        cluster_name: capten-controlplane
   alertmanager:
     alertmanagerSpec:
       alertmanagerConfigMatcherStrategy:

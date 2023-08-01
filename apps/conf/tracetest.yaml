@@ -1,10 +1,10 @@
 Name: "tracetest"
-ChartName: "kubeshop/tracetest"
-RepoName: "kubeshop"
-RepoURL: "https://kubeshop.github.io/helm-charts"
+ChartName: "tools/tracetest"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "tracetest"
 ReleaseName: "tracetest"
-Version: "0.2.56"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
   ingress:

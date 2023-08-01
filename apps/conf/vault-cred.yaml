@@ -1,9 +1,9 @@
 Name: "vault-cred"
-ChartName: "vault-cred"
+ChartName: "vault-cred/vault-cred"
 RepoName: "vault-cred"
 RepoURL: "https://intelops.github.io/vault-cred"
 Namespace: "capten"
 ReleaseName: "vault-cred"
-Version: "latest"
+Version: "0.1.2"
 CreateNamespace: true
 OverrideValues:

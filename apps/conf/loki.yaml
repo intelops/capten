@@ -1,9 +1,10 @@
 Name: "loki"
-ChartName: "grafana/loki-stack"
-RepoName: "grafana"
-RepoURL: "https://grafana.github.io/helm-charts"
+ChartName: "tools/loki-stack"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "loki"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:    
   loki:
@@ -27,6 +28,6 @@ OverrideValues:
       clients:
       - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
         external_labels:
-          cluster_name: aws-capten
+          cluster_name: capten-controlplane
         
           

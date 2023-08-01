@@ -1,12 +1,38 @@
 Name: "kubviz-agent"
 ChartName: "kubviz/agent"
 RepoName: "kubviz"
-RepoURL: "https://kube-tarian.github.io/kubviz/"
+RepoURL: "https://intelops.github.io/kubviz/"
 Namespace: "observability"
 ReleaseName: "kubviz-agent"
-Version: "0.1.6"
+Version: "0.2.6"
 CreateNamespace: true
 OverrideValues:
-  nats:
-    host: kubviz-client-nats.observability.svc.cluster.local
-
+  nats: 
+    auth:
+      token: "{{ .NATS_TOKEN }}"
+  git_bridge:
+    enabled: true
+    ingress:
+      hosts:
+        - host: "gitbridge.{{.DomainName}}"
+          paths:
+            - path: /
+              pathType: Prefix
+      tls: 
+        - secretName: cert-gitbridge
+          hosts:
+            - "gitbridge.{{.DomainName}}"
+  container_bridge:
+    enabled: true
+    ingress:
+      hosts:
+        - host: "containerbridge.{{.DomainName}}"
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: cert-containerbridge
+          hosts:
+            - "containerbridge.{{.DomainName}}"
+  clusterName: "capten-controlplane"
+      

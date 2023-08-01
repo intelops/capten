@@ -1,10 +1,10 @@
 Name: "cert-manager"
-ChartName: "jetstack/cert-manager"
-RepoName: "jetstack"
-RepoURL: "https://charts.jetstack.io"
+ChartName: "tools/cert-manager"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "cert-manager"
 ReleaseName: "cert-manager"
-Version: "v1.11.0"
+Version: "1.0.0"
 CreateNamespace: true
 OverrideValues:  
   installCRDs: true

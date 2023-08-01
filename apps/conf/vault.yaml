@@ -1,10 +1,10 @@
 Name: "vault"
-ChartName: "hashicorp/vault"
-RepoName: "hashicorp"
-RepoURL: "https://helm.releases.hashicorp.com"
+ChartName: "tools/vault"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
 ReleaseName: "vault"
-Version: "0.24.1"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
   injector:
