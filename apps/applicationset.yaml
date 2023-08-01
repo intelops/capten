@@ -1,0 +1,68 @@
+# Source: argocd-apps/templates/projects.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: capten-tools
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: dev-cluster-capten
+  sourceRepos:
+    - '*'
+  destinations:
+    - name: ''
+      server: 'https://74.220.19.8:6443'
+      namespace: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# Source: argocd-apps/templates/applicationsets.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: capten-dev-tools
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        directories:
+        - path: capten/apps/*
+        repoURL: https://github.com/intelops/capten.git
+        revision: main
+  syncPolicy:
+    preserveResourcesOnDeletion: false
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: capten-tools
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        - repoURL: '*'
+          targetRevision: '*'
+          chart: '*'
+          helm:
+            valueFiles: 
+            - values.yaml
+            - $values/capten/apps/conf/*
+        - repoURL: 'https://github.com/intelops/capten.git'
+          targetRevision: main
+          ref: values
+      destination:
+        name: ''
+        server: 'https://74.220.19.8:6443'
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        automated:
+          selfHeal: true
+          prune: true
