@@ -1,21 +1,13 @@
 Name: "loki"
-ChartName: "grafana/loki-stack"
-RepoName: "grafana"
-RepoURL: "https://grafana.github.io/helm-charts"
+ChartName: "tools/loki-stack"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "loki"
+Version: "0.0.1"
 CreateNamespace: true
-LaunchUIConfig:  
-  RedirectURL: https://grafana.{{.DomainName}}/sso/
-  LaunchURL: https://grafana.{{.DomainName}}/
-LaunchUIValues:
-  sso:
-    clientId: "{{.ClientId}}"
-    clientSecret: "{{.ClientSecret}}"
-    oryAdress: "{{.OryURL}}"
 OverrideValues:    
-  grafana:
-    enabled: true
+  loki:
     ingress:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -24,38 +16,18 @@ OverrideValues:
         kubernetes.io/tls-acme: "true"
       enabled: true
       hosts:
-      - "grafana.{{.DomainName}}"
-      tls:
-      - hosts:
-        - "grafana.{{.DomainName}}"
-        secretName: cert-grafana
-    plugins:
-    - vertamedia-clickhouse-datasource
-    sidecar:
-      dashboards:
-        enabled: true
-        folderAnnotation: grafana_folder
-        provider:
-          foldersFromFilesStructure: true
-      datasources:
-        enabled: true
-  prometheus:
-    ingress:
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
-        kubernetes.io/force-ssl-redirect: "true"
-        kubernetes.io/ssl-redirect: "true"
-        kubernetes.io/tls-acme: "true"
-      enabled: true
-      hosts:
-      - "prometheus.{{.DomainName}}"
+      - "loki.{{.DomainName}}"
       paths:
       - /
       tls:
       - hosts:
-        - "prometheus.{{.DomainName}}"
+        - "loki.{{.DomainName}}"
         secretName: cert-prometheus
-    prometheusSpec:
-      enableRemoteWriteReceiver: true
-      externalLabels:
-        cluster_name: aws-capten
+  promtail:
+    config:
+      clients:
+      - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+        external_labels:
+          cluster_name: capten-controlplane
+        
+          

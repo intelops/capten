@@ -1,13 +1,12 @@
 Name: "kubviz-client"
 ChartName: "kubviz/client"
 RepoName: "kubviz"
-RepoURL: "https://kube-tarian.github.io/kubviz/"
+RepoURL: "https://intelops.github.io/kubviz/"
 Namespace: "observability"
 ReleaseName: "kubviz-client"
-Version: "0.1.9"
+Version: "0.2.4"
 CreateNamespace: true
 OverrideValues:
   nats:
-    host: kubviz-client-nats 
     auth:
       token: "{{ .NATS_TOKEN }}"

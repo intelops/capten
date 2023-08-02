@@ -1,10 +1,10 @@
 Name: "traefik"
-ChartName: "traefik/traefik"
-RepoName: "traefik"
-RepoURL: "https://traefik.github.io/charts"
+ChartName: "tools/traefik"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "traefik"
 ReleaseName: "traefik"
-Version: "23.1.0"
+Version: "1.0.0"
 CreateNamespace: true
 LaunchUIConfig:
   RedirectURL: ""

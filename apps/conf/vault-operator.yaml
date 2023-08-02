@@ -1,9 +1,0 @@
-Name: "vault-operator"
-ChartName: "banzaicloud-stable/vault-operator"
-RepoName: "banzaicloud-stable"
-RepoURL: "https://kubernetes-charts.banzaicloud.com"
-Namespace: "capten"
-ReleaseName: "vault-operator"
-Version: "1.19.0"
-CreateNamespace: true
-OverrideValues:

@@ -1,16 +1,19 @@
 Name: "signoz"
-ChartName: "signoz/signoz"
-RepoName: "signoz"
-RepoURL: "https://charts.signoz.io"
+ChartName: "tools/signoz"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "signoz"
-Version: "0.14.0"
+Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
-  clickhouse:
-    password": admin
   frontend:
     ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+        kubernetes.io/force-ssl-redirect: "true"
+        kubernetes.io/ssl-redirect: "true"
+        kubernetes.io/tls-acme: "true"
       enabled": true
       hosts:
       - host: "signoz.{{.DomainName}}"
@@ -22,8 +25,7 @@ OverrideValues:
         hosts:
         - "signoz.{{.DomainName}}"
         secretName: cert-signoz
-    annotations:
-      cert-manager.io/cluster-issuer": letsencrypt-prod-cluster
-      nginx.ingress.kubernetes.io/backend-protocol": HTTPS
-      nginx.ingress.kubernetes.io/force-ssl-redirect": true
-      nginx.ingress.kubernetes.io/ssl-redirect": true
+  otelCollector:
+    ingressRoute:
+      enabled: true
+      host: "otelcollector.{{.DomainName}}" 

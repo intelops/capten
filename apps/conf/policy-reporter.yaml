@@ -1,22 +1,21 @@
 Name: "policy-reporter"
-ChartName: "policy-reporter/policy-reporter"
-RepoName: "policy-reporter"
-RepoURL: "https://kyverno.github.io/policy-reporter"
+ChartName: "tools/policy-reporter"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "policy-reporter"
 ReleaseName: "policy-reporter"
-Version: "2.18.3"
+Version: "0.0.1"
 CreateNamespace: true  
 OverrideValues:
-  Values:
-    metrics:
-      enabled: true
-    kyvernoPlugin:
-      enabled: true
-    global:
-      plugins:
-        kyverno: true
-    target:
-      loki:
-        host: http://loki.observability:3100
-        path: /loki/api/v1/push
-        minimumPriority: target.loki.minimumPriority|warning
+  metrics:
+    enabled: true
+  kyvernoPlugin:
+    enabled: true
+  global:
+    plugins:
+      kyverno: true
+  target:
+    loki:
+      host: http://loki.observability:3100
+      path: /loki/api/v1/push
+      minimumPriority: target.loki.minimumPriority|warning

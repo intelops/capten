@@ -1,0 +1,9 @@
+Name: "grafana-dashboards"
+ChartName: "tools/grafana-dashboards"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "observability"
+ReleaseName: "grafana"
+Version: "0.1.5"
+CreateNamespace: true
+OverrideValues:    

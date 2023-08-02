@@ -1,14 +1,12 @@
 Name: "kubescape"
-ChartName: "kubescape/kubescape-prometheus-integrator"
-RepoName: "kubescape"
-RepoURL: "https://kubescape.github.io/helm-charts/"
+ChartName: "tools/kubescape-prometheus-integrator"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "kubescape-prometheus"
 ReleaseName: "kubescape-prometheus"
 CreateNamespace: true
-Version: "0.0.11"
+Version: "0.0.1"
 OverrideValues:
   kubescape:
     prometheusAnnotation:
       enabled: true
-    serviceMonitor:
-      enabled: false

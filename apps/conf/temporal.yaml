@@ -4,6 +4,13 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
 ReleaseName: "temporal"
-Version: "0.1.1"
+Version: "0.1.6"
 CreateNamespace: true
 OverrideValues:
+  web:
+    enabled: false
+  server:
+    metrics:
+      serviceMonitor:
+        additionalLabels:
+          release: prometheus

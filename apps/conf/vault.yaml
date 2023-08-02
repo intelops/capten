@@ -1,0 +1,12 @@
+Name: "vault"
+ChartName: "tools/vault"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "capten"
+ReleaseName: "vault"
+Version: "0.0.1"
+CreateNamespace: true
+OverrideValues:
+  injector:
+    enabled: true
+    replicas: "3"

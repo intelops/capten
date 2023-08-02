@@ -1,0 +1,25 @@
+Name: "tracetest"
+ChartName: "tools/tracetest"
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "tracetest"
+ReleaseName: "tracetest"
+Version: "0.0.1"
+CreateNamespace: true
+OverrideValues:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+      - host: "tracetest.{{.DomainName}}"
+        paths:
+        - path: /
+          pathType: ImplementationSpecific
+      tls:
+        hosts:
+        - "tracetest.{{.DomainName}}"
+        secretName: cert-tracetest

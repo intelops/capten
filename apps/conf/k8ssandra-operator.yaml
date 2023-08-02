@@ -1,9 +1,9 @@
-Name: vault-post
-ChartName: "tools/vault-post"
+Name: "k8ssandra-operator"
+ChartName: "tools/k8ssandra"
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
-ReleaseName: "vault-post"
-Version: "1.0.2"
+ReleaseName: "k8ssandra-operator"
+Version: "1.0.0"
 CreateNamespace: true
 OverrideValues:
