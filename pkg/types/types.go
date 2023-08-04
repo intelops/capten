@@ -27,6 +27,7 @@ type AppConfig struct {
 }
 
 type ClusterInfo struct {
+	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`
 	AwsAccessKey            string   `yaml:"AwsAccessKey"`
