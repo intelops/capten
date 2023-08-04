@@ -15,13 +15,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interface{}) error {
-	coreAppGroupAppConfigs, err := prepareAppGroupConfigs(captenConfig, globalValues, captenConfig.CoreAppGroupsFileName)
-	if err != nil {
-		return err
-	}
-
-	defaultAppGroupAppConfigs, err := prepareAppGroupConfigs(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
+func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interface{}, groupFile string) error {
+	appGroupAppConfigs, err := prepareAppGroupConfigs(captenConfig, globalValues, groupFile)
 	if err != nil {
 		return err
 	}
@@ -31,14 +26,9 @@ func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interf
 		return err
 	}
 
-	status := installAppGroup(captenConfig, hc, coreAppGroupAppConfigs)
+	status := installAppGroup(captenConfig, hc, appGroupAppConfigs)
 	if !status {
-		return errors.New("core applications deployment failed")
-	}
-
-	status = installAppGroup(captenConfig, hc, defaultAppGroupAppConfigs)
-	if !status {
-		return errors.New("default applications deployment failed")
+		return errors.New("applications deployment failed")
 	}
 	return nil
 }
