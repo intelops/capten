@@ -17,6 +17,7 @@ func Create(captenConfig config.CaptenConfig) error {
 	if err != nil {
 		return err
 	}
+	clusterInfo.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
 
 	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.TerraformTemplateFileName))
 	if err != nil {
