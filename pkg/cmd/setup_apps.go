@@ -22,6 +22,27 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
+		globalValues, err := app.PrepareGlobalVaules(captenConfig)
+		if err != nil {
+			clog.Logger.Errorf("applications values preparation failed, %v", err)
+			return
+		}
+
+		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+		err = k8s.CreateNamespaceIfNotExists(kubeconfigPath, captenConfig.CaptenNamespace)
+		if err != nil {
+			clog.Logger.Errorf("capten namespace creation failed, %v", err)
+			return
+		}
+
+		if !captenConfig.SkipAppsDeploy {
+			err = app.DeployApps(captenConfig, globalValues, captenConfig.CoreAppGroupsFileName)
+			if err != nil {
+				clog.Logger.Errorf("%v", err)
+				return
+			}
+		}
+
 		if err := cert.PrepareCerts(captenConfig); err != nil {
 			clog.Logger.Errorf("failed to generate certificate, %v", err)
 			return
@@ -40,14 +61,8 @@ var appsCmd = &cobra.Command{
 		}
 		clog.Logger.Info("Configured Certificates on Capten Cluster")
 
-		globalValues, err := app.PrepareGlobalVaules(captenConfig)
-		if err != nil {
-			clog.Logger.Errorf("applications values preparation failed, %v", err)
-			return
-		}
-
 		if !captenConfig.SkipAppsDeploy {
-			err = app.DeployApps(captenConfig, globalValues)
+			err = app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
 			if err != nil {
 				clog.Logger.Errorf("%v", err)
 				return

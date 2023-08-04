@@ -113,7 +113,6 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 	client.CreateNamespace = appConfig.CreateNamespace
 	client.DryRun = h.captenConfig.AppDeployDryRun
 	client.Devel = h.captenConfig.AppDeployDebug
-	client.ClientOnly = true
 
 	cp, err := client.ChartPathOptions.LocateChart(appConfig.ChartName, settings)
 	if err != nil {
