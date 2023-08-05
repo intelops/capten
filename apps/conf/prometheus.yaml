@@ -14,7 +14,7 @@ LaunchUIValues:
     clientId: "{{.ClientId}}"
     clientSecret: "{{.ClientSecret}}"
     oryAdress: "{{.OryURL}}"
-Override:
+OverrideValues:
   grafana:
     enabled: true
     ingress:
