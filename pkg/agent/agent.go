@@ -69,13 +69,8 @@ func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.Transport
 	}), nil
 }
 
-func SaveAppConfigsOnAgent(conf config.CaptenConfig) error {
-	appConfigs, err := readAppConfigs(conf)
-	if err != nil {
-		return err
-	}
-
-	client, err := GetAgentClient(conf)
+func SaveAppConfigsOnAgent(client agentpb.AgentClient, configDir string) error {
+	appConfigs, err := readAppConfigs(configDir)
 	if err != nil {
 		return err
 	}
@@ -96,22 +91,22 @@ func SaveAppConfigsOnAgent(conf config.CaptenConfig) error {
 	return nil
 }
 
-func readAppConfigs(conf config.CaptenConfig) (ret []types.AppConfig, err error) {
+func readAppConfigs(configDir string) (ret []types.AppConfig, err error) {
 
-	err = filepath.Walk(conf.AppsConfigDirPath, func(path string, info os.FileInfo, er error) error {
+	err = filepath.Walk(configDir, func(path string, info os.FileInfo, er error) error {
 		if er != nil {
-			return er
+			return errors.Wrapf(er, "in file: %v", path)
 		}
 		if filepath.Ext(path) != ".yaml" {
 			return nil
 		}
 		byt, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "in file: %v", path)
 		}
 		var appConfig types.AppConfig
 		if err := yaml.NewDecoder(bytes.NewBuffer(byt)).Decode(&appConfig); err != nil {
-			return err
+			return errors.Wrapf(err, "in file: %v", path)
 		}
 		ret = append(ret, appConfig)
 		return nil
