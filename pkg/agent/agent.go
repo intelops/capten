@@ -1,10 +1,15 @@
 package agent
 
 import (
+	"bytes"
+	"capten/pkg/clog"
 	"capten/pkg/config"
+	"capten/pkg/types"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"os"
+	"path/filepath"
 
 	"capten/pkg/agent/agentpb"
 
@@ -12,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"gopkg.in/yaml.v2"
 )
 
 func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
@@ -61,4 +67,55 @@ func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.Transport
 		ClientAuth:   tls.RequireAnyClientCert,
 		ClientCAs:    caCertPool,
 	}), nil
+}
+
+func SaveAppConfigsOnAgent(conf config.CaptenConfig) error {
+	appConfigs, err := readAppConfigs(conf)
+	if err != nil {
+		return err
+	}
+
+	client, err := GetAgentClient(conf)
+	if err != nil {
+		return err
+	}
+
+	for _, appConfig := range appConfigs {
+		data, err := appConfig.ToSyncAppData()
+		if err != nil {
+			clog.Logger.Errorf("Err while making SyncAppRequest: %v for release: %v", err, appConfig.ReleaseName)
+		}
+		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &data})
+		if err != nil {
+			clog.Logger.Errorf("Err while receiving SyncAppResponse: %v for release: %v", err, appConfig.ReleaseName)
+		}
+		if res.Status != agentpb.StatusCode_OK {
+			clog.Logger.Errorf("Response message: %v for release: %v", res.GetStatusMessage(), appConfig.ReleaseName)
+		}
+	}
+	return nil
+}
+
+func readAppConfigs(conf config.CaptenConfig) (ret []types.AppConfig, err error) {
+
+	err = filepath.Walk(conf.AppsConfigDirPath, func(path string, info os.FileInfo, er error) error {
+		if er != nil {
+			return er
+		}
+		if filepath.Ext(path) != ".yaml" {
+			return nil
+		}
+		byt, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		var appConfig types.AppConfig
+		if err := yaml.NewDecoder(bytes.NewBuffer(byt)).Decode(&appConfig); err != nil {
+			return err
+		}
+		ret = append(ret, appConfig)
+		return nil
+	})
+
+	return
 }

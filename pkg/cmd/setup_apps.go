@@ -77,9 +77,10 @@ var appsCmd = &cobra.Command{
 			}
 		}
 
-		//push the app config to cluster
-		//prepare agent proto to push app config
-		//agent store data on cassandra
+		if err := agent.SaveAppConfigsOnAgent(captenConfig); err != nil {
+			clog.Logger.Errorf("Err while SaveAppConfigsOnAgent: %v", err)
+		}
+
 		clog.Logger.Info("Default Applications Installed")
 	},
 }

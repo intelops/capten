@@ -1,5 +1,12 @@
 package types
 
+import (
+	"capten/pkg/agent/agentpb"
+	"encoding/json"
+
+	"gopkg.in/yaml.v2"
+)
+
 type AppGroupList struct {
 	Groups []string `yaml:"AppGroups"`
 }
@@ -49,4 +56,47 @@ type ClusterInfo struct {
 	TraefikTg443Name        string   `yaml:"TraefikTg443Name"`
 	TraefikLbName           string   `yaml:"TraefikLbName"`
 	TerraformBackendConfigs []string `yaml:"TerraformBackendConfigs"`
+}
+
+func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
+
+	marshaledOverride, err := json.Marshal(a.OverrideValues)
+	if err != nil {
+		return agentpb.SyncAppData{}, err
+	}
+	var blank any
+	if err := yaml.Unmarshal(marshaledOverride, &blank); err != nil {
+		return agentpb.SyncAppData{}, err
+	}
+
+	marshaledLaunchUi, err := json.Marshal(a.LaunchUIValues)
+	if err != nil {
+		return agentpb.SyncAppData{}, err
+	}
+	if err := yaml.Unmarshal(marshaledLaunchUi, &blank); err != nil {
+		return agentpb.SyncAppData{}, err
+	}
+
+	return agentpb.SyncAppData{
+		Config: &agentpb.AppConfig{
+			ReleaseName:         a.ReleaseName,
+			AppName:             a.Name,
+			Version:             a.Version,
+			Category:            "",
+			Description:         "",
+			ChartName:           a.ChartName,
+			RepoName:            a.RepoName,
+			RepoURL:             a.RepoURL,
+			Namespace:           a.Namespace,
+			CreateNamespace:     a.CreateNamespace,
+			PrivilegedNamespace: a.PrivilegedNamespace,
+			Icon:                []byte{},
+			LaunchURL:           "",
+			LaunchRedirectURL:   a.LaunchUIConfig.RedirectURL,
+		},
+		Values: &agentpb.AppValues{
+			OverrideValues: marshaledOverride,
+			LaunchUIValues: marshaledLaunchUi,
+		},
+	}, nil
 }
