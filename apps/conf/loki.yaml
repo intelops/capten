@@ -16,13 +16,13 @@ OverrideValues:
         kubernetes.io/tls-acme: "true"
       enabled: true
       hosts:
-      - "loki.{{.DomainName}}"
-      paths:
-      - /
+        - host: "loki.{{.DomainName}}"
+          paths:
+            - "/"
       tls:
       - hosts:
         - "loki.{{.DomainName}}"
-        secretName: cert-prometheus
+        secretName: cert-loki
   promtail:
     config:
       clients:

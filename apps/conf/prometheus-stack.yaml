@@ -32,6 +32,7 @@ Override:
         secretName: cert-grafana
     plugins:
     - vertamedia-clickhouse-datasource
+    - grafana-clickhouse-datasource
     sidecar:
       dashboards:
         enabled: true

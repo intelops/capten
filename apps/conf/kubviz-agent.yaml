@@ -4,7 +4,7 @@ RepoName: "kubviz"
 RepoURL: "https://intelops.github.io/kubviz/"
 Namespace: "observability"
 ReleaseName: "kubviz-agent"
-Version: "0.2.6"
+Version: "0.2.7"
 CreateNamespace: true
 OverrideValues:
   nats: 

@@ -7,6 +7,4 @@ ReleaseName: "vault"
 Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
-  injector:
-    enabled: true
-    replicas: "3"
+  
