@@ -25,6 +25,10 @@ type AppConfig struct {
 	Namespace           string                 `yaml:"Namespace"`
 	ReleaseName         string                 `yaml:"ReleaseName"`
 	Version             string                 `yaml:"Version"`
+	Category            string                 `yaml:"Category"`
+	Description         string                 `yaml:"Description"`
+	LaunchURL           string                 `yaml:"LaunchURL"`
+	LaunchRedirectURL   string                 `yaml:"LaunchRedirectURL"`
 	LaunchUIConfig      LaunchUIConfig         `yaml:"LaunchUIConfig"`
 	LaunchUIValues      map[string]interface{} `yaml:"LaunchUIValues"`
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
@@ -74,8 +78,8 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			ReleaseName:         a.ReleaseName,
 			AppName:             a.Name,
 			Version:             a.Version,
-			Category:            "",
-			Description:         "",
+			Category:            a.Category,
+			Description:         a.Description,
 			ChartName:           a.ChartName,
 			RepoName:            a.RepoName,
 			RepoURL:             a.RepoURL,
@@ -83,8 +87,8 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			CreateNamespace:     a.CreateNamespace,
 			PrivilegedNamespace: a.PrivilegedNamespace,
 			Icon:                []byte{},
-			LaunchURL:           "",
-			LaunchRedirectURL:   a.LaunchUIConfig.RedirectURL,
+			LaunchURL:           a.LaunchURL,
+			LaunchRedirectURL:   a.LaunchRedirectURL,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,

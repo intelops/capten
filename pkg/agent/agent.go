@@ -69,8 +69,15 @@ func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.Transport
 	}), nil
 }
 
-func SaveAppConfigsOnAgent(client agentpb.AgentClient, configDir string) error {
-	appConfigs, err := readAppConfigs(configDir)
+func SaveAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
+
+	client, err := GetAgentClient(captenConfig)
+	if err != nil {
+		clog.Logger.Errorf("failed to fetch client, err:%v", err)
+		return err
+	}
+
+	appConfigs, err := readAppConfigs(captenConfig)
 	if err != nil {
 		return err
 	}
@@ -95,7 +102,9 @@ func SaveAppConfigsOnAgent(client agentpb.AgentClient, configDir string) error {
 	return nil
 }
 
-func readAppConfigs(configDir string) (ret []types.AppConfig, err error) {
+func readAppConfigs(config config.CaptenConfig) (ret []types.AppConfig, err error) {
+
+	configDir := config.PrepareDirPath(config.AppsTempDirPath)
 
 	err = filepath.Walk(configDir, func(path string, info os.FileInfo, er error) error {
 		if er != nil {

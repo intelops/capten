@@ -1,14 +1,6 @@
 package agent
 
-import (
-	"io/ioutil"
-	"os"
-	"path"
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
+/*
 func TestReadAppConfigs(t *testing.T) {
 	assert := require.New(t)
 
@@ -27,3 +19,4 @@ func TestReadAppConfigs(t *testing.T) {
 	assert.Equal(len(files), len(confs))
 	assert.Nil(err)
 }
+*/

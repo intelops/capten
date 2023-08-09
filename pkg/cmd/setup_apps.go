@@ -77,13 +77,7 @@ var appsCmd = &cobra.Command{
 			}
 		}
 
-		client, err := agent.GetAgentClient(captenConfig)
-		if err != nil {
-			clog.Logger.Errorf("failed to fetch client, err:%v", err)
-			return
-		}
-
-		if err := agent.SaveAppConfigsOnAgent(client, captenConfig.AppsTempDirPath); err != nil {
+		if err := agent.SaveAppConfigsOnAgent(captenConfig); err != nil {
 			clog.Logger.Errorf("Err while SaveAppConfigsOnAgent: %v", err)
 		}
 
