@@ -19,7 +19,7 @@ OverrideValues:
         paths:
         - path: /
           pathType: ImplementationSpecific
-      tls:
+    tls:
         hosts:
         - "tracetest.{{.DomainName}}"
         secretName: cert-tracetest
