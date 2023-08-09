@@ -82,8 +82,8 @@ var appsCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to fetch client, err:%v", err)
 			return
 		}
-		//TODO(Venkat): We are saving the apps config dir path itself right
-		if err := agent.SaveAppConfigsOnAgent(client, captenConfig.AppsConfigDirPath); err != nil {
+
+		if err := agent.SaveAppConfigsOnAgent(client, captenConfig.AppsTempDirPath); err != nil {
 			clog.Logger.Errorf("Err while SaveAppConfigsOnAgent: %v", err)
 		}
 
