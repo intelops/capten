@@ -18,6 +18,10 @@ func TestReadAppConfigs(t *testing.T) {
 	finalPath := path.Join(dir, "../..", "/apps/conf")
 	confs, err := readAppConfigs(finalPath)
 	assert.Nil(err)
+	for _, c := range confs {
+		_, err := c.ToSyncAppData()
+		assert.Nil(err)
+	}
 
 	files, err := ioutil.ReadDir(finalPath)
 	assert.Equal(len(files), len(confs))

@@ -78,16 +78,20 @@ func SaveAppConfigsOnAgent(client agentpb.AgentClient, configDir string) error {
 	for _, appConfig := range appConfigs {
 		data, err := appConfig.ToSyncAppData()
 		if err != nil {
-			clog.Logger.Errorf("Err while making SyncAppRequest: %v for release: %v", err, appConfig.ReleaseName)
+			clog.Logger.Errorf("Err while converting to SyncAppData: %v for release: %v", err, appConfig.ReleaseName)
+			continue
 		}
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &data})
 		if err != nil {
 			clog.Logger.Errorf("Err while receiving SyncAppResponse: %v for release: %v", err, appConfig.ReleaseName)
+			if res != nil && res.Status != agentpb.StatusCode_OK {
+				clog.Logger.Errorf("Response message: %v for release: %v", res.GetStatusMessage(), appConfig.ReleaseName)
+			}
+			continue
 		}
-		if res.Status != agentpb.StatusCode_OK {
-			clog.Logger.Errorf("Response message: %v for release: %v", res.GetStatusMessage(), appConfig.ReleaseName)
-		}
+		clog.Logger.Infof("Synced App, status: %v, release: %v", res.GetStatusMessage(), appConfig.ReleaseName)
 	}
+
 	return nil
 }
 

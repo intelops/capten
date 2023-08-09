@@ -2,7 +2,6 @@ package types
 
 import (
 	"capten/pkg/agent/agentpb"
-	"encoding/json"
 
 	"gopkg.in/yaml.v2"
 )
@@ -60,20 +59,13 @@ type ClusterInfo struct {
 
 func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 
-	marshaledOverride, err := json.Marshal(a.OverrideValues)
+	marshaledOverride, err := yaml.Marshal(a.OverrideValues)
 	if err != nil {
-		return agentpb.SyncAppData{}, err
-	}
-	var blank any
-	if err := yaml.Unmarshal(marshaledOverride, &blank); err != nil {
 		return agentpb.SyncAppData{}, err
 	}
 
-	marshaledLaunchUi, err := json.Marshal(a.LaunchUIValues)
+	marshaledLaunchUi, err := yaml.Marshal(a.LaunchUIValues)
 	if err != nil {
-		return agentpb.SyncAppData{}, err
-	}
-	if err := yaml.Unmarshal(marshaledLaunchUi, &blank); err != nil {
 		return agentpb.SyncAppData{}, err
 	}
 
