@@ -15,11 +15,11 @@ OverrideValues:
       kubernetes.io/tls-acme: "true"
     enabled: true
     hosts:
-      - host: "tracetest.{{.DomainName}}"
-        paths:
+    - host: "tracetest.{{.DomainName}}"
+      paths:
         - path: /
           pathType: ImplementationSpecific
     tls:
+      - secretName: cert-tracetest
         hosts:
         - "tracetest.{{.DomainName}}"
-        secretName: cert-tracetest

@@ -56,6 +56,8 @@ type CaptenConfig struct {
 	SkipAppsDeploy             bool     `envconfig:"SKIP_APPS_DEPLOY" default:"false"`
 	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
 	UpgradeAppIfInstalled      bool     `envconfig:"UPGRADE_APP_IF_INSTALLED" default:"false"`
+	TerraformInitReconfigure   bool     `envconfig:"TERRAFORM_INIT_RECONFIGURE" default:"true"`
+	TerraformInitUpgrade       bool     `envconfig:"TERRAFORM_INIT_UPGRADE" default:"true"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
 }
