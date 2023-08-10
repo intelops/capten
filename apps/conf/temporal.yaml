@@ -14,3 +14,17 @@ OverrideValues:
       serviceMonitor:
         additionalLabels:
           release: prometheus
+    autoscaling:
+      enabled: false
+  frontend:
+    autoscaling:
+      enabled: false
+  history:
+    autoscaling:
+      enabled: false
+  matching:
+    autoscaling:
+      enabled: false
+  worker:
+    autoscaling:
+      enabled: false

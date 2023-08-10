@@ -28,3 +28,18 @@ OverrideValues:
           name: plugins
   configuration:
     features: EnableCSI
+    backupStorageLocation:
+    - name:
+      provider: 
+      bucket: 
+      config:
+        region: 
+    volumeSnapshotLocation:
+    - name:
+      provider: 
+      config:
+        region: 
+  credentials:
+    secretContents: 
+      cloud: |
+        

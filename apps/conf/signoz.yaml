@@ -22,7 +22,7 @@ OverrideValues:
           pathType: ImplementationSpecific
           port: 3301
       tls:
-        hosts:
+      - hosts:
         - "signoz.{{.DomainName}}"
         secretName: cert-signoz
   otelCollector:
