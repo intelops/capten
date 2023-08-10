@@ -3,3 +3,5 @@ LoadBalancerHost: ""
 CloudService: aws
 ClusterType: talos
 ClusterCAIssuer: ""
+SlackURL: ""
+SlackChannel: ""
