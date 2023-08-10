@@ -19,19 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Agent_SubmitJob_FullMethodName          = "/agentpb.Agent/SubmitJob"
-	Agent_StoreCredential_FullMethodName    = "/agentpb.Agent/StoreCredential"
-	Agent_Sync_FullMethodName               = "/agentpb.Agent/Sync"
-	Agent_ClimonAppInstall_FullMethodName   = "/agentpb.Agent/ClimonAppInstall"
-	Agent_ClimonAppDelete_FullMethodName    = "/agentpb.Agent/ClimonAppDelete"
-	Agent_DeployerAppInstall_FullMethodName = "/agentpb.Agent/DeployerAppInstall"
-	Agent_DeployerAppDelete_FullMethodName  = "/agentpb.Agent/DeployerAppDelete"
-	Agent_ClusterAdd_FullMethodName         = "/agentpb.Agent/ClusterAdd"
-	Agent_ClusterDelete_FullMethodName      = "/agentpb.Agent/ClusterDelete"
-	Agent_RepositoryAdd_FullMethodName      = "/agentpb.Agent/RepositoryAdd"
-	Agent_RepositoryDelete_FullMethodName   = "/agentpb.Agent/RepositoryDelete"
-	Agent_ProjectAdd_FullMethodName         = "/agentpb.Agent/ProjectAdd"
-	Agent_ProjectDelete_FullMethodName      = "/agentpb.Agent/ProjectDelete"
+	Agent_SubmitJob_FullMethodName             = "/agentpb.Agent/SubmitJob"
+	Agent_StoreCredential_FullMethodName       = "/agentpb.Agent/StoreCredential"
+	Agent_Sync_FullMethodName                  = "/agentpb.Agent/Sync"
+	Agent_ClimonAppInstall_FullMethodName      = "/agentpb.Agent/ClimonAppInstall"
+	Agent_ClimonAppDelete_FullMethodName       = "/agentpb.Agent/ClimonAppDelete"
+	Agent_DeployerAppInstall_FullMethodName    = "/agentpb.Agent/DeployerAppInstall"
+	Agent_DeployerAppDelete_FullMethodName     = "/agentpb.Agent/DeployerAppDelete"
+	Agent_ClusterAdd_FullMethodName            = "/agentpb.Agent/ClusterAdd"
+	Agent_ClusterDelete_FullMethodName         = "/agentpb.Agent/ClusterDelete"
+	Agent_RepositoryAdd_FullMethodName         = "/agentpb.Agent/RepositoryAdd"
+	Agent_RepositoryDelete_FullMethodName      = "/agentpb.Agent/RepositoryDelete"
+	Agent_ProjectAdd_FullMethodName            = "/agentpb.Agent/ProjectAdd"
+	Agent_ProjectDelete_FullMethodName         = "/agentpb.Agent/ProjectDelete"
+	Agent_SyncApp_FullMethodName               = "/agentpb.Agent/SyncApp"
+	Agent_GetClusterApps_FullMethodName        = "/agentpb.Agent/GetClusterApps"
+	Agent_GetClusterAppLaunches_FullMethodName = "/agentpb.Agent/GetClusterAppLaunches"
+	Agent_GetClusterAppConfig_FullMethodName   = "/agentpb.Agent/GetClusterAppConfig"
+	Agent_GetClusterAppValues_FullMethodName   = "/agentpb.Agent/GetClusterAppValues"
 )
 
 // AgentClient is the client API for Agent service.
@@ -51,6 +56,11 @@ type AgentClient interface {
 	RepositoryDelete(ctx context.Context, in *RepositoryDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error)
 	ProjectAdd(ctx context.Context, in *ProjectAddRequest, opts ...grpc.CallOption) (*JobResponse, error)
 	ProjectDelete(ctx context.Context, in *ProjectDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error)
+	SyncApp(ctx context.Context, in *SyncAppRequest, opts ...grpc.CallOption) (*SyncAppResponse, error)
+	GetClusterApps(ctx context.Context, in *GetClusterAppsRequest, opts ...grpc.CallOption) (*GetClusterAppsResponse, error)
+	GetClusterAppLaunches(ctx context.Context, in *GetClusterAppLaunchesRequest, opts ...grpc.CallOption) (*GetClusterAppLaunchesResponse, error)
+	GetClusterAppConfig(ctx context.Context, in *GetClusterAppConfigRequest, opts ...grpc.CallOption) (*GetClusterAppConfigResponse, error)
+	GetClusterAppValues(ctx context.Context, in *GetClusterAppValuesRequest, opts ...grpc.CallOption) (*GetClusterAppValuesResponse, error)
 }
 
 type agentClient struct {
@@ -178,6 +188,51 @@ func (c *agentClient) ProjectDelete(ctx context.Context, in *ProjectDeleteReques
 	return out, nil
 }
 
+func (c *agentClient) SyncApp(ctx context.Context, in *SyncAppRequest, opts ...grpc.CallOption) (*SyncAppResponse, error) {
+	out := new(SyncAppResponse)
+	err := c.cc.Invoke(ctx, Agent_SyncApp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetClusterApps(ctx context.Context, in *GetClusterAppsRequest, opts ...grpc.CallOption) (*GetClusterAppsResponse, error) {
+	out := new(GetClusterAppsResponse)
+	err := c.cc.Invoke(ctx, Agent_GetClusterApps_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetClusterAppLaunches(ctx context.Context, in *GetClusterAppLaunchesRequest, opts ...grpc.CallOption) (*GetClusterAppLaunchesResponse, error) {
+	out := new(GetClusterAppLaunchesResponse)
+	err := c.cc.Invoke(ctx, Agent_GetClusterAppLaunches_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetClusterAppConfig(ctx context.Context, in *GetClusterAppConfigRequest, opts ...grpc.CallOption) (*GetClusterAppConfigResponse, error) {
+	out := new(GetClusterAppConfigResponse)
+	err := c.cc.Invoke(ctx, Agent_GetClusterAppConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetClusterAppValues(ctx context.Context, in *GetClusterAppValuesRequest, opts ...grpc.CallOption) (*GetClusterAppValuesResponse, error) {
+	out := new(GetClusterAppValuesResponse)
+	err := c.cc.Invoke(ctx, Agent_GetClusterAppValues_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServer is the server API for Agent service.
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
@@ -195,6 +250,11 @@ type AgentServer interface {
 	RepositoryDelete(context.Context, *RepositoryDeleteRequest) (*JobResponse, error)
 	ProjectAdd(context.Context, *ProjectAddRequest) (*JobResponse, error)
 	ProjectDelete(context.Context, *ProjectDeleteRequest) (*JobResponse, error)
+	SyncApp(context.Context, *SyncAppRequest) (*SyncAppResponse, error)
+	GetClusterApps(context.Context, *GetClusterAppsRequest) (*GetClusterAppsResponse, error)
+	GetClusterAppLaunches(context.Context, *GetClusterAppLaunchesRequest) (*GetClusterAppLaunchesResponse, error)
+	GetClusterAppConfig(context.Context, *GetClusterAppConfigRequest) (*GetClusterAppConfigResponse, error)
+	GetClusterAppValues(context.Context, *GetClusterAppValuesRequest) (*GetClusterAppValuesResponse, error)
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -240,6 +300,21 @@ func (UnimplementedAgentServer) ProjectAdd(context.Context, *ProjectAddRequest) 
 }
 func (UnimplementedAgentServer) ProjectDelete(context.Context, *ProjectDeleteRequest) (*JobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProjectDelete not implemented")
+}
+func (UnimplementedAgentServer) SyncApp(context.Context, *SyncAppRequest) (*SyncAppResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncApp not implemented")
+}
+func (UnimplementedAgentServer) GetClusterApps(context.Context, *GetClusterAppsRequest) (*GetClusterAppsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterApps not implemented")
+}
+func (UnimplementedAgentServer) GetClusterAppLaunches(context.Context, *GetClusterAppLaunchesRequest) (*GetClusterAppLaunchesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterAppLaunches not implemented")
+}
+func (UnimplementedAgentServer) GetClusterAppConfig(context.Context, *GetClusterAppConfigRequest) (*GetClusterAppConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterAppConfig not implemented")
+}
+func (UnimplementedAgentServer) GetClusterAppValues(context.Context, *GetClusterAppValuesRequest) (*GetClusterAppValuesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterAppValues not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
@@ -488,6 +563,96 @@ func _Agent_ProjectDelete_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_SyncApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncAppRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).SyncApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_SyncApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).SyncApp(ctx, req.(*SyncAppRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetClusterApps_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterAppsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetClusterApps(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_GetClusterApps_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetClusterApps(ctx, req.(*GetClusterAppsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetClusterAppLaunches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterAppLaunchesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetClusterAppLaunches(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_GetClusterAppLaunches_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetClusterAppLaunches(ctx, req.(*GetClusterAppLaunchesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetClusterAppConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterAppConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetClusterAppConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_GetClusterAppConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetClusterAppConfig(ctx, req.(*GetClusterAppConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetClusterAppValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterAppValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetClusterAppValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_GetClusterAppValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetClusterAppValues(ctx, req.(*GetClusterAppValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -546,6 +711,26 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProjectDelete",
 			Handler:    _Agent_ProjectDelete_Handler,
+		},
+		{
+			MethodName: "SyncApp",
+			Handler:    _Agent_SyncApp_Handler,
+		},
+		{
+			MethodName: "GetClusterApps",
+			Handler:    _Agent_GetClusterApps_Handler,
+		},
+		{
+			MethodName: "GetClusterAppLaunches",
+			Handler:    _Agent_GetClusterAppLaunches_Handler,
+		},
+		{
+			MethodName: "GetClusterAppConfig",
+			Handler:    _Agent_GetClusterAppConfig_Handler,
+		},
+		{
+			MethodName: "GetClusterAppValues",
+			Handler:    _Agent_GetClusterAppValues_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
