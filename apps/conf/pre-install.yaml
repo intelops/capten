@@ -1,5 +1,7 @@
 Name: "pre-install"
 ChartName: "tools/pre-install"
+Category: "Platform"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"

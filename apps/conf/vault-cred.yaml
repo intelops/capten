@@ -1,5 +1,7 @@
 Name: "vault-cred"
 ChartName: "vault-cred/vault-cred"
+Category: "Security"
+Description: ""
 RepoName: "vault-cred"
 RepoURL: "https://intelops.github.io/vault-cred"
 Namespace: "capten"

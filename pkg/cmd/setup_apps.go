@@ -81,7 +81,6 @@ var appsCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to sync installed apps config in cluster, %v", err)
 			return
 		}
-
 		clog.Logger.Info("Default Applications Installed")
 	},
 }

@@ -1,5 +1,7 @@
 Name: "kyverno"
 ChartName: "tools/kyverno"
+Category: "Observability"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "kyverno"
