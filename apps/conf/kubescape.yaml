@@ -1,5 +1,7 @@
 Name: "kubescape"
 ChartName: "tools/kubescape-prometheus-integrator"
+Category: "Observability"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "kubescape-prometheus"

@@ -1,5 +1,7 @@
 Name: "kubviz-client"
 ChartName: "kubviz/client"
+Category: "Observability"
+Description: ""
 RepoName: "kubviz"
 RepoURL: "https://intelops.github.io/kubviz/"
 Namespace: "observability"

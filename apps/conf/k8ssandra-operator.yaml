@@ -1,5 +1,7 @@
 Name: "k8ssandra-operator"
 ChartName: "tools/k8ssandra"
+Category: "Platform"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"

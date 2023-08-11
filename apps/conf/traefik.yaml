@@ -1,5 +1,7 @@
 Name: "traefik"
 ChartName: "tools/traefik"
+Category: "Networking"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "traefik"
