@@ -62,7 +62,6 @@ type ClusterInfo struct {
 }
 
 func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
-
 	marshaledOverride, err := yaml.Marshal(a.OverrideValues)
 	if err != nil {
 		return agentpb.SyncAppData{}, err
