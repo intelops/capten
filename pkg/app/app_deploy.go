@@ -55,8 +55,8 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			continue
 		}
 		if appConfig.PrivilegedNamespace {
-			err := k8s.MakeNamespacePrivilege(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
-				appConfig.Namespace)
+			err:=k8s.CreateorUpdateNamespaceWithLabel(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
+			 	appConfig.Namespace)
 			if err != nil {
 				clog.Logger.Error("failed to patch namespace with privilege", err)
 				successStatus = false
