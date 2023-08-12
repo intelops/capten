@@ -50,7 +50,7 @@ func New(captenConfig config.CaptenConfig, config types.ClusterInfo) (*terraform
 	return &terraform{config: config, exec: tf, captenConfig: captenConfig}, nil
 }
 
-func (t *terraform) Apply() error {
+func (t *terraform) init() error {
 	backendConfigOptionsStr := []string{
 		"region=" + t.config.Region,
 		"access_key=" + t.config.AwsAccessKey,
@@ -67,6 +67,14 @@ func (t *terraform) Apply() error {
 	err := t.exec.Init(context.Background(), initOptions...)
 	if err != nil {
 		return errors.WithMessage(err, "terraform init failed")
+	}
+	return nil
+}
+
+func (t *terraform) Apply() error {
+	err := t.init()
+	if err != nil {
+		return err
 	}
 
 	_, err = t.exec.Show(context.Background())
@@ -87,6 +95,16 @@ func (t *terraform) Apply() error {
 }
 
 func (t *terraform) Destroy() error {
+	err := t.init()
+	if err != nil {
+		return err
+	}
+
+	_, err = t.exec.Show(context.Background())
+	if err != nil {
+		return errors.WithMessage(err, "error running show")
+	}
+
 	varFile := fmt.Sprintf("%s%s%s", t.captenConfig.CurrentDirPath, t.captenConfig.TerraformTemplateDirPath, t.captenConfig.TerraformVarFileName)
 	return t.exec.Destroy(context.Background(), tfexec.VarFile(varFile))
 }
