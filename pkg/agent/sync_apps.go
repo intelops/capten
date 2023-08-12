@@ -32,6 +32,7 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 			continue
 		}
 
+		syncAppData.Config.InstallStatus = "Installed"
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
 		if err != nil {
 			clog.Logger.Errorf("failed to synch '%s' app config to synch with agent, %v", appConfig.ReleaseName, err)
