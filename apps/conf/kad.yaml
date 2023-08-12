@@ -1,5 +1,7 @@
 Name: "kad"
 ChartName: "kad/kad"
+Category: "Platform"
+Description: ""
 RepoName: "kad"
 RepoURL: "https://kube-tarian.github.io/kad"
 Namespace: "capten"

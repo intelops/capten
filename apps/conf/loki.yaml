@@ -1,5 +1,7 @@
 Name: "loki"
 ChartName: "tools/loki-stack"
+Category: "Observability"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"

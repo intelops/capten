@@ -77,10 +77,10 @@ var appsCmd = &cobra.Command{
 			}
 		}
 
-		if err := agent.SaveAppConfigsOnAgent(captenConfig); err != nil {
-			clog.Logger.Errorf("Err while SaveAppConfigsOnAgent: %v", err)
+		if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {
+			clog.Logger.Errorf("failed to sync installed apps config in cluster, %v", err)
+			return
 		}
-
 		clog.Logger.Info("Default Applications Installed")
 	},
 }

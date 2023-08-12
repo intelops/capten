@@ -1,14 +1,15 @@
 Name: "prometheus"
 ChartName: "tools/kube-prometheus-stack"
+Category: "Observability"
+Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "prometheus"
 Version: "1.0.0"
 CreateNamespace: true
-LaunchUIConfig:  
-  RedirectURL: https://grafana.{{.DomainName}}/sso/
-  LaunchURL: https://grafana.{{.DomainName}}/
+LaunchURL: https://grafana.capten.intelops.app
+LaunchRedirectURL: https://grafana.capten.intelops.app
 LaunchUIValues:
   sso:
     clientId: "{{.ClientId}}"
@@ -65,4 +66,3 @@ OverrideValues:
     alertmanagerSpec:
       alertmanagerConfigMatcherStrategy:
         type: None
-         

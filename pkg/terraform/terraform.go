@@ -62,7 +62,8 @@ func (t *terraform) Apply() error {
 		initOptions = append(initOptions, tfexec.BackendConfig(backendConfigOption))
 	}
 
-	initOptions = append(initOptions, tfexec.Upgrade(true))
+	initOptions = append(initOptions, tfexec.Upgrade(t.captenConfig.TerraformInitUpgrade))
+	initOptions = append(initOptions, tfexec.Reconfigure(t.captenConfig.TerraformInitReconfigure))
 	err := t.exec.Init(context.Background(), initOptions...)
 	if err != nil {
 		return errors.WithMessage(err, "terraform init failed")

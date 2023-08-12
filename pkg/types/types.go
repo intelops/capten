@@ -13,23 +13,18 @@ type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
 
-type LaunchUIConfig struct {
-	RedirectURL string `yaml:"RedirectURL"`
-}
-
 type AppConfig struct {
 	Name                string                 `yaml:"Name"`
 	ChartName           string                 `yaml:"ChartName"`
+	Category            string                 `yaml:"Category"`
 	RepoName            string                 `yaml:"RepoName"`
 	RepoURL             string                 `yaml:"RepoURL"`
 	Namespace           string                 `yaml:"Namespace"`
 	ReleaseName         string                 `yaml:"ReleaseName"`
 	Version             string                 `yaml:"Version"`
-	Category            string                 `yaml:"Category"`
 	Description         string                 `yaml:"Description"`
 	LaunchURL           string                 `yaml:"LaunchURL"`
 	LaunchRedirectURL   string                 `yaml:"LaunchRedirectURL"`
-	LaunchUIConfig      LaunchUIConfig         `yaml:"LaunchUIConfig"`
 	LaunchUIValues      map[string]interface{} `yaml:"LaunchUIValues"`
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
@@ -62,7 +57,6 @@ type ClusterInfo struct {
 }
 
 func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
-
 	marshaledOverride, err := yaml.Marshal(a.OverrideValues)
 	if err != nil {
 		return agentpb.SyncAppData{}, err
