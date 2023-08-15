@@ -10,7 +10,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"time"
@@ -123,14 +122,14 @@ func generateCACert(captenConfig config.CaptenConfig) (rootKey *rsa.PrivateKey,
 	}
 
 	rootCertPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCert})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCACertFileName), rootCertPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCACertFileName), rootCertPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from root CA cert")
 		return
 	}
 
 	rootKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(rootKey)})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCAKeyFileName), rootKeyPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCAKeyFileName), rootKeyPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from root CA key")
 		return
@@ -167,14 +166,14 @@ func generateIntermediateCACert(captenConfig config.CaptenConfig, rootKey *rsa.P
 	}
 
 	interCertPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: interCert})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCACertFileName), interCertPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCACertFileName), interCertPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from intermediate CA cert")
 		return
 	}
 
 	interKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(interKey)})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCAKeyFileName), interKeyPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCAKeyFileName), interKeyPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from intermediate CA key")
 		return
@@ -212,14 +211,14 @@ func generateAgentCert(captenConfig config.CaptenConfig, interKey *rsa.PrivateKe
 	}
 
 	agentCertPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: agentCert})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName), agentCertPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName), agentCertPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from agent cert to certs/server.crt")
 		return
 	}
 
 	agentKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(agentKey)})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName), agentKeyPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName), agentKeyPEM, filePrmission)
 	if err != nil {
 		err = errors.WithMessage(err, "error while writing from agent key to certs/server.key")
 		return
@@ -255,13 +254,13 @@ func generateClientCert(captenConfig config.CaptenConfig, interKey *rsa.PrivateK
 	}
 
 	clientCertPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: clientCert})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientCertFileName), clientCertPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientCertFileName), clientCertPEM, filePrmission)
 	if err != nil {
 		return errors.WithMessage(err, "error while writing from client cert to certs/client.crt")
 	}
 
 	clientKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(clientKey)})
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientKeyFileName), clientKeyPEM, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.ClientKeyFileName), clientKeyPEM, filePrmission)
 	if err != nil {
 		return errors.WithMessage(err, "error while writing from client key to certs/client.key")
 	}
@@ -269,17 +268,17 @@ func generateClientCert(captenConfig config.CaptenConfig, interKey *rsa.PrivateK
 }
 
 func generateCACertChain(captenConfig config.CaptenConfig) error {
-	caCertPEMFromFile, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCACertFileName))
+	caCertPEMFromFile, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, rootCACertFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading root CA cert file")
 	}
 
-	interCACertPEMFromFile, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCACertFileName))
+	interCACertPEMFromFile, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, interCACertFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading intermediate CA cert file")
 	}
 
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName), append(caCertPEMFromFile, interCACertPEMFromFile...), filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName), append(caCertPEMFromFile, interCACertPEMFromFile...), filePrmission)
 	if err != nil {
 		return errors.WithMessage(err, "error while writing to ca cert file")
 	}
