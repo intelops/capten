@@ -5,7 +5,7 @@ Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
-ReleaseName: "grafana"
+ReleaseName: "grafana-dashboards"
 Version: "0.1.5"
 CreateNamespace: true
 OverrideValues:  
