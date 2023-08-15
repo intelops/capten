@@ -8,13 +8,21 @@ Namespace: "observability"
 ReleaseName: "prometheus"
 Version: "1.0.0"
 CreateNamespace: true
-LaunchURL: https://grafana.capten.intelops.app
-LaunchRedirectURL: https://grafana.capten.intelops.app
+LaunchURL: https://grafana.{{.DomainName}}
 LaunchUIValues:
-  sso:
-    clientId: "{{.ClientId}}"
-    clientSecret: "{{.ClientSecret}}"
-    oryAdress: "{{.OryURL}}"
+  grafana:
+    grafana.ini:
+      auth.generic_oauth:
+        enabled: true
+        name: Intelops
+        allow_sign_up: true
+        client_id: "{{.ClientId}}"
+        client_secret: "{{.ClientSecret}}"
+        scopes: openid email
+        auth_url: {{.OAuthBaseURL}}/oauth2/auth
+        token_url: {{.OAuthBaseURL}}/oauth2/token
+        api_url: {{.OAuthBaseURL}}/userinfo
+        allow_assign_grafana_admin: true
 OverrideValues:
   grafana:
     enabled: true
