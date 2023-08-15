@@ -1,7 +1,7 @@
 Name: "prometheus"
 ChartName: "tools/kube-prometheus-stack"
 Category: "Observability"
-Description: ""
+Description: "Intelops Grafana"
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
