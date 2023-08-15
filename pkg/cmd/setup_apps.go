@@ -68,6 +68,14 @@ var appsCmd = &cobra.Command{
 				return
 			}
 		}
+		clog.Logger.Info("Default Applications Installed")
+
+		clog.Logger.Info("Synchonizing Applications with Cluster Agent")
+		if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {
+			clog.Logger.Errorf("failed to sync installed apps config in cluster, %v", err)
+			return
+		}
+		clog.Logger.Info("Applications Synchonized with Cluster Agent")
 
 		if captenConfig.StoreCredOnAgent {
 			err = agent.StoreCredentials(captenConfig, globalValues)
@@ -77,10 +85,5 @@ var appsCmd = &cobra.Command{
 			}
 		}
 
-		if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {
-			clog.Logger.Errorf("failed to sync installed apps config in cluster, %v", err)
-			return
-		}
-		clog.Logger.Info("Default Applications Installed")
 	},
 }

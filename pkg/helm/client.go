@@ -3,7 +3,6 @@ package helm
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -235,7 +234,7 @@ func (h *Client) createValuesFile(appValuesFile string, values map[string]interf
 		return errors.WithMessage(err, "failed to unmarshal values")
 	}
 
-	err = ioutil.WriteFile(appValuesFile, data, filePrmission)
+	err = os.WriteFile(appValuesFile, data, filePrmission)
 	if err != nil {
 		return errors.WithMessagef(err, "failed to write app values to file %s", appValuesFile)
 	}

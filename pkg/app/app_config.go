@@ -3,7 +3,6 @@ package app
 import (
 	"capten/pkg/config"
 	"capten/pkg/types"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -17,7 +16,7 @@ const (
 
 func GetClusterGlobalValues(valuesFilePath string) (map[string]interface{}, error) {
 	var values map[string]interface{}
-	data, err := ioutil.ReadFile(valuesFilePath)
+	data, err := os.ReadFile(valuesFilePath)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to read values file, %s", valuesFilePath)
 	}
@@ -31,7 +30,7 @@ func GetClusterGlobalValues(valuesFilePath string) (map[string]interface{}, erro
 
 func GetAppGroups(appGroupsFilePath string) ([]string, error) {
 	var values types.AppGroupList
-	data, err := ioutil.ReadFile(appGroupsFilePath)
+	data, err := os.ReadFile(appGroupsFilePath)
 	if err != nil {
 		return nil, errors.WithMessagef(err, "failed to read file, %s", appGroupsFilePath)
 	}
@@ -45,7 +44,7 @@ func GetAppGroups(appGroupsFilePath string) ([]string, error) {
 
 func GetApps(appListFilePath string) ([]string, error) {
 	var values types.AppList
-	data, err := ioutil.ReadFile(appListFilePath)
+	data, err := os.ReadFile(appListFilePath)
 	if err != nil {
 		return nil, errors.WithMessagef(err, "failed to read values file, %s", appListFilePath)
 	}
@@ -59,7 +58,7 @@ func GetApps(appListFilePath string) ([]string, error) {
 
 func GetAppConfig(appConfigFilePath string) (types.AppConfig, error) {
 	var values types.AppConfig
-	data, err := ioutil.ReadFile(appConfigFilePath)
+	data, err := os.ReadFile(appConfigFilePath)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to read values file, %s", appConfigFilePath)
 	}
@@ -82,7 +81,7 @@ func WriteAppConfig(captenConfig config.CaptenConfig, appConfig types.AppConfig)
 		return errors.WithMessagef(err, "failed to unmarshal %s app config", appConfig.Name)
 	}
 
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.AppsTempDirPath, appConfig.Name+".yaml"), data, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.AppsTempDirPath, appConfig.Name+".yaml"), data, filePrmission)
 	if err != nil {
 		return errors.WithMessagef(err, "failed to write %s app config to file", appConfig.Name)
 	}

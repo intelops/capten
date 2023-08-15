@@ -28,8 +28,17 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 	for _, appConfig := range appConfigs {
 		syncAppData, err := appConfig.ToSyncAppData()
 		if err != nil {
-			clog.Logger.Errorf("failed processing '%s' app config to synch with agent, %v", appConfig.ReleaseName, err)
+			clog.Logger.Errorf("failed to parse '%s' app config, %v", appConfig.ReleaseName, err)
 			continue
+		}
+
+		if len(syncAppData.Config.Icon) != 0 {
+			iconBytes, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.AppIconsDirPath, string(syncAppData.Config.Icon)))
+			if err != nil {
+				clog.Logger.Errorf("failed loading icon for app '%s', %v", appConfig.ReleaseName, err)
+			}
+			syncAppData.Config.Icon = iconBytes
+			clog.Logger.Infof("'%s' app icon added", appConfig.ReleaseName)
 		}
 
 		syncAppData.Config.InstallStatus = "Installed"

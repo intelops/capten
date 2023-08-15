@@ -3,7 +3,6 @@ package config
 import (
 	"capten/pkg/types"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -27,7 +26,8 @@ type CaptenConfig struct {
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
 	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
-	AppValuesTempDirPath       string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/val/"`
+	AppValuesTempDirPath       string   `envconfig:"APPS_TEMPVAL_DIR_PATH" default:"/apps/tmp/val/"`
+	AppIconsDirPath            string   `envconfig:"APPS_ICON_DIR_PATH" default:"/apps/icons/"`
 	ConfigDirPath              string   `envconfig:"CONFIG_DIR_PATH" default:"/config/"`
 	CertDirPath                string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
 	TerraformModulesDirPath    string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
@@ -180,7 +180,7 @@ func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) er
 		return err
 	}
 
-	err = ioutil.WriteFile(clusterValuesPath, clusterValuesData, 0644)
+	err = os.WriteFile(clusterValuesPath, clusterValuesData, 0644)
 	if err != nil {
 		return err
 	}
