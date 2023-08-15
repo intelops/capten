@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"capten/pkg/config"
 	"capten/pkg/types"
-	"fmt"
 	"html/template"
 	"os"
 
@@ -56,7 +55,7 @@ func GetAppConfig(appConfigFilePath string, globalValues map[string]interface{})
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to transform app config file, %s", appConfigFilePath)
 	}
-	fmt.Printf("%v", string(transformedData))
+
 	err = yaml.Unmarshal(transformedData, &values)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to unmarshal app config file, %s", appConfigFilePath)
