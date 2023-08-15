@@ -8,7 +8,13 @@ Namespace: "observability"
 ReleaseName: "grafana-dashboards"
 Version: "0.1.5"
 CreateNamespace: true
-OverrideValues:  
+OverrideValues:
+{{if eq .SocialIntegration "slack"}}
   slack:
-    webhook: "{{.SlackURl}}"
+    webhook: "{{.SlackURL}}"
     channel: "{{.SlackChannel}}"
+{{else if eq .SocialIntegration "teams"}}
+  teams:
+    webhook: "{{.TeamsURL}}"
+    channel: "{{.TeamsChannel}}"
+{{end}}

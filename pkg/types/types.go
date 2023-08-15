@@ -6,9 +6,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type AppGroupList struct {
-	Groups []string `yaml:"AppGroups"`
-}
 type AppList struct {
 	Apps []string `yaml:"Apps"`
 }

@@ -78,7 +78,7 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 	appConfigs = []types.AppConfig{}
 	for _, appName := range apps {
 		var appConfig types.AppConfig
-		appConfig, err = GetAppConfig(captenConfig.PrepareFilePath(captenConfig.AppsConfigDirPath, appName+".yaml"))
+		appConfig, err = GetAppConfig(captenConfig.PrepareFilePath(captenConfig.AppsConfigDirPath, appName+".yaml"), globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed load %s config", appName)
 			return
