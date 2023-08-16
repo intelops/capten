@@ -60,7 +60,12 @@ type CaptenConfig struct {
 	TerraformInitUpgrade       bool     `envconfig:"TERRAFORM_INIT_UPGRADE" default:"true"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
+    PoolClusterName string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
+	PoolClusterNamespace string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
+
 }
+
+
 
 type CaptenClusterValues struct {
 	DomainName       string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
