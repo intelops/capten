@@ -3,7 +3,7 @@ package k8s
 import (
 	"capten/pkg/config"
 	"context"
-	"io/ioutil"
+	"os"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -48,15 +48,15 @@ func CreateOrUpdateCertSecrets(captenConfig config.CaptenConfig) error {
 }
 
 func createOrUpdateAgentCertSecret(captenConfig config.CaptenConfig, k8sClient *kubernetes.Clientset) error {
-	certData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName))
+	certData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentCertFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client cert")
 	}
-	keyData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName))
+	keyData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.AgentKeyFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client key")
 	}
-	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
+	caCertChainData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
@@ -77,7 +77,7 @@ func createOrUpdateAgentCertSecret(captenConfig config.CaptenConfig, k8sClient *
 }
 
 func createOrUpdateAgentCACert(captenConfig config.CaptenConfig, k8sClient *kubernetes.Clientset) error {
-	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
+	caCertChainData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}
@@ -96,15 +96,15 @@ func createOrUpdateAgentCACert(captenConfig config.CaptenConfig, k8sClient *kube
 }
 
 func createOrUpdateClusterCAIssuerSecret(captenConfig config.CaptenConfig, k8sClient *kubernetes.Clientset) error {
-	interCACertData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCACertFileName))
+	interCACertData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCACertFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client cert")
 	}
-	interCAKeyData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCAKeyFileName))
+	interCAKeyData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.InterCAKeyFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading client key")
 	}
-	caCertChainData, err := ioutil.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
+	caCertChainData, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName))
 	if err != nil {
 		return errors.WithMessage(err, "error while reading ca cert chain")
 	}

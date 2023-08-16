@@ -5,7 +5,16 @@ Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
-ReleaseName: "grafana"
+ReleaseName: "grafana-dashboards"
 Version: "0.1.5"
 CreateNamespace: true
-OverrideValues:    
+OverrideValues:
+{{if eq .SocialIntegration "slack"}}
+  slack:
+    webhook: "{{.SlackURL}}"
+    channel: "{{.SlackChannel}}"
+{{else if eq .SocialIntegration "teams"}}
+  teams:
+    webhook: "{{.TeamsURL}}"
+    channel: "{{.TeamsChannel}}"
+{{end}}

@@ -1,6 +1,7 @@
 Apps:
   - "pre-install"
   - "prometheus"
+  - "openebs-monitoring"
   - "vault"
   - "vault-cred"
   - "external-secrets"

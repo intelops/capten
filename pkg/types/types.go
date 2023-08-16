@@ -6,9 +6,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type AppGroupList struct {
-	Groups []string `yaml:"AppGroups"`
-}
 type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
@@ -24,7 +21,8 @@ type AppConfig struct {
 	Version             string                 `yaml:"Version"`
 	Description         string                 `yaml:"Description"`
 	LaunchURL           string                 `yaml:"LaunchURL"`
-	LaunchRedirectURL   string                 `yaml:"LaunchRedirectURL"`
+	LaunchUIDescription string                 `yaml:"LaunchUIDescription"`
+	LaunchUIIcon        string                 `yaml:"LaunchUIIcon"`
 	LaunchUIValues      map[string]interface{} `yaml:"LaunchUIValues"`
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
@@ -80,9 +78,8 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			Namespace:           a.Namespace,
 			CreateNamespace:     a.CreateNamespace,
 			PrivilegedNamespace: a.PrivilegedNamespace,
-			Icon:                []byte{},
+			Icon:                []byte(a.LaunchUIIcon),
 			LaunchURL:           a.LaunchURL,
-			LaunchRedirectURL:   a.LaunchRedirectURL,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,

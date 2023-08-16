@@ -78,14 +78,20 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 	appConfigs = []types.AppConfig{}
 	for _, appName := range apps {
 		var appConfig types.AppConfig
-		appConfig, err = GetAppConfig(captenConfig.PrepareFilePath(captenConfig.AppsConfigDirPath, appName+".yaml"))
+		appConfig, err = GetAppConfig(captenConfig.PrepareFilePath(captenConfig.AppsConfigDirPath, appName+".yaml"), globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed load %s config", appName)
 			return
 		}
 		appConfig.OverrideValues, err = replaceTemplateValues(appConfig.OverrideValues, globalValues)
 		if err != nil {
-			err = errors.WithMessagef(err, "failed transform %s values", appName)
+			err = errors.WithMessagef(err, "failed transform '%s' override values", appName)
+			return
+		}
+
+		appConfig.LaunchURL, err = replaceTemplateStringValues(appConfig.LaunchURL, globalValues)
+		if err != nil {
+			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
 			return
 		}
 		appConfigs = append(appConfigs, appConfig)
@@ -118,4 +124,18 @@ func replaceTemplateValues(templateData map[string]interface{},
 		return
 	}
 	return
+}
+
+func replaceTemplateStringValues(templateStringData string,
+	values map[string]interface{}) (transformedStringData string, err error) {
+	tmpl, err := template.New("templateVal").Parse(templateStringData)
+	if err != nil {
+		return
+	}
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, values)
+	if err != nil {
+		return
+	}
+	return buf.String(), nil
 }

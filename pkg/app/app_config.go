@@ -1,9 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"capten/pkg/config"
 	"capten/pkg/types"
-	"io/ioutil"
+	"html/template"
 	"os"
 
 	"github.com/pkg/errors"
@@ -17,56 +18,47 @@ const (
 
 func GetClusterGlobalValues(valuesFilePath string) (map[string]interface{}, error) {
 	var values map[string]interface{}
-	data, err := ioutil.ReadFile(valuesFilePath)
+	data, err := os.ReadFile(valuesFilePath)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to read values file, %s", valuesFilePath)
+		return values, errors.WithMessagef(err, "failed to read cluster values file, %s", valuesFilePath)
 	}
 
 	err = yaml.Unmarshal(data, &values)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to unmarshal values file, %s", valuesFilePath)
+		return values, errors.WithMessagef(err, "failed to unmarshal cluster values file, %s", valuesFilePath)
 	}
 	return values, nil
 }
 
-func GetAppGroups(appGroupsFilePath string) ([]string, error) {
-	var values types.AppGroupList
-	data, err := ioutil.ReadFile(appGroupsFilePath)
-	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to read file, %s", appGroupsFilePath)
-	}
-
-	err = yaml.Unmarshal(data, &values)
-	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to unmarshal file, %s", appGroupsFilePath)
-	}
-	return values.Groups, err
-}
-
 func GetApps(appListFilePath string) ([]string, error) {
 	var values types.AppList
-	data, err := ioutil.ReadFile(appListFilePath)
+	data, err := os.ReadFile(appListFilePath)
 	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to read values file, %s", appListFilePath)
+		return nil, errors.WithMessagef(err, "failed to read app group file, %s", appListFilePath)
 	}
 
 	err = yaml.Unmarshal(data, &values)
 	if err != nil {
-		return nil, errors.WithMessagef(err, "failed to unmarshal values file, %s", appListFilePath)
+		return nil, errors.WithMessagef(err, "failed to unmarshal app group file, %s", appListFilePath)
 	}
 	return values.Apps, err
 }
 
-func GetAppConfig(appConfigFilePath string) (types.AppConfig, error) {
+func GetAppConfig(appConfigFilePath string, globalValues map[string]interface{}) (types.AppConfig, error) {
 	var values types.AppConfig
-	data, err := ioutil.ReadFile(appConfigFilePath)
+	data, err := os.ReadFile(appConfigFilePath)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to read values file, %s", appConfigFilePath)
+		return values, errors.WithMessagef(err, "failed to read app config file, %s", appConfigFilePath)
 	}
 
-	err = yaml.Unmarshal(data, &values)
+	transformedData, err := executeAppConfigTemplate(data, globalValues)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to unmarshal values file, %s", appConfigFilePath)
+		return values, errors.WithMessagef(err, "failed to transform app config file, %s", appConfigFilePath)
+	}
+
+	err = yaml.Unmarshal(transformedData, &values)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to unmarshal app config file, %s", appConfigFilePath)
 	}
 	return values, err
 }
@@ -82,7 +74,7 @@ func WriteAppConfig(captenConfig config.CaptenConfig, appConfig types.AppConfig)
 		return errors.WithMessagef(err, "failed to unmarshal %s app config", appConfig.Name)
 	}
 
-	err = ioutil.WriteFile(captenConfig.PrepareFilePath(captenConfig.AppsTempDirPath, appConfig.Name+".yaml"), data, filePrmission)
+	err = os.WriteFile(captenConfig.PrepareFilePath(captenConfig.AppsTempDirPath, appConfig.Name+".yaml"), data, filePrmission)
 	if err != nil {
 		return errors.WithMessagef(err, "failed to write %s app config to file", appConfig.Name)
 	}
@@ -100,4 +92,20 @@ func PrepareGlobalVaules(captenConfig config.CaptenConfig) (map[string]interface
 		return nil, err
 	}
 	return globalValues, err
+}
+
+func executeAppConfigTemplate(data []byte, values map[string]interface{}) (transformedData []byte, err error) {
+	tmpl, err := template.New("templateVal").Parse(string(data))
+	if err != nil {
+		return
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, values)
+	if err != nil {
+		return
+	}
+
+	transformedData = buf.Bytes()
+	return
 }
