@@ -13,7 +13,6 @@ import (
 	
 )
 
-
 func getOpenEBSClient(captenConfig config.CaptenConfig) (*clientset.Clientset, error) {
 	kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
@@ -28,9 +27,6 @@ func getOpenEBSClient(captenConfig config.CaptenConfig) (*clientset.Clientset, e
 
 	return clientset, nil
 }
-
-
-
 
 func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig config.CaptenConfig ) ([]map[string]string, error) {
 
@@ -54,8 +50,6 @@ func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig 
 		}
 
 	}
-	
-
 	return blockDevicesMappings, nil
 }
 
@@ -123,7 +117,5 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 		clog.Logger.Debugf("CStorPoolCluster %s created successfully in namespace %s.\n", poolCluster.Name, poolCluster.Namespace)
 		
 	}
-
-
 	return nil
 }
