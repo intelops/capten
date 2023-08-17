@@ -53,7 +53,11 @@ var appsCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to create secret for certs, %v", err)
 			return
 		}
-
+		err = k8s.CreateCStorPoolClusters(captenConfig)
+		if err != nil {
+			clog.Logger.Errorf("failed to create cluster issuer, %v", err)
+			return
+		}
 		err = k8s.CreateOrUpdateClusterIssuer(captenConfig)
 		if err != nil {
 			clog.Logger.Errorf("failed to create cluster issuer, %v", err)
@@ -83,7 +87,7 @@ var appsCmd = &cobra.Command{
 				clog.Logger.Errorf("failed to store cluster credentials, %v", err)
 				return
 			}
-		}
+		 }
 
 	},
 }
