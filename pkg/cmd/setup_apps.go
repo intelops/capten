@@ -65,13 +65,13 @@ var appsCmd = &cobra.Command{
 		}
 		clog.Logger.Info("Configured Certificates on Capten Cluster")
 
-		// if !captenConfig.SkipAppsDeploy {
-		// 	err = app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
-		// 	if err != nil {
-		// 		clog.Logger.Errorf("%v", err)
-		// 		return
-		// 	}
-		// }
+		if !captenConfig.SkipAppsDeploy {
+			err = app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
+			if err != nil {
+				clog.Logger.Errorf("%v", err)
+				return
+			}
+		}
 		clog.Logger.Info("Default Applications Installed")
 
 		clog.Logger.Info("Synchonizing Applications with Cluster Agent")
@@ -87,7 +87,7 @@ var appsCmd = &cobra.Command{
 				clog.Logger.Errorf("failed to store cluster credentials, %v", err)
 				return
 			}
-		}
+		 }
 
 	},
 }

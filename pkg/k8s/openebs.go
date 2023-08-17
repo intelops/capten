@@ -3,21 +3,12 @@ package k8s
 import (
 	"capten/pkg/config"
 	"context"
-	
-	"fmt"
-	"log"
-
+	"capten/pkg/clog"
 	"github.com/pkg/errors"
-
-
-	//"k8s.io/client-go/kubernetes"
-	//"k8s.io/kubernetes/plugin/pkg/auth/authorizer/node"
-
 	v1 "github.com/openebs/api/v2/pkg/apis/cstor/v1"
 	clientset "github.com/openebs/api/v2/pkg/client/clientset/versioned"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	//	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	
 )
@@ -41,7 +32,7 @@ func getOpenEBSClient(captenConfig config.CaptenConfig) (*clientset.Clientset, e
 
 
 
-func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig config.CaptenConfig ) ([]string, error) {
+func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig config.CaptenConfig ) ([]map[string]string, error) {
 
 	bdList, err := openebsClientset.OpenebsV1alpha1().BlockDevices(captenConfig.PoolClusterNamespace).List(context.TODO(), metav1.ListOptions{})
 
@@ -49,26 +40,23 @@ func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig 
 		return nil, err
 	}
 
-	var blockDevices []string
+	var blockDevicesMappings []map[string]string
+
 	for _, bd := range bdList.Items {
 		if bd.Name != "" {
+			nodename := bd.Spec.NodeAttributes.NodeName
+	        blockDeviceMapping := map[string]string{
+				"blockDevice": bd.Name,
+				"nodeName":    nodename,
+			}
+			blockDevicesMappings = append(blockDevicesMappings, blockDeviceMapping)			  
 
-			blockDevices = append(blockDevices, bd.Name)
 		}
 
 	}
+	
 
-	return blockDevices, nil
-}
-
-func getWorkerNodeForBlockDevice(openebsClientset *clientset.Clientset, blockDeviceName string,captenConfig config.CaptenConfig) (string, error) {
-	bd, err := openebsClientset.OpenebsV1alpha1().BlockDevices(captenConfig.PoolClusterNamespace).Get(context.TODO(), blockDeviceName, metav1.GetOptions{})
-	if err != nil {
-		return "", err
-	}
-	nodeName := bd.Spec.NodeAttributes.NodeName
-
-	return nodeName, nil
+	return blockDevicesMappings, nil
 }
 
 
@@ -77,35 +65,31 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
     
 	openebsClientset, err := getOpenEBSClient(captenConfig)
 	if err != nil {
-		log.Println("Error while creating openebs client", openebsClientset)
-	}
-	
-	if err != nil {
-		log.Println("Error while creating openebs client", openebsClientset)
-	}
+		return  errors.WithMessage(err, "error while creating openebsClientset")
 
-	blockdevice, err := getOpenEBSBlockDevices(openebsClientset,captenConfig)
+	}
 	
+
+	nodename, err := getOpenEBSBlockDevices(openebsClientset,captenConfig)
     if (err!=nil) {
-		return fmt.Errorf("failed to retrieve blockdevices %v",  err)
+		return  errors.WithMessage(err, "failed to retrieve blockdevices")
 	}
-
 	var poolSpecs []v1.PoolSpec
+	for _, bd := range nodename {
 	
-	for _, bd := range blockdevice {
-		bdname, err := getWorkerNodeForBlockDevice(openebsClientset, bd,captenConfig)
-		
+		blockDevice := bd["blockDevice"]
+        nodeName := bd["nodeName"]
 		if err != nil {
-			log.Println("Error while retrieve node for bd", err)
+			return  errors.WithMessage(err, "failed to retrieve node")
+		
 		}
-
-		instancebd := []v1.CStorPoolInstanceBlockDevice{{
-			BlockDeviceName: bd,
+			instancebd := []v1.CStorPoolInstanceBlockDevice{{
+			BlockDeviceName: blockDevice,
 		},
 		}
 		poolspec := v1.PoolSpec{
 			NodeSelector: map[string]string{
-				"kubernetes.io/hostname": bdname,
+				"kubernetes.io/hostname": nodeName,
 			},
 			DataRaidGroups: []v1.RaidGroup{
 				{
@@ -131,10 +115,13 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 		},
 	}
 	_, err = poolClusterClient.Create(context.TODO(), poolCluster, metav1.CreateOptions{})
+
 	if err != nil {
-		log.Fatal(err)
+		return  err
+	
 	} else {
-		fmt.Printf("CStorPoolCluster %s created successfully in namespace %s.\n", poolCluster.Name, poolCluster.Namespace)
+		clog.Logger.Debugf("CStorPoolCluster %s created successfully in namespace %s.\n", poolCluster.Name, poolCluster.Namespace)
+		
 	}
 
 
