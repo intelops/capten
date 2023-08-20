@@ -8,6 +8,9 @@ Namespace: "observability"
 ReleaseName: "signoz"
 Version: "0.0.1"
 CreateNamespace: true
+LaunchURL: https://signoz.{{.DomainName}}
+LaunchUIDescription: "Signoz"
+LaunchUIIcon: "signoz.svg"
 OverrideValues:
   frontend:
     ingress:
