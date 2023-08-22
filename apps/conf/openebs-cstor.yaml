@@ -8,5 +8,6 @@ Namespace: "openebs-cstor"
 ReleaseName: "openebs-cstor"
 Version: "1.0.0"
 CreateNamespace: true
+#PrivilegedNamespace: true
 MakeNsPrivilege: true
 OverrideValues:
