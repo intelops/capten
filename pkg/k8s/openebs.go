@@ -1,16 +1,17 @@
 package k8s
 
 import (
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"context"
-	"capten/pkg/clog"
-	"github.com/pkg/errors"
+
 	v1 "github.com/openebs/api/v2/pkg/apis/cstor/v1"
 	clientset "github.com/openebs/api/v2/pkg/client/clientset/versioned"
+	"github.com/pkg/errors"
+	
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/client-go/tools/clientcmd"
-	
 )
 
 func getOpenEBSClient(captenConfig config.CaptenConfig) (*clientset.Clientset, error) {
@@ -53,6 +54,38 @@ func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig 
 	return blockDevicesMappings, nil
 }
 
+func CstorPoolClusterExists(openebsClient *clientset.Clientset,captenConfig config.CaptenConfig) bool {
+   resourceName:=captenConfig.PoolClusterName
+	_,err :=openebsClient.CstorV1().CStorPoolClusters(captenConfig.PoolClusterNamespace).Get(context.TODO(), resourceName, metav1.GetOptions{})
+	//_, err := openebsClient.CstorV1alpha1().CStorPoolClusters("namespace").Get(context.TODO(), resourceName, metav1.GetOptions{})
+    if err != nil {
+        return false
+    }
+    return true
+}
+
+func CstorPoolClusterCreation(captenConfig config.CaptenConfig) error {
+	
+	openebsClientset, err := getOpenEBSClient(captenConfig)
+	if err != nil {
+		return  errors.WithMessage(err, "error while creating openebsClientset")
+
+	}
+	if !CstorPoolClusterExists(openebsClientset, captenConfig) {
+       
+        err = CreateCStorPoolClusters(captenConfig)
+        if err != nil {
+            clog.Logger.Errorf("failed to create cluster issuer, %v", err)
+            return err
+        }
+    }else {
+		return nil
+	}	
+	return nil
+}
+
+
+
 
 
 func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
@@ -63,7 +96,6 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 
 	}
 	
-
 	nodename, err := getOpenEBSBlockDevices(openebsClientset,captenConfig)
     if (err!=nil) {
 		return  errors.WithMessage(err, "failed to retrieve blockdevices")

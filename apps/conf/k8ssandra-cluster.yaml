@@ -6,6 +6,6 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
 ReleaseName: "k8ssandra-cluster"
-Version: "0.1.1"
+Version: "0.1.3"
 CreateNamespace: true
 OverrideValues:

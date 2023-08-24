@@ -41,6 +41,7 @@ var appsCmd = &cobra.Command{
 				clog.Logger.Errorf("%v", err)
 				return
 			}
+
 		}
 
 		if err := cert.PrepareCerts(captenConfig); err != nil {
@@ -56,7 +57,7 @@ var appsCmd = &cobra.Command{
 
 		err = k8s.CreateOrUpdateClusterIssuer(captenConfig)
 		if err != nil {
-			clog.Logger.Errorf("failed to create cluster issuer, %v", err)
+			clog.Logger.Errorf("failed to create cstorPoolCluster, %v", err)
 			return
 		}
 		clog.Logger.Info("Configured Certificates on Capten Cluster")
