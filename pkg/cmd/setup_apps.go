@@ -54,18 +54,20 @@ var appsCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to create secret for certs, %v", err)
 			return
 		}
-		err = k8s.CstorPoolClusterCreation(captenConfig)
 
+		err = k8s.CreateOrUpdateClusterIssuer(captenConfig)
 		if err != nil {
 			clog.Logger.Errorf("failed to create cstorPoolCluster, %v", err)
 			return
 		}
-		err = k8s.CreateOrUpdateClusterIssuer(captenConfig)
+		clog.Logger.Info("Configured Certificates on Capten Cluster")
+
+		err = k8s.CreateCStorPoolClusters(captenConfig)
 		if err != nil {
-			clog.Logger.Errorf("failed to create cluster issuer, %v", err)
+			clog.Logger.Errorf("failed to configure storage pool, %v", err)
 			return
 		}
-		clog.Logger.Info("Configured Certificates on Capten Cluster")
+		clog.Logger.Info("Configured storage pool")
 
 		if !captenConfig.SkipAppsDeploy {
 			err = app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
