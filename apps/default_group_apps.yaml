@@ -1,7 +1,6 @@
 Apps:
   - "pre-install"
   - "prometheus"
-  - "openebs-monitoring"
   - "vault"
   - "vault-cred"
   - "external-secrets"
@@ -9,7 +8,7 @@ Apps:
   - "loki"
   - "kyverno"
   - "k8ssandra-cluster"
-  - "grafana-dashboards"
+  - "monitoring"
   - "kubviz-client"
   - "kubviz-agent"
   - "signoz"

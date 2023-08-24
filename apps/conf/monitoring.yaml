@@ -1,20 +1,22 @@
-Name: "grafana-dashboards"
-ChartName: "tools/grafana-dashboards"
+Name: "monitoring"
+ChartName: "tools/monitoring"
 Category: "Observability"
 Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
-ReleaseName: "grafana-dashboards"
-Version: "0.1.5"
+ReleaseName: "monitoring"
+Version: "0.1.7"
 CreateNamespace: true
 OverrideValues:
 {{if eq .SocialIntegration "slack"}}
   slack:
+    enabled: true
     webhook: "{{.SlackURL}}"
     channel: "{{.SlackChannel}}"
 {{else if eq .SocialIntegration "teams"}}
   teams:
+    enabled: true
     webhook: "{{.TeamsURL}}"
     channel: "{{.TeamsChannel}}"
 {{end}}
