@@ -31,13 +31,13 @@ func Create(captenConfig config.CaptenConfig) error {
 			return err
 		}
 		clusterInfo = azureClusterInfo
+
 	}
-	// var tf *terraform.terraform
-	
 
 	switch info := clusterInfo.(type) {
 	case types.AWSClusterInfo:
 		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+
 		err = generateTemplateVarFile(captenConfig, info)
 		if err != nil {
 			return err
@@ -49,20 +49,23 @@ func Create(captenConfig config.CaptenConfig) error {
 		}
 		return tf.Apply()
 	case types.AzureClusterInfo:
-		//	info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+
 		err = generateTemplateVarFile(captenConfig, info)
 		if err != nil {
+
 			return err
 		}
 		tf, err := terraform.NewAzure(captenConfig, info)
+
 		if err != nil {
+
 			return errors.WithMessage(err, "failed to initialise the terraform")
 		}
 		return tf.Apply()
 	default:
 		return errors.New("unsupported cloud service")
 	}
-
 
 }
 
@@ -84,9 +87,10 @@ func Destroy(captenConfig config.CaptenConfig) error {
 			return err
 		}
 		clusterInfo = azureClusterInfo
+
 	}
 
-    switch info := clusterInfo.(type) {
+	switch info := clusterInfo.(type) {
 	case types.AWSClusterInfo:
 		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
 		err = generateTemplateVarFile(captenConfig, info)
@@ -100,13 +104,16 @@ func Destroy(captenConfig config.CaptenConfig) error {
 		}
 		return tf.Destroy()
 	case types.AzureClusterInfo:
-		//	info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
 		err = generateTemplateVarFile(captenConfig, info)
 		if err != nil {
+
 			return err
 		}
 		tf, err := terraform.NewAzure(captenConfig, info)
+
 		if err != nil {
+
 			return errors.WithMessage(err, "failed to initialise the terraform")
 		}
 		return tf.Destroy()
@@ -114,31 +121,32 @@ func Destroy(captenConfig config.CaptenConfig) error {
 		return errors.New("unsupported cloud service")
 	}
 
-
-
 }
 
 func generateTemplateVarFile(captenConfig config.CaptenConfig, clusterInfo interface{}) error {
-	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.TerraformTemplateFileName))
+	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.AzureTerraformTemplateFileName))
 	if err != nil {
 		return errors.WithMessage(err, "failed to read template file")
 	}
 
 	contentStr := string(content)
 	templateObj, err := template.New("terraformTemplate").Parse(contentStr)
+
 	if err != nil {
+		clog.Logger.Error("Error while creating templateObj", err)
 		return err
 	}
 
 	templateFile, err := os.Create(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, captenConfig.TerraformVarFileName))
+
 	if err != nil {
+		clog.Logger.Error("Error while creating templateFile", err)
 		return err
 	}
 
 	if err := templateObj.Execute(templateFile, clusterInfo); err != nil {
+		clog.Logger.Error("Error while executing templateObj", err)
 		return err
 	}
 	return nil
 }
-
-

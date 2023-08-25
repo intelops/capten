@@ -62,7 +62,7 @@ type CaptenConfig struct {
 	CurrentDirPath             string
     PoolClusterName string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
 	PoolClusterNamespace string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
-
+    AzureTerraformTemplateFileName  string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.azure.tmpl"`
 }
 
 

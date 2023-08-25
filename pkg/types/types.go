@@ -28,15 +28,17 @@ type AppConfig struct {
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
 	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
 }
- 
 
-type AzureClusterInfo struct{
-	Region         string
-    MasterCount    int
-    WorkerCount    int
-    NICs           []string
-    InstanceType   string
-    PublicIPName   string
+type AzureClusterInfo struct {
+	ConfigFolderPath string   `yaml:"ConfigFolderPath"`
+	CloudService     string   `yaml:"CloudService"`
+	ClusterType      string   `yaml:"ClusterType"`
+	Region           string   `yaml:"region"`
+	MasterCount      int      `yaml:"mastercount"`
+	WorkerCount      int      `yaml:"workercount"`
+	NICs             []string `yaml:"nics"`
+	InstanceType     string   `yaml:"instancetype"`
+	PublicIPName     string   `yaml:"publicipname"`
 }
 
 type AWSClusterInfo struct {
