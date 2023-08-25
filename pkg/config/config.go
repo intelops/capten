@@ -136,8 +136,8 @@ func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) 
 	return values, nil
 }
 
-func GetClusterInfo(clusterInfoFilePath string) (types.ClusterInfo, error) {
-	var values types.ClusterInfo
+func GetClusterInfo(clusterInfoFilePath string) (types.AWSClusterInfo, error) {
+	var values types.AWSClusterInfo
 	data, err := os.ReadFile(clusterInfoFilePath)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to read cluster info file, %s", clusterInfoFilePath)
@@ -149,6 +149,22 @@ func GetClusterInfo(clusterInfoFilePath string) (types.ClusterInfo, error) {
 	}
 	return values, err
 }
+
+
+func GetClusterInfoAzure(clusterInfoFilePath string) (types.AzureClusterInfo, error) {
+	var values types.AzureClusterInfo
+	data, err := os.ReadFile(clusterInfoFilePath)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to read cluster info file, %s", clusterInfoFilePath)
+	}
+
+	err = yaml.Unmarshal(data, &values)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to unmarshal cluster info file, %s", clusterInfoFilePath)
+	}
+	return values, err
+}
+
 
 func (c CaptenConfig) PrepareFilePath(dir, path string) string {
 	return fmt.Sprintf("%s%s%s", c.CurrentDirPath, dir, path)
