@@ -8,6 +8,7 @@ Namespace: "falco"
 ReleaseName: "falco"
 Version: "0.0.1"
 CreateNamespace: true
+PrivilegedNamespace: true
 OverrideValues:
   driver:
     kind: ebpf
