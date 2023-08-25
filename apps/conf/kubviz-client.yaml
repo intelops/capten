@@ -8,6 +8,7 @@ Namespace: "observability"
 ReleaseName: "kubviz-client"
 Version: "1.0.0"
 CreateNamespace: true
+PrivilegedNamespace: true
 OverrideValues:
   nats:
     auth:

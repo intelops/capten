@@ -6,8 +6,9 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "monitoring"
-Version: "0.1.7"
+Version: "0.1.8"
 CreateNamespace: true
+PrivilegedNamespace: true
 OverrideValues:
 {{if eq .SocialIntegration "slack"}}
   slack:
@@ -15,8 +16,8 @@ OverrideValues:
     webhook: "{{.SlackURL}}"
     channel: "{{.SlackChannel}}"
 {{else if eq .SocialIntegration "teams"}}
-  teams:
+  prometheus-msteams:
     enabled: true
-    webhook: "{{.TeamsURL}}"
-    channel: "{{.TeamsChannel}}"
+    connectors:
+    - alert: "{{.TeamsURL}}"
 {{end}}

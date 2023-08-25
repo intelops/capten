@@ -32,15 +32,15 @@ OverrideValues:
     features: EnableCSI
     backupStorageLocation:
     - name:
-      provider: 
-      bucket: 
+      provider: aws
+      bucket: velero-backup
       config:
-        region: 
+        region: us-west-2
     volumeSnapshotLocation:
     - name:
-      provider: 
+      provider: aws
       config:
-        region: 
+        region: us-west-2
   credentials:
     secretContents: 
       cloud: |

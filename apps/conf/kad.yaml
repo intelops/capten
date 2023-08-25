@@ -6,8 +6,9 @@ RepoName: "kad"
 RepoURL: "https://kube-tarian.github.io/kad"
 Namespace: "capten"
 ReleaseName: "kad"
-Version: "0.2.1"
+Version: "0.2.4"
 CreateNamespace: true
+PrivilegedNamespace: true
 OverrideValues:
   cert:
     secretName: "kad-agent-cert"
