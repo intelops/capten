@@ -27,7 +27,7 @@ LaunchUIValues:
         api_url: "{{.OAuthBaseURL}}/userinfo"
         allow_assign_grafana_admin: true
       server:
-       root_url: https://grafana.{{.DomainName}}/
+        root_url: https://grafana.{{.DomainName}}/
 OverrideValues:
   grafana:
     enabled: true
