@@ -8,6 +8,7 @@ Namespace: "observability"
 ReleaseName: "signoz"
 Version: "0.0.1"
 CreateNamespace: true
+PrivilegedNamespace: true
 LaunchURL: https://signoz.{{.DomainName}}
 LaunchUIDescription: "Signoz"
 LaunchUIIcon: "signoz.svg"

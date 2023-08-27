@@ -8,7 +8,6 @@ Namespace: "observability"
 ReleaseName: "loki"
 Version: "0.0.1"
 CreateNamespace: true
+PrivilegedNamespace: true
 OverrideValues:
-  DomainName: "{{.DomainName}}"
-        
-          
+  DomainName: "{{.DomainName}}"          
