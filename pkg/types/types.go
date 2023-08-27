@@ -27,6 +27,7 @@ type AppConfig struct {
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
 	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
+	TemplateValues      []byte                 `yaml:"TemplateValues"`
 }
 
 type ClusterInfo struct {

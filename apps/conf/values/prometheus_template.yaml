@@ -1,0 +1,50 @@
+grafana:
+  enabled: true
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+    - "grafana.{{.DomainName}}"
+    tls:
+    - hosts:
+      - "grafana.{{.DomainName}}"
+      secretName: cert-grafana
+  plugins:
+  - vertamedia-clickhouse-datasource
+  - grafana-clickhouse-datasource
+  sidecar:
+    dashboards:
+      enabled: true
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
+    datasources:
+      enabled: true
+prometheus:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+    - "prometheus.{{.DomainName}}"
+    paths:
+    - /
+    tls:
+    - hosts:
+      - "prometheus.{{.DomainName}}"
+      secretName: cert-prometheus
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
+    externalLabels:
+      cluster_name: capten-controlplane
+alertmanager:
+  alertmanagerSpec:
+    alertmanagerConfigMatcherStrategy:
+      type: None

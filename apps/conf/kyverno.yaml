@@ -8,4 +8,3 @@ Namespace: "kyverno"
 ReleaseName: "kyverno"
 Version: "1.0.1"
 CreateNamespace: true
-OverrideValues:

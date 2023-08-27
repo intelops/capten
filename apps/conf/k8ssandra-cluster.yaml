@@ -9,4 +9,3 @@ ReleaseName: "k8ssandra-cluster"
 Version: "0.1.3"
 CreateNamespace: true
 PrivilegedNamespace: true
-OverrideValues:

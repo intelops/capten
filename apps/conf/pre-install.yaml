@@ -9,4 +9,3 @@ ReleaseName: "pre-install"
 Version: "1.0.1"
 CreateNamespace: true
 PrivilegedNamespace: true
-OverrideValues:

@@ -1,10 +1,8 @@
 package app
 
 import (
-	"bytes"
 	"capten/pkg/config"
 	"capten/pkg/types"
-	"html/template"
 	"os"
 
 	"github.com/pkg/errors"
@@ -51,16 +49,20 @@ func GetAppConfig(appConfigFilePath string, globalValues map[string]interface{})
 		return values, errors.WithMessagef(err, "failed to read app config file, %s", appConfigFilePath)
 	}
 
-	transformedData, err := executeAppConfigTemplate(data, globalValues)
-	if err != nil {
-		return values, errors.WithMessagef(err, "failed to transform app config file, %s", appConfigFilePath)
-	}
-
-	err = yaml.Unmarshal(transformedData, &values)
+	err = yaml.Unmarshal(data, &values)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to unmarshal app config file, %s", appConfigFilePath)
 	}
 	return values, err
+}
+
+func GetAppValuesTemplate(captenConfig config.CaptenConfig, appName string) []byte {
+	appValuesTemplateFilePath := captenConfig.PrepareFilePath(captenConfig.AppsValuesDirPath, appName+"_template.yaml")
+	data, err := os.ReadFile(appValuesTemplateFilePath)
+	if err != nil {
+		return nil
+	}
+	return data
 }
 
 func WriteAppConfig(captenConfig config.CaptenConfig, appConfig types.AppConfig) error {
@@ -92,20 +94,4 @@ func PrepareGlobalVaules(captenConfig config.CaptenConfig) (map[string]interface
 		return nil, err
 	}
 	return globalValues, err
-}
-
-func executeAppConfigTemplate(data []byte, values map[string]interface{}) (transformedData []byte, err error) {
-	tmpl, err := template.New("templateVal").Parse(string(data))
-	if err != nil {
-		return
-	}
-
-	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, values)
-	if err != nil {
-		return
-	}
-
-	transformedData = buf.Bytes()
-	return
 }

@@ -25,6 +25,7 @@ type CaptenConfig struct {
 	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
 	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
+	AppsValuesDirPath          string   `envconfig:"APPS_VALUES_DIR_PATH" default:"/apps/conf/values/"`
 	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
 	AppValuesTempDirPath       string   `envconfig:"APPS_TEMPVAL_DIR_PATH" default:"/apps/tmp/val/"`
 	AppIconsDirPath            string   `envconfig:"APPS_ICON_DIR_PATH" default:"/apps/icons/"`
@@ -60,12 +61,9 @@ type CaptenConfig struct {
 	TerraformInitUpgrade       bool     `envconfig:"TERRAFORM_INIT_UPGRADE" default:"true"`
 	AgentDNSNames              []string
 	CurrentDirPath             string
-    PoolClusterName string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
-	PoolClusterNamespace string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
-
+	PoolClusterName            string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
+	PoolClusterNamespace       string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
 }
-
-
 
 type CaptenClusterValues struct {
 	DomainName       string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`

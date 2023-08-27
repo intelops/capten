@@ -10,14 +10,8 @@ Version: "0.1.8"
 CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:
-{{if eq .SocialIntegration "slack"}}
-  slack:
-    enabled: true
-    webhook: "{{.SlackURL}}"
-    channel: "{{.SlackChannel}}"
-{{else if eq .SocialIntegration "teams"}}
-  prometheus-msteams:
-    enabled: true
-    connectors:
-    - alert: "{{.TeamsURL}}"
-{{end}}
+  SocialIntegration: "{{.SocialIntegration}}"
+  SlackURL: "{{.SlackURL}}"
+  SlackChannel: "{{.SlackChannel}}"
+  TeamsURL: "{{.TeamsURL}}"
+  TeamsChannel: "{{.TeamsChannel}}"

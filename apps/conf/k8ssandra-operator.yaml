@@ -9,4 +9,3 @@ ReleaseName: "k8ssandra-operator"
 Version: "1.0.0"
 CreateNamespace: true
 PrivilegedNamespace: true
-OverrideValues:
