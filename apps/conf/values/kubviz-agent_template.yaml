@@ -1,0 +1,28 @@
+nats: 
+  auth:
+    token: "{{ .NATS_TOKEN }}"
+git_bridge:
+  enabled: true
+  ingress:
+    hosts:
+      - host: "gitbridge.{{.DomainName}}"
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: 
+      - secretName: cert-gitbridge
+        hosts:
+          - "gitbridge.{{.DomainName}}"
+container_bridge:
+  enabled: true
+  ingress:
+    hosts:
+      - host: "containerbridge.{{.DomainName}}"
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cert-containerbridge
+        hosts:
+          - "containerbridge.{{.DomainName}}"
+clusterName: "capten-controlplane"

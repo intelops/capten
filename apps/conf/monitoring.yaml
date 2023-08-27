@@ -9,14 +9,8 @@ ReleaseName: "monitoring"
 Version: "0.1.7"
 CreateNamespace: true
 OverrideValues:
-{{if eq .SocialIntegration "slack"}}
-  slack:
-    enabled: true
-    webhook: "{{.SlackURL}}"
-    channel: "{{.SlackChannel}}"
-{{else if eq .SocialIntegration "teams"}}
-  teams:
-    enabled: true
-    webhook: "{{.TeamsURL}}"
-    channel: "{{.TeamsChannel}}"
-{{end}}
+  SocialIntegration: "{{.SocialIntegration}}"
+  SlackURL: "{{.SlackURL}}"
+  SlackChannel: "{{.SlackChannel}}"
+  TeamsURL: "{{.TeamsURL}}"
+  TeamsChannel: "{{.TeamsChannel}}"

@@ -8,4 +8,3 @@ Namespace: "capten"
 ReleaseName: "vault-cred"
 Version: "0.1.2"
 CreateNamespace: true
-OverrideValues:

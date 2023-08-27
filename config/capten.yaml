@@ -1,4 +1,4 @@
-DomainName: dev.optimizor.app
+DomainName: capten.intelops.app
 LoadBalancerHost: ""
 CloudService: aws
 ClusterType: talos

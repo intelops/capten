@@ -9,6 +9,4 @@ ReleaseName: "kubviz-client"
 Version: "1.0.0"
 CreateNamespace: true
 OverrideValues:
-  nats:
-    auth:
-      token: "{{ .NATS_TOKEN }}"
+  NATSToken: "{{ .NATSToken }}"

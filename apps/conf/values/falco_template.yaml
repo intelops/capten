@@ -1,12 +1,13 @@
-Name: "tracetest"
-ChartName: "tools/tracetest"
-Category: "Observability"
+Name: "falco"
+ChartName: "tools/falco"
+Category: "Security"
 Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-Namespace: "tracetest"
-ReleaseName: "tracetest"
+Namespace: "falco"
+ReleaseName: "falco"
 Version: "0.0.1"
 CreateNamespace: true
 OverrideValues:
-  DomainName: "{{.DomainName}}"
+  driver:
+    kind: ebpf

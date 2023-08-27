@@ -1,14 +1,14 @@
 package helm
 
 import (
+	"bytes"
 	"context"
-	"fmt"
+	"html/template"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -122,13 +122,15 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed load chart")
 	}
 
-	if len(appConfig.OverrideValues) == 0 {
+	if len(appConfig.TemplateValues) == 0 {
+		clog.Logger.Infof("[app: %s] Deploying with no override values", appConfig.Name)
 		_, err = client.Run(chartReq, nil)
-		return errors.Wrap(err, "failed chart install run")
+		if err != nil {
+			return errors.Wrap(err, "failed chart install run")
+		}
 	}
 
-	appValuesFile := h.prepareAppValuesPath(appConfig)
-	err = h.createValuesFile(appValuesFile, appConfig.OverrideValues)
+	appValuesFile, err := h.prepareAppValues(appConfig)
 	if err != nil {
 		return err
 	}
@@ -139,14 +141,13 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 	if err != nil {
 		return errors.Wrap(err, "failed to merge chart values")
 	}
-	appConfig.OverrideValues = vals
 
 	releaseInfo, err := client.Run(chartReq, vals)
 	if err != nil {
 		return errors.Wrap(err, "failed chart install run with values")
 	}
 
-	clog.Logger.Debug("release info ", releaseInfo)
+	clog.Logger.Infof("release info: %v", releaseInfo)
 	return nil
 }
 
@@ -169,13 +170,12 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed load chart")
 	}
 
-	if len(appConfig.OverrideValues) == 0 {
+	if len(appConfig.TemplateValues) == 0 {
 		_, err = client.Run(appConfig.ReleaseName, chartReq, nil)
 		return errors.Wrap(err, "failed chart upgrade run")
 	}
 
-	appValuesFile := h.prepareAppValuesPath(appConfig)
-	err = h.createValuesFile(appValuesFile, appConfig.OverrideValues)
+	appValuesFile, err := h.prepareAppValues(appConfig)
 	if err != nil {
 		return err
 	}
@@ -186,8 +186,8 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	if err != nil {
 		return errors.Wrap(err, "failed to merge chart values")
 	}
-	appConfig.OverrideValues = vals
-	releaseInfo, err := client.Run(appConfig.ReleaseName, chartReq, appConfig.OverrideValues)
+
+	releaseInfo, err := client.Run(appConfig.ReleaseName, chartReq, vals)
 	if err != nil {
 		return errors.Wrap(err, "failed chart upgrade run with values")
 	}
@@ -215,28 +215,32 @@ func logHelmDebug(format string, v ...interface{}) {
 	clog.Logger.Debug(format, v)
 }
 
-func getValues(values map[string]interface{}) []string {
-	vals := make([]string, 0)
-	for key, val := range values {
-		vals = append(vals, fmt.Sprintf("%v=%v", key, val))
+func (h *Client) prepareAppValues(appConfig *types.AppConfig) (string, error) {
+	transformedData, err := executeAppConfigTemplate(appConfig.TemplateValues, appConfig.OverrideValues)
+	if err != nil {
+		return "", errors.WithMessagef(err, "failed to transform app values")
 	}
 
-	return vals
+	tmpValuesPath := h.captenConfig.PrepareFilePath(h.captenConfig.AppValuesTempDirPath, appConfig.Name+"-values.yaml")
+	err = os.WriteFile(tmpValuesPath, transformedData, filePrmission)
+	if err != nil {
+		return "", errors.WithMessagef(err, "failed to write app values to file %s", tmpValuesPath)
+	}
+	return tmpValuesPath, nil
 }
 
-func (h *Client) prepareAppValuesPath(appConfig *types.AppConfig) string {
-	return h.captenConfig.PrepareFilePath(h.captenConfig.AppValuesTempDirPath, appConfig.Name+"-values.yaml")
-}
-
-func (h *Client) createValuesFile(appValuesFile string, values map[string]interface{}) error {
-	data, err := yaml.Marshal(&values)
+func executeAppConfigTemplate(data []byte, values map[string]interface{}) (transformedData []byte, err error) {
+	tmpl, err := template.New("templateVal").Parse(string(data))
 	if err != nil {
-		return errors.WithMessage(err, "failed to unmarshal values")
+		return
 	}
 
-	err = os.WriteFile(appValuesFile, data, filePrmission)
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, values)
 	if err != nil {
-		return errors.WithMessagef(err, "failed to write app values to file %s", appValuesFile)
+		return
 	}
-	return nil
+
+	transformedData = buf.Bytes()
+	return
 }

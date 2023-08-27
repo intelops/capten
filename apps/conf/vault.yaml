@@ -8,5 +8,4 @@ Namespace: "capten"
 ReleaseName: "vault"
 Version: "0.0.1"
 CreateNamespace: true
-OverrideValues:
   
