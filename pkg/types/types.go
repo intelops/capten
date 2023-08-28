@@ -81,10 +81,12 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			PrivilegedNamespace: a.PrivilegedNamespace,
 			Icon:                []byte(a.LaunchUIIcon),
 			LaunchURL:           a.LaunchURL,
+			DefualtApp:          true,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,
 			LaunchUIValues: marshaledLaunchUi,
+			TemplateValues: a.TemplateValues,
 		},
 	}, nil
 }
