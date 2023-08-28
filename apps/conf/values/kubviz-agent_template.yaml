@@ -1,6 +1,6 @@
 nats: 
   auth:
-    token: "{{ .NATS_TOKEN }}"
+    token: "{{ .NATSToken }}"
 git_bridge:
   enabled: true
   ingress:

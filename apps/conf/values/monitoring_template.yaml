@@ -4,8 +4,8 @@ slack:
   webhook: "{{.SlackURL}}"
   channel: "{{.SlackChannel}}"
 {{else if eq .SocialIntegration "teams"}}
-teams:
-  enabled: true
-  webhook: "{{.TeamsURL}}"
-  channel: "{{.TeamsChannel}}"
+prometheus-msteams:
+    enabled: true
+    connectors:
+    - alert: "{{.TeamsURL}}"
 {{end}}
