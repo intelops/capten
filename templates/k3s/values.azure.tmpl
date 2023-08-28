@@ -1,10 +1,11 @@
 configfolderpath = "{{.ConfigFolderPath}}"
-mastercount = "{{.mastercount}}"
-workercount= "{{.workercount}}"
-instancetype= "{{.instancetype}}"
-publicipname= "{{.publicipname}}"
+region = "{{.Region}}"
+mastercount = "{{.MasterCount}}"
+workercount = "{{.WorkerCount}}"
+instancetype = "{{.InstanceType}}"
+publicipname = "{{.PublicIPName}}"
 nics = [
-{{- range .nics }}
+{{- range .NICs }}
   "{{ . }}",
 {{- end }}
 ]
