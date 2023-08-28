@@ -14,4 +14,3 @@ OverrideValues:
   SlackURL: "{{.SlackURL}}"
   SlackChannel: "{{.SlackChannel}}"
   TeamsURL: "{{.TeamsURL}}"
-  TeamsChannel: "{{.TeamsChannel}}"

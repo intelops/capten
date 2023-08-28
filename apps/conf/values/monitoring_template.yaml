@@ -5,7 +5,7 @@ slack:
   channel: "{{.SlackChannel}}"
 {{else if eq .SocialIntegration "teams"}}
 prometheus-msteams:
-    enabled: true
-    connectors:
-    - alert: "{{.TeamsURL}}"
+  enabled: true
+  connectors:
+  - alert: "{{.TeamsURL}}"
 {{end}}
