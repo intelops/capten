@@ -1,10 +1,5 @@
 DomainName: dev.optimizor.app
 LoadBalancerHost: ""
-CloudService: aws
+CloudService: azure
 ClusterType: talos
 ClusterCAIssuer: ""
-SocialIntegration: "teams"
-SlackURL: "slack.com"
-SlackChannel: "intelops"
-TeamsURL: "teams.com"
-TeamsChannel: "intelops"
