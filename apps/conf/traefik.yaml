@@ -6,24 +6,5 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "traefik"
 ReleaseName: "traefik"
-Version: "1.0.0"
+Version: "1.0.1"
 CreateNamespace: true
-LaunchUIConfig:
-  RedirectURL: ""
-LaunchUIValues: {}
-OverrideValues:
-  ports:
-    traefik:
-      expose: false
-      port: 9000
-    web:
-      expose: true
-      port: 8000
-      nodePort: 32080
-    websecure:
-      expose: true
-      port: 8443
-      nodePort: 32443
-  service:
-    enabled: "true"
-    type: NodePort

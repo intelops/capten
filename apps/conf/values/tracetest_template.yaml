@@ -1,0 +1,16 @@
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+    kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+  enabled: true
+  hosts:
+  - host: "tracetest.{{.DomainName}}"
+    paths:
+      - path: /
+        pathType: ImplementationSpecific
+  tls:
+    - secretName: cert-tracetest
+      hosts:
+      - "tracetest.{{.DomainName}}"

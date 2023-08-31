@@ -27,6 +27,7 @@ type AppConfig struct {
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
 	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
+	TemplateValues      []byte                 `yaml:"TemplateValues"`
 }
 
 type AzureClusterInfo struct {
@@ -92,10 +93,12 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			PrivilegedNamespace: a.PrivilegedNamespace,
 			Icon:                []byte(a.LaunchUIIcon),
 			LaunchURL:           a.LaunchURL,
+			DefualtApp:          true,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,
 			LaunchUIValues: marshaledLaunchUi,
+			TemplateValues: a.TemplateValues,
 		},
 	}, nil
 }

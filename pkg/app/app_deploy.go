@@ -55,8 +55,8 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			continue
 		}
 		if appConfig.PrivilegedNamespace {
-			err:=k8s.CreateorUpdateNamespaceWithLabel(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
-			 	appConfig.Namespace)
+			err := k8s.CreateorUpdateNamespaceWithLabel(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
+				appConfig.Namespace)
 			if err != nil {
 				clog.Logger.Error("failed to patch namespace with privilege", err)
 				successStatus = false
@@ -83,7 +83,9 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 			err = errors.WithMessagef(err, "failed load %s config", appName)
 			return
 		}
-		appConfig.OverrideValues, err = replaceTemplateValues(appConfig.OverrideValues, globalValues)
+
+		appConfig.TemplateValues = GetAppValuesTemplate(captenConfig, appName)
+		appConfig.OverrideValues, err = replaceOverrideTemplateValues(appConfig.OverrideValues, globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed transform '%s' override values", appName)
 			return
@@ -100,7 +102,7 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 	return
 }
 
-func replaceTemplateValues(templateData map[string]interface{},
+func replaceOverrideTemplateValues(templateData map[string]interface{},
 	values map[string]interface{}) (transformedData map[string]interface{}, err error) {
 	yamlData, err := yaml.Marshal(templateData)
 	if err != nil {

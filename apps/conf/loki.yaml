@@ -8,28 +8,6 @@ Namespace: "observability"
 ReleaseName: "loki"
 Version: "0.0.1"
 CreateNamespace: true
-OverrideValues:    
-  loki:
-    ingress:
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
-        kubernetes.io/force-ssl-redirect: "true"
-        kubernetes.io/ssl-redirect: "true"
-        kubernetes.io/tls-acme: "true"
-      enabled: true
-      hosts:
-        - host: "loki.{{.DomainName}}"
-          paths:
-            - "/"
-      tls:
-      - hosts:
-        - "loki.{{.DomainName}}"
-        secretName: cert-loki
-  promtail:
-    config:
-      clients:
-      - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
-        external_labels:
-          cluster_name: capten-controlplane
-        
-          
+PrivilegedNamespace: true
+OverrideValues:
+  DomainName: "{{.DomainName}}"          

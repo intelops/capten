@@ -1,0 +1,45 @@
+web:
+  enabled: false
+server:
+  metrics:
+    serviceMonitor:
+      additionalLabels:
+        release: prometheus
+  config:
+    persistence:
+      default:
+        driver: "cassandra"
+        cassandra:
+          hosts: ["capten-cass-capten-cass-service"]
+          user: "capten-cass-superuser"
+          existingSecret: "capten-cass-superuser"
+
+        sql:
+          user: "capten-cass-superuser"
+          password: "capten-cass-superuser"
+
+      visibility:
+        driver: "cassandra"
+        cassandra:
+          hosts: ["capten-cass-capten-cass-service"]
+          user: "capten-cass-superuser"
+          existingSecret: "capten-cass-superuser"
+
+        sql:
+          user: "capten-cass-superuser"
+          password: "capten-cass-superuser"
+
+  autoscaling:
+    enabled: false
+frontend:
+  autoscaling:
+    enabled: false
+history:
+  autoscaling:
+    enabled: false
+matching:
+  autoscaling:
+    enabled: false
+worker:
+  autoscaling:
+    enabled: false

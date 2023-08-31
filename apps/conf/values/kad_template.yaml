@@ -1,0 +1,4 @@
+cert:
+  secretName: "kad-agent-cert"
+ingressroute:
+  host: "captenagent.{{.DomainName}}"
