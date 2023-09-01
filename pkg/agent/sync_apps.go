@@ -9,6 +9,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -38,7 +39,7 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 				clog.Logger.Errorf("failed loading icon for app '%s', %v", appConfig.ReleaseName, err)
 			}
 			syncAppData.Config.Icon = iconBytes
-			clog.Logger.Infof("'%s' app icon added", appConfig.ReleaseName)
+			clog.Logger.Debugf("'%s' app icon added", appConfig.ReleaseName)
 		}
 
 		syncAppData.Config.InstallStatus = "Installed"
@@ -64,17 +65,18 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 			return errors.Wrapf(ferr, "in file %s", appConfigFilePath)
 		}
 
-		if filepath.Ext(appConfigFilePath) != ".yaml" {
+		if info.IsDir() || (filepath.Dir(appConfigFilePath) != strings.TrimRight(configDir, "/")) ||
+			!strings.HasSuffix(info.Name(), ".yaml") {
 			return nil
 		}
 
-		byt, err := os.ReadFile(appConfigFilePath)
+		data, err := os.ReadFile(appConfigFilePath)
 		if err != nil {
 			return errors.Wrapf(err, "in file: %s", appConfigFilePath)
 		}
 
 		var appConfig types.AppConfig
-		if err := yaml.NewDecoder(bytes.NewBuffer(byt)).Decode(&appConfig); err != nil {
+		if err := yaml.NewDecoder(bytes.NewBuffer(data)).Decode(&appConfig); err != nil {
 			return errors.Wrapf(err, "in file %s", appConfigFilePath)
 		}
 

@@ -53,8 +53,6 @@ type CaptenConfig struct {
 	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
-	StoreCredOnAgent           bool     `envconfig:"STORE_CRED_ON_AGENT" default:"true"`
-	SkipAppsDeploy             bool     `envconfig:"SKIP_APPS_DEPLOY" default:"false"`
 	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
 	UpgradeAppIfInstalled      bool     `envconfig:"UPGRADE_APP_IF_INSTALLED" default:"false"`
 	TerraformInitReconfigure   bool     `envconfig:"TERRAFORM_INIT_RECONFIGURE" default:"true"`
@@ -63,6 +61,7 @@ type CaptenConfig struct {
 	CurrentDirPath             string
 	PoolClusterName            string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
 	PoolClusterNamespace       string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
+	SetupAppsConfigFile        string `envconfig:"SETUP_APPS_CONFIG_FILE" default:"setup_apps.yaml"`
 }
 
 type CaptenClusterValues struct {
