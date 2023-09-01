@@ -1,4 +1,4 @@
-DomainName: dev.optimizor.app
+DomainName: demo.optimizor.app
 LoadBalancerHost: ""
 CloudService: aws
 ClusterType: talos
