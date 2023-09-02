@@ -90,7 +90,7 @@ func storeClusterGlobalValues(captenConfig config.CaptenConfig, agentClient agen
 	}
 
 	credentail := map[string]string{
-		kubeconfigCredIdentifier: string(configContent),
+		globalValuesCredIdentifier: string(configContent),
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
