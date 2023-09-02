@@ -17,6 +17,8 @@ const (
 
 	genericCredentailType        string = "generic"
 	k8sCredEntityName            string = "k8s"
+	captenConfigEntityName       string = "capten-config"
+	globalValuesCredIdentifier   string = "global-values"
 	kubeconfigCredIdentifier     string = "kubeconfig"
 	s3BucketCredEntityName       string = "s3bucket"
 	terraformStateCredIdentifier string = "terraform-state"
@@ -37,7 +39,7 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 		return err
 	}
 
-	err = storeTerraformStateConfig(captenConfig, agentClient)
+	err = storeClusterGlobalValues(captenConfig, agentClient)
 	if err != nil {
 		return err
 	}
@@ -46,6 +48,12 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 	if err != nil {
 		return err
 	}
+
+	err = storeTerraformStateConfig(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -63,6 +71,32 @@ func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.Agent
 		CredentialType: genericCredentailType,
 		CredEntityName: k8sCredEntityName,
 		CredIdentifier: kubeconfigCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
+	return nil
+}
+
+func storeClusterGlobalValues(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CaptenGlobalValuesFileName))
+	if err != nil {
+		return err
+	}
+
+	credentail := map[string]string{
+		kubeconfigCredIdentifier: string(configContent),
+	}
+
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: genericCredentailType,
+		CredEntityName: captenConfigEntityName,
+		CredIdentifier: globalValuesCredIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
