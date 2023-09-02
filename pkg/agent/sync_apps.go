@@ -3,6 +3,7 @@ package agent
 import (
 	"bytes"
 	"capten/pkg/agent/agentpb"
+	"capten/pkg/app"
 	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/types"
@@ -41,6 +42,9 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 			syncAppData.Config.Icon = iconBytes
 			clog.Logger.Debugf("'%s' app icon added", appConfig.ReleaseName)
 		}
+
+		templateValues := app.GetAppValuesTemplate(captenConfig, appConfig.ReleaseName)
+		syncAppData.Values.TemplateValues = templateValues
 
 		syncAppData.Config.InstallStatus = "Installed"
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
