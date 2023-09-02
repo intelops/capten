@@ -49,6 +49,7 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			clog.Logger.Infof("[app: %s] installed", appConfig.Name)
 		}
 
+		appConfig.TemplateValues = nil
 		if err := WriteAppConfig(captenConfig, appConfig); err != nil {
 			clog.Logger.Errorf("failed to write %s config, %v", appConfig.Name, err)
 			successStatus = false
