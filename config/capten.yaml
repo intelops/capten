@@ -3,7 +3,3 @@ LoadBalancerHost: ""
 CloudService: aws
 ClusterType: talos
 ClusterCAIssuer: ""
-SocialIntegration: "teams"
-SlackURL: "slack.com"
-SlackChannel: "intelops"
-TeamsURL: "teams.com"

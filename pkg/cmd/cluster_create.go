@@ -4,7 +4,8 @@ import (
 	"capten/pkg/clog"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
-
+	"github.com/olekukonko/tablewriter"
+	"os"
 	"github.com/spf13/cobra"
 )
 
@@ -37,26 +38,13 @@ var clusterCreateSubCmd = &cobra.Command{
 			return
 		}
 		clog.Logger.Info("Cluster Created")
-		cfg, err := config.GetCaptenConfig()
-		if err != nil {
-			clog.Logger.Errorf("failed to get capten config, %v", err)
-			return
-		}
-		cfg.AgentDNSNamePrefixes = []string{"gitbridge", "containerbridge", "loki", "grafana", "prometheus", "signoz", "otelcollector", "tracetest"}
-		for _, prefixName := range cfg.AgentDNSNamePrefixes {
-			cfg.AgentDNSNames = append(cfg.AgentDNSNames, prefixName+"."+cfg.DomainName)
-		}
-		agenthostname := cfg.AgentHostName + cfg.DomainName
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetAutoFormatHeaders(false)
+		table.SetHeader([]string{"Hostname", "Type", "Value"})
 
-		clog.Logger.Println("Before starting the app deployment, please ensure the following records are updated in DNS:")
-		for _, prefixName := range cfg.AgentDNSNames {
-			clog.Logger.Printf("Hostname: %s ", prefixName)
-			clog.Logger.Println("Type: CNAME")
-			clog.Logger.Printf("Value: %s \n", cfg.LoadBalancerHost)
-		}
-		clog.Logger.Printf("Hostname: %s", agenthostname)
-		clog.Logger.Println("Type: CNAME")
-		clog.Logger.Printf("Value:%s \n", cfg.LoadBalancerHost)
-
+		clog.Logger.Println("Before starting the app deployment, please ensure the following record is updated in DNS:")
+		table.Append([]string{" *."+captenConfig.DomainName, "CNAME", captenConfig.LoadBalancerHost})
+		table.Render()
+      
 	},
 }
