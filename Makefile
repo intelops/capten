@@ -40,6 +40,13 @@ build.release: build.all
 	# make all scripts executable
 	@find ./capten/ -type f -name "*.sh" -exec chmod +x {} \;
 
+	# Download and extract Terraform binary
+	@curl -LO https://releases.hashicorp.com/terraform/0.12.31/terraform_0.12.31_linux_amd64.zip
+	@unzip terraform_0.12.31_linux_amd64.zip -d capten/
+	@chmod +x capten/terraform
+	@rm terraform_0.12.31_linux_amd64.zip
+
+
 	@zip -r capten.zip capten/*
 	# remove this release folder as ci pipeline is complaining
 	@rm -rf capten
