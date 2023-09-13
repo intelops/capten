@@ -4,7 +4,8 @@ import (
 	"capten/pkg/clog"
 	"capten/pkg/cluster"
 	"capten/pkg/config"
-
+	"github.com/olekukonko/tablewriter"
+	"os"
 	"github.com/spf13/cobra"
 )
 
@@ -37,5 +38,13 @@ var clusterCreateSubCmd = &cobra.Command{
 			return
 		}
 		clog.Logger.Info("Cluster Created")
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetAutoFormatHeaders(false)
+		table.SetHeader([]string{"Hostname", "Type", "Value"})
+
+		clog.Logger.Println("Before starting the app deployment, please ensure the following record is updated in DNS:")
+		table.Append([]string{" *."+captenConfig.DomainName, "CNAME", captenConfig.LoadBalancerHost})
+		table.Render()
+      
 	},
 }
