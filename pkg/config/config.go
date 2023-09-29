@@ -62,6 +62,7 @@ type CaptenConfig struct {
 	PoolClusterName            string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
 	PoolClusterNamespace       string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
 	SetupAppsConfigFile        string `envconfig:"SETUP_APPS_CONFIG_FILE" default:"setup_apps.yaml"`
+	AzureTerraformTemplateFileName string `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.azure.tmpl"`
 }
 
 type CaptenClusterValues struct {
@@ -133,8 +134,21 @@ func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) 
 	return values, nil
 }
 
-func GetClusterInfo(clusterInfoFilePath string) (types.ClusterInfo, error) {
-	var values types.ClusterInfo
+func GetClusterInfo(clusterInfoFilePath string) (types.AWSClusterInfo, error) {
+	var values types.AWSClusterInfo
+	data, err := os.ReadFile(clusterInfoFilePath)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to read cluster info file, %s", clusterInfoFilePath)
+	}
+
+	err = yaml.Unmarshal(data, &values)
+	if err != nil {
+		return values, errors.WithMessagef(err, "failed to unmarshal cluster info file, %s", clusterInfoFilePath)
+	}
+	return values, err
+}
+func GetClusterInfoAzure(clusterInfoFilePath string) (types.AzureClusterInfo, error) {
+	var values types.AzureClusterInfo
 	data, err := os.ReadFile(clusterInfoFilePath)
 	if err != nil {
 		return values, errors.WithMessagef(err, "failed to read cluster info file, %s", clusterInfoFilePath)

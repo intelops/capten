@@ -50,8 +50,11 @@ var showCmd = &cobra.Command{
 func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterType string, err error) {
 	cloudService, _ = cmd.Flags().GetString("cloud")
 	if len(cloudService) == 0 {
+		cloudService = "azure"
+	} else {
 		cloudService = "aws"
 	}
+
 	clusterType, _ = cmd.Flags().GetString("type")
 	if len(clusterType) == 0 {
 		clusterType = "talos"
@@ -61,9 +64,14 @@ func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterT
 }
 
 func validateClusterFlags(cloudService, clusterType string) (err error) {
-	if cloudService != "aws" {
-		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
+	if cloudService == "aws" {
+		//err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
 		return
+	} else if cloudService == "azure" {
+		return
+	} else {
+		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
+		//  return
 	}
 
 	if clusterType != "talos" {
@@ -74,7 +82,7 @@ func validateClusterFlags(cloudService, clusterType string) (err error) {
 }
 
 func init() {
-	clusterCreateSubCmd.PersistentFlags().String("cloud", "", "cloud service (default: aws)")
+	clusterCreateSubCmd.PersistentFlags().String("cloud", "", "cloud service (default: azure)")
 	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: talos)")
 
 	createCmd.AddCommand(clusterCreateSubCmd)

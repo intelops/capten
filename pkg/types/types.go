@@ -9,6 +9,20 @@ import (
 type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
+type AzureClusterInfo struct {
+	ConfigFolderPath string `yaml:"ConfigFolderPath"`
+	//CloudService     string   `yaml:"CloudService"`
+	//	ClusterType      string   `yaml:"ClusterType"`
+	Region           string   `yaml:"region"`
+	MasterCount      []string `yaml:"mastercount"`
+	WorkerCount      []string `yaml:"workercount"`
+	NICs             []string `yaml:"nics"`
+	WorkerNics       []string `yaml:"workernics"`
+	InstanceType     string   `yaml:"instancetype"`
+	PublicIPName     []string `yaml:"publicipname"`
+	TraefikHttpPort  int      `yaml:"traefikhttpport"`
+	TraefikHttpsPort int      `yaml:"traefikhttpsport"`
+}
 
 type AppConfig struct {
 	Name                string                 `yaml:"Name"`
@@ -30,7 +44,7 @@ type AppConfig struct {
 	TemplateValues      []byte                 `yaml:"TemplateValues"`
 }
 
-type ClusterInfo struct {
+type AWSClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`

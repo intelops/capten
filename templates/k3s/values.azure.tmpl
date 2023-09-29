@@ -1,0 +1,29 @@
+region = "{{.Region}}"
+mastercount = [
+{{- range .MasterCount }}
+  "{{ . }}",
+{{- end }}
+]
+workercount = [
+{{- range .WorkerCount }}
+  "{{ . }}",
+{{- end }}
+]
+nics = [
+{{- range .NICs }}
+  "{{ . }}",
+{{- end }}
+]
+workernics = [
+{{- range .WorkerNics }}
+  "{{ . }}",
+{{- end }}
+]
+instancetype = "{{.InstanceType}}"
+publicipname = [
+{{- range .PublicIPName }}
+  "{{ . }}",
+{{- end }}
+]
+traefikhttpport = "{{.TraefikHttpPort}}"
+traefikhttpsport = "{{.TraefikHttpsPort}}"
