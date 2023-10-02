@@ -64,14 +64,10 @@ func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterT
 }
 
 func validateClusterFlags(cloudService, clusterType string) (err error) {
-	if cloudService == "aws" {
-		//err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
-		return
-	} else if cloudService == "azure" {
-		return
-	} else {
+
+	if cloudService != "aws" && cloudService != "azure" {
 		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
-		//  return
+		return
 	}
 
 	if clusterType != "talos" {

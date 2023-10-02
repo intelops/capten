@@ -23,7 +23,7 @@ type terraform struct {
 	captenConfig config.CaptenConfig
 }
 
-func New(captenConfig config.CaptenConfig, config types.AWSClusterInfo) (*terraform, error) {
+func NewAws(captenConfig config.CaptenConfig, config types.AWSClusterInfo) (*terraform, error) {
 	installer := &releases.ExactVersion{
 		Product:    product.Terraform,
 		Version:    version.Must(version.NewVersion("1.3.7")),
@@ -51,7 +51,7 @@ func New(captenConfig config.CaptenConfig, config types.AWSClusterInfo) (*terraf
 	return &terraform{config: config, exec: tf, captenConfig: captenConfig}, nil
 }
 
-func (t *terraform) init() error {
+func (t *terraform) initAws() error {
 
 	backendConfigOptionsStr := []string{
 		"region=" + t.config.Region,
@@ -73,24 +73,27 @@ func (t *terraform) init() error {
 	return nil
 }
 
-func (t *terraform) Apply() error {
-
-	var err error
-	if isAzureConfigInitialized(t.azureconfig) {
+func (t *terraform) initCommon() error {
+	if t.captenConfig.CloudService == "azure" {
 		err := t.initAzure()
 		if err != nil {
 			return err
 		}
-
 	} else {
-		err := t.init()
+		err := t.initAws()
 		if err != nil {
-				return err
-			}
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *terraform) Apply() error {
+	if err := t.initCommon(); err != nil {
+		return err
 	}
 
-
-	_, err = t.exec.Show(context.Background())
+	_, err := t.exec.Show(context.Background())
 	if err != nil {
 		return errors.WithMessage(err, "error running show")
 	}
@@ -106,27 +109,13 @@ func (t *terraform) Apply() error {
 	}
 	return nil
 }
-func isAzureConfigInitialized(config types.AzureClusterInfo) bool {
-
-	return config.Region != ""
-}
 
 func (t *terraform) Destroy() error {
-	var err error
-	if isAzureConfigInitialized(t.azureconfig) {
-		err := t.initAzure()
-		if err != nil {
-			return err
-		}
-
-	} else {
-		err := t.init()
-		if err != nil {
-				return err
-			}
+	if err := t.initCommon(); err != nil {
+		return err
 	}
 
-	_, err = t.exec.Show(context.Background())
+	_, err := t.exec.Show(context.Background())
 	if err != nil {
 		return errors.WithMessage(err, "error running show")
 	}
@@ -134,3 +123,4 @@ func (t *terraform) Destroy() error {
 	varFile := fmt.Sprintf("%s%s%s", t.captenConfig.CurrentDirPath, t.captenConfig.TerraformTemplateDirPath, t.captenConfig.TerraformVarFileName)
 	return t.exec.Destroy(context.Background(), tfexec.VarFile(varFile))
 }
+

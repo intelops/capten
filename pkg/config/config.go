@@ -13,55 +13,55 @@ import (
 
 type CaptenConfig struct {
 	CaptenClusterValues
-	AgentHostName              string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
-	AgentHostPort              string   `envconfig:"AGENT_HOST_PORT" default:":443"`
-	AgentSecure                bool     `envconfig:"AGENT_SECURE" default:"true"`
-	CaptenNamespace            string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
-	CertManagerNamespace       string   `envconfig:"CERT_MANAGER_NAMESPACE" default:"cert-manager"`
-	ClusterCACertSecretName    string   `envconfig:"INTER_CERT_SECRET_NAME" default:"capten-ca-cert"`
-	InterCACertFileName        string   `envconfig:"INTER_CERT_FILE_NAME" default:"inter-ca.crt"`
-	InterCAKeyFileName         string   `envconfig:"INTER_CERT_KEY_FILE_NAME" default:"inter-ca.key"`
-	AgentCertSecretName        string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
-	AgentCACertSecretName      string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
-	AppsDirPath                string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
-	AppsConfigDirPath          string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
-	AppsValuesDirPath          string   `envconfig:"APPS_VALUES_DIR_PATH" default:"/apps/conf/values/"`
-	AppsTempDirPath            string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
-	AppValuesTempDirPath       string   `envconfig:"APPS_TEMPVAL_DIR_PATH" default:"/apps/tmp/val/"`
-	AppIconsDirPath            string   `envconfig:"APPS_ICON_DIR_PATH" default:"/apps/icons/"`
-	ConfigDirPath              string   `envconfig:"CONFIG_DIR_PATH" default:"/config/"`
-	CertDirPath                string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
-	TerraformModulesDirPath    string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
-	TerraformTemplateDirPath   string   `envconfig:"TERRAFORM_TEMPLATE_DIR_PATH" default:"/templates/k3s/"`
-	CoreAppGroupsFileName      string   `envconfig:"CORE_APP_GROUPS_FILE_NAME" default:"core_group_apps.yaml"`
-	DefaultAppGroupsFileName   string   `envconfig:"DEFAULT_APP_GROUPS_FILE_NAME" default:"default_group_apps.yaml"`
-	CaptenGlobalValuesFileName string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
-	KubeConfigFileName         string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
-	TerraformTemplateFileName  string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
-	TerraformVarFileName       string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
-	AgentCertFileName          string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
-	AgentKeyFileName           string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
-	ClientCertFileName         string   `envconfig:"CLIENT_CERT_FILE_NAME" default:"client.crt"`
-	ClientKeyFileName          string   `envconfig:"CLIENT_KEY_FILE_NAME" default:"client.key"`
-	CAFileName                 string   `envconfig:"CA_FILE_NAME" default:"ca.crt"`
-	ClientCertExportFileName   string   `envconfig:"CLIENT_CERT_EXPORT_FILE_NAME" default:"capten-client-auth-certs.zip"`
-	OrgName                    string   `envconfig:"ORG_NAME" default:"Intelops"`
-	RootCACommonName           string   `envconfig:"ROOT_CA_CN" default:"Capten Root CA"`
-	IntermediateCACommonName   string   `envconfig:"INTERMEDIATE_CA_CN" default:"Capten Cluster CA"`
-	AgentCertCommonName        string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
-	AgentDNSNamePrefixes       []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
-	CaptenClientCertCommonName string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
-	AppDeployDryRun            bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
-	AppDeployDebug             bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
-	ForceGenerateCerts         bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
-	UpgradeAppIfInstalled      bool     `envconfig:"UPGRADE_APP_IF_INSTALLED" default:"false"`
-	TerraformInitReconfigure   bool     `envconfig:"TERRAFORM_INIT_RECONFIGURE" default:"true"`
-	TerraformInitUpgrade       bool     `envconfig:"TERRAFORM_INIT_UPGRADE" default:"true"`
-	AgentDNSNames              []string
-	CurrentDirPath             string
-	PoolClusterName            string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
-	PoolClusterNamespace       string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
-	SetupAppsConfigFile        string `envconfig:"SETUP_APPS_CONFIG_FILE" default:"setup_apps.yaml"`
+	AgentHostName                  string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
+	AgentHostPort                  string   `envconfig:"AGENT_HOST_PORT" default:":443"`
+	AgentSecure                    bool     `envconfig:"AGENT_SECURE" default:"true"`
+	CaptenNamespace                string   `envconfig:"CAPTEN_NAMESPACE" default:"capten"`
+	CertManagerNamespace           string   `envconfig:"CERT_MANAGER_NAMESPACE" default:"cert-manager"`
+	ClusterCACertSecretName        string   `envconfig:"INTER_CERT_SECRET_NAME" default:"capten-ca-cert"`
+	InterCACertFileName            string   `envconfig:"INTER_CERT_FILE_NAME" default:"inter-ca.crt"`
+	InterCAKeyFileName             string   `envconfig:"INTER_CERT_KEY_FILE_NAME" default:"inter-ca.key"`
+	AgentCertSecretName            string   `envconfig:"AGENT_CERT_SECRET_NAME" default:"kad-agent-cert"`
+	AgentCACertSecretName          string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
+	AppsDirPath                    string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
+	AppsConfigDirPath              string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
+	AppsValuesDirPath              string   `envconfig:"APPS_VALUES_DIR_PATH" default:"/apps/conf/values/"`
+	AppsTempDirPath                string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
+	AppValuesTempDirPath           string   `envconfig:"APPS_TEMPVAL_DIR_PATH" default:"/apps/tmp/val/"`
+	AppIconsDirPath                string   `envconfig:"APPS_ICON_DIR_PATH" default:"/apps/icons/"`
+	ConfigDirPath                  string   `envconfig:"CONFIG_DIR_PATH" default:"/config/"`
+	CertDirPath                    string   `envconfig:"CERT_DIR_PATH" default:"/cert/"`
+	TerraformModulesDirPath        string   `envconfig:"TERRAFORM_MODULE_DIR_PATH" default:"/terraform_modules/"`
+	TerraformTemplateDirPath       string   `envconfig:"TERRAFORM_TEMPLATE_DIR_PATH" default:"/templates/k3s/"`
+	CoreAppGroupsFileName          string   `envconfig:"CORE_APP_GROUPS_FILE_NAME" default:"core_group_apps.yaml"`
+	DefaultAppGroupsFileName       string   `envconfig:"DEFAULT_APP_GROUPS_FILE_NAME" default:"default_group_apps.yaml"`
+	CaptenGlobalValuesFileName     string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
+	KubeConfigFileName             string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
+	AWSTerraformTemplateFileName   string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
+	TerraformVarFileName           string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
+	AgentCertFileName              string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
+	AgentKeyFileName               string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
+	ClientCertFileName             string   `envconfig:"CLIENT_CERT_FILE_NAME" default:"client.crt"`
+	ClientKeyFileName              string   `envconfig:"CLIENT_KEY_FILE_NAME" default:"client.key"`
+	CAFileName                     string   `envconfig:"CA_FILE_NAME" default:"ca.crt"`
+	ClientCertExportFileName       string   `envconfig:"CLIENT_CERT_EXPORT_FILE_NAME" default:"capten-client-auth-certs.zip"`
+	OrgName                        string   `envconfig:"ORG_NAME" default:"Intelops"`
+	RootCACommonName               string   `envconfig:"ROOT_CA_CN" default:"Capten Root CA"`
+	IntermediateCACommonName       string   `envconfig:"INTERMEDIATE_CA_CN" default:"Capten Cluster CA"`
+	AgentCertCommonName            string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
+	AgentDNSNamePrefixes           []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
+	CaptenClientCertCommonName     string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
+	AppDeployDryRun                bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
+	AppDeployDebug                 bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
+	ForceGenerateCerts             bool     `envconfig:"FORCE_GENERATE_CERTS" default:"false"`
+	UpgradeAppIfInstalled          bool     `envconfig:"UPGRADE_APP_IF_INSTALLED" default:"false"`
+	TerraformInitReconfigure       bool     `envconfig:"TERRAFORM_INIT_RECONFIGURE" default:"true"`
+	TerraformInitUpgrade           bool     `envconfig:"TERRAFORM_INIT_UPGRADE" default:"true"`
+	AgentDNSNames                  []string
+	CurrentDirPath                 string
+	PoolClusterName                string `envconfig:"POOL_CLUSTER_NAME" default:"cstor-disk-pool"`
+	PoolClusterNamespace           string `envconfig:"POOL_CLUSTER_NAMESPACE" default:"openebs-cstor"`
+	SetupAppsConfigFile            string `envconfig:"SETUP_APPS_CONFIG_FILE" default:"setup_apps.yaml"`
 	AzureTerraformTemplateFileName string `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.azure.tmpl"`
 }
 

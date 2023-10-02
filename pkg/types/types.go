@@ -11,8 +11,8 @@ type AppList struct {
 }
 type AzureClusterInfo struct {
 	ConfigFolderPath string `yaml:"ConfigFolderPath"`
-	//CloudService     string   `yaml:"CloudService"`
-	//	ClusterType      string   `yaml:"ClusterType"`
+	CloudService     string   `yaml:"CloudService"`
+	ClusterType      string   `yaml:"ClusterType"`
 	Region           string   `yaml:"region"`
 	MasterCount      []string `yaml:"mastercount"`
 	WorkerCount      []string `yaml:"workercount"`
