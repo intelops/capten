@@ -48,7 +48,7 @@ build.release: build.all
 
 # Download talosctl binary
 	@curl -LO https://github.com/siderolabs/talos/releases/download/v1.5.2/talosctl-linux-amd64
-	@mv talosctl-linux-amd64 capten/terraform_modules/azure/talos/talosctl
+	@mv talosctl-linux-amd64 capten/config
 	@chmod +x capten/terraform_modules/azure/talos/talosctl
 
 	@zip -r capten.zip capten/*

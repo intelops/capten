@@ -13,6 +13,7 @@ import (
 
 type CaptenConfig struct {
 	CaptenClusterValues
+	CaptenClusterHost
 	AgentHostName                  string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
 	AgentHostPort                  string   `envconfig:"AGENT_HOST_PORT" default:":443"`
 	AgentSecure                    bool     `envconfig:"AGENT_SECURE" default:"true"`
@@ -36,6 +37,7 @@ type CaptenConfig struct {
 	CoreAppGroupsFileName          string   `envconfig:"CORE_APP_GROUPS_FILE_NAME" default:"core_group_apps.yaml"`
 	DefaultAppGroupsFileName       string   `envconfig:"DEFAULT_APP_GROUPS_FILE_NAME" default:"default_group_apps.yaml"`
 	CaptenGlobalValuesFileName     string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
+	CaptenHostValuesFileName       string   `envconfig:"CAPTEN_HOST_FILE_PATH" default:"capten.yaml"`
 	KubeConfigFileName             string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
 	AWSTerraformTemplateFileName   string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
 	TerraformVarFileName           string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
@@ -66,15 +68,22 @@ type CaptenConfig struct {
 }
 
 type CaptenClusterValues struct {
-	DomainName       string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	DomainName string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	// LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
+	CloudService    string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
+	ClusterType     string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
+	ClusterCAIssuer string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
+}
+
+type CaptenClusterHost struct {
 	LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
-	CloudService     string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
-	ClusterType      string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
-	ClusterCAIssuer  string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
 }
 
 func GetCaptenConfig() (CaptenConfig, error) {
 	cfg := CaptenConfig{}
+	var captenvalues CaptenClusterValues
+	var captenhostvalue CaptenClusterHost
+
 	err := envconfig.Process("", &cfg)
 	if err != nil {
 		return cfg, err
@@ -88,22 +97,25 @@ func GetCaptenConfig() (CaptenConfig, error) {
 		return cfg, errors.WithMessage(err, "error adding current directory to env")
 	}
 
-	values, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName))
+	values, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName), &captenvalues)
 	if err != nil {
 		return cfg, err
 	}
-
-	if len(values.DomainName) != 0 {
-		cfg.DomainName = values.DomainName
+	hostvalue, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), &captenhostvalue)
+	if err != nil {
+		return cfg, err
 	}
-	if len(values.CloudService) != 0 {
-		cfg.CloudService = values.CloudService
+	if len(values.(*CaptenClusterValues).DomainName) != 0 {
+		cfg.DomainName = values.(*CaptenClusterValues).DomainName
 	}
-	if len(values.ClusterType) != 0 {
-		cfg.ClusterType = values.ClusterType
+	if len(values.(*CaptenClusterValues).CloudService) != 0 {
+		cfg.CloudService = values.(*CaptenClusterValues).CloudService
 	}
-	if len(values.LoadBalancerHost) != 0 {
-		cfg.LoadBalancerHost = values.LoadBalancerHost
+	if len(values.(*CaptenClusterValues).ClusterType) != 0 {
+		cfg.ClusterType = values.(*CaptenClusterValues).ClusterType
+	}
+	if len(hostvalue.(*CaptenClusterHost).LoadBalancerHost) != 0 {
+		cfg.LoadBalancerHost = hostvalue.(*CaptenClusterHost).LoadBalancerHost
 	}
 
 	cfg.AgentDNSNames = []string{}
@@ -120,19 +132,19 @@ func (c CaptenConfig) GetCaptenAgentEndpoint() string {
 	return fmt.Sprintf("%s.%s:80", c.AgentHostName, c.DomainName)
 }
 
-func GetCaptenClusterValues(valuesFilePath string) (CaptenClusterValues, error) {
-	var values CaptenClusterValues
+func GetCaptenClusterValues(valuesFilePath string, v interface{}) (interface{}, error) {
 	data, err := os.ReadFile(valuesFilePath)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to read values file, %s", valuesFilePath)
+		return nil, errors.WithMessagef(err, "failed to read values file, %s", valuesFilePath)
 	}
 
-	err = yaml.Unmarshal(data, &values)
+	err = yaml.Unmarshal(data, v)
 	if err != nil {
-		return values, errors.WithMessagef(err, "failed to unmarshal values file, %s", valuesFilePath)
+		return nil, errors.WithMessagef(err, "failed to unmarshal values file, %s", valuesFilePath)
 	}
-	return values, nil
+	return v, nil
 }
+
 
 func GetClusterInfo(clusterInfoFilePath string) (types.AWSClusterInfo, error) {
 	var values types.AWSClusterInfo
@@ -185,13 +197,20 @@ func addCurrentDirToPath(dir string) error {
 
 func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) error {
 	clusterValuesPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName)
-	clusterValues, err := GetCaptenClusterValues(clusterValuesPath)
+	clusterValues, err := GetCaptenClusterValues(clusterValuesPath, &CaptenClusterValues{})
 	if err != nil {
 		return err
 	}
-	clusterValues.CloudService = cloudService
-	clusterValues.ClusterType = clusterType
-	clusterValuesData, err := yaml.Marshal(&clusterValues)
+	values, ok := clusterValues.(*CaptenClusterValues)
+	if !ok {
+		return errors.New("failed to assert clusterValues as CaptenClusterValues")
+	}
+
+	values.CloudService = cloudService
+	values.ClusterType = clusterType
+	// clusterValues.CloudService = cloudService
+	// clusterValues.ClusterType = clusterType
+	clusterValuesData, err := yaml.Marshal(&values)
 	if err != nil {
 		return err
 	}
