@@ -48,9 +48,9 @@ var showCmd = &cobra.Command{
 }
 
 func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterType string, err error) {
-	cloudService, _ = cmd.Flags().GetString("cloud")
+	cloudService, err = cmd.Flags().GetString("cloud")
 	if len(cloudService) == 0 {
-		cloudService = "azure"
+		return "", "", fmt.Errorf("specify the cloud service either azure or aws in the command line %v", err)
 	}
 	clusterType, _ = cmd.Flags().GetString("type")
 	if len(clusterType) == 0 {

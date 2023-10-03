@@ -48,8 +48,8 @@ build.release: build.all
 
 # Download talosctl binary
 	@curl -LO https://github.com/siderolabs/talos/releases/download/v1.5.2/talosctl-linux-amd64
-	@mv talosctl-linux-amd64 capten/config/talosctl
-	@chmod +x capten/config/talosctl
+	@mv talosctl-linux-amd64 capten/terraform_modules/talosctl
+	@chmod +x capten/terraform_modules/talosctl
 
 	@zip -r capten.zip capten/*
 	# remove this release folder as ci pipeline is complaining
