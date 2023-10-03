@@ -51,10 +51,7 @@ func readAndValidClusterFlags(cmd *cobra.Command) (cloudService string, clusterT
 	cloudService, _ = cmd.Flags().GetString("cloud")
 	if len(cloudService) == 0 {
 		cloudService = "azure"
-	} else {
-		cloudService = "aws"
 	}
-
 	clusterType, _ = cmd.Flags().GetString("type")
 	if len(clusterType) == 0 {
 		clusterType = "talos"

@@ -24,18 +24,20 @@ func getClusterInfo(captenConfig config.CaptenConfig) (interface{}, error) {
 		}
 		clusterInfo = awsclusterInfo
 
-	} else {
+	} else if (captenConfig.CloudService == "azure"){
 		azureClusterInfo, err := config.GetClusterInfoAzure(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 		if err != nil {
 			return nil, err
 		}
 		clusterInfo = azureClusterInfo
+	}else {
+		return nil,errors.Errorf("Unsupported Cloud Service")
 	}
 
 	return clusterInfo, nil
 }
 
-func createOrUpdateCluster(captenConfig config.CaptenConfig, action string) error {
+func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) error {
 	clog.Logger.Debugf("%s cluster on %s cloud with %s cluster type", action, captenConfig.CloudService, captenConfig.ClusterType)
 
 	clusterInfo, err := getClusterInfo(captenConfig)
@@ -86,11 +88,11 @@ func createOrUpdateCluster(captenConfig config.CaptenConfig, action string) erro
 }
 
 func Create(captenConfig config.CaptenConfig) error {
-	return createOrUpdateCluster(captenConfig, "create")
+	return createOrDestroyCluster(captenConfig, "create")
 }
 
 func Destroy(captenConfig config.CaptenConfig) error {
-	return createOrUpdateCluster(captenConfig, "destroy")
+	return createOrDestroyCluster(captenConfig, "destroy")
 }
 
 
