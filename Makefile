@@ -46,7 +46,7 @@ build.release: build.all
 	@chmod +x capten/terraform
 	@rm terraform_0.12.31_linux_amd64.zip
 
-# Download talosctl binary
+
 	@curl -LO https://github.com/siderolabs/talos/releases/download/v1.5.2/talosctl-linux-amd64
 	@mv talosctl-linux-amd64 capten/terraform_modules/talosctl
 	@chmod +x capten/terraform_modules/talosctl
