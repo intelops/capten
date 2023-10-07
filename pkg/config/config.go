@@ -39,7 +39,7 @@ type CaptenConfig struct {
 	CaptenGlobalValuesFileName     string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
 	CaptenHostValuesFileName       string   `envconfig:"CAPTEN_HOST_FILE_PATH" default:"capten.yaml"`
 	KubeConfigFileName             string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
-	AWSTerraformTemplateFileName   string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.tfvars.tmpl"`
+	AWSTerraformTemplateFileName   string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.aws.tmpl"`
 	TerraformVarFileName           string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
 	AgentCertFileName              string   `envconfig:"AGENT_CERT_FILE_NAME" default:"agent.crt"`
 	AgentKeyFileName               string   `envconfig:"AGENT_KEY_FILE_NAME" default:"agent.key"`
