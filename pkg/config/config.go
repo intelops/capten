@@ -37,7 +37,7 @@ type CaptenConfig struct {
 	CoreAppGroupsFileName          string   `envconfig:"CORE_APP_GROUPS_FILE_NAME" default:"core_group_apps.yaml"`
 	DefaultAppGroupsFileName       string   `envconfig:"DEFAULT_APP_GROUPS_FILE_NAME" default:"default_group_apps.yaml"`
 	CaptenGlobalValuesFileName     string   `envconfig:"CAPTEN_VALUES_FILE_PATH" default:"capten.yaml"`
-	CaptenHostValuesFileName       string   `envconfig:"CAPTEN_HOST_FILE_PATH" default:"capten.yaml"`
+	CaptenHostValuesFileName       string   `envconfig:"CAPTEN_HOST_FILE_PATH" default:"capten-lb-endpoint.yaml"`
 	KubeConfigFileName             string   `envconfig:"KUBE_CONFIG_PATH" default:"kubeconfig"`
 	AWSTerraformTemplateFileName   string   `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.aws.tmpl"`
 	TerraformVarFileName           string   `envconfig:"TERRAFORM_VAR_FILE_NAME" default:"values.tfvars"`
@@ -144,7 +144,6 @@ func GetCaptenClusterValues(valuesFilePath string, v interface{}) (interface{}, 
 	}
 	return v, nil
 }
-
 
 func GetClusterInfo(clusterInfoFilePath string) (types.AWSClusterInfo, error) {
 	var values types.AWSClusterInfo

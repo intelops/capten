@@ -12,10 +12,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-
 func getClusterInfo(captenConfig config.CaptenConfig) (interface{}, error) {
 	var clusterInfo interface{}
-
 
 	if captenConfig.CloudService == "aws" {
 		awsclusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
@@ -24,14 +22,14 @@ func getClusterInfo(captenConfig config.CaptenConfig) (interface{}, error) {
 		}
 		clusterInfo = awsclusterInfo
 
-	} else if (captenConfig.CloudService == "azure"){
+	} else if captenConfig.CloudService == "azure" {
 		azureClusterInfo, err := config.GetClusterInfoAzure(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 		if err != nil {
 			return nil, err
 		}
 		clusterInfo = azureClusterInfo
-	}else {
-		return nil,errors.Errorf("Unsupported Cloud Service")
+	} else {
+		return nil, errors.Errorf("Unsupported Cloud Service")
 	}
 
 	return clusterInfo, nil
@@ -95,16 +93,8 @@ func Destroy(captenConfig config.CaptenConfig) error {
 	return createOrDestroyCluster(captenConfig, "destroy")
 }
 
-
-
-
-
-
-
-
-
-func generateTemplateVarFile(captenConfig config.CaptenConfig, clusterInfo interface{},templateFileName string) error {
-	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath,templateFileName ))
+func generateTemplateVarFile(captenConfig config.CaptenConfig, clusterInfo interface{}, templateFileName string) error {
+	content, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.TerraformTemplateDirPath, templateFileName))
 	if err != nil {
 		return errors.WithMessage(err, "failed to read template file")
 	}

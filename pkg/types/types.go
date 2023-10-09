@@ -10,18 +10,19 @@ type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
 type AzureClusterInfo struct {
-	ConfigFolderPath string `yaml:"ConfigFolderPath"`
-	CloudService     string   `yaml:"CloudService"`
-	ClusterType      string   `yaml:"ClusterType"`
-	Region           string   `yaml:"region"`
-	MasterCount      []string `yaml:"mastercount"`
-	WorkerCount      []string `yaml:"workercount"`
-	NICs             []string `yaml:"nics"`
-	WorkerNics       []string `yaml:"workernics"`
-	InstanceType     string   `yaml:"instancetype"`
-	PublicIPName     []string `yaml:"publicipname"`
-	TraefikHttpPort  int      `yaml:"traefikhttpport"`
-	TraefikHttpsPort int      `yaml:"traefikhttpsport"`
+	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
+	CloudService            string   `yaml:"CloudService"`
+	ClusterType             string   `yaml:"ClusterType"`
+	Region                  string   `yaml:"Region"`
+	MasterCount             []string `yaml:"MasterCount"`
+	WorkerCount             []string `yaml:"WorkerCount"`
+	NICs                    []string `yaml:"NICs"`
+	WorkerNics              []string `yaml:"WorkerNics"`
+	InstanceType            string   `yaml:"InstanceType"`
+	PublicIPName            []string `yaml:"PublicIpName"`
+	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
+	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
 }
 
 type AppConfig struct {
