@@ -1,0 +1,16 @@
+otelAgent:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 406Mi
+    limits:
+      cpu: 30m
+      memory: 612Mi
+otelDeployment:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 62Mi
+    limits:
+      cpu: 20m
+      memory: 94Mi

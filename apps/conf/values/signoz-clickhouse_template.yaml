@@ -1,0 +1,15 @@
+resources:
+  requests:
+    cpu: 110m
+    memory: 333Mi
+  limits:
+    cpu: 165m
+    memory: 503Mi
+clickhouseOperator:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 39Mi
+    limits:
+      cpu: 20m
+      memory: 60Mi

@@ -41,10 +41,32 @@ prometheus:
       - "prometheus.{{.DomainName}}"
       secretName: cert-prometheus
   prometheusSpec:
+    resources: 
+      requests:
+        cpu: 500m
+        memory: 2.3Gi
+      limits:
+        cpu: 810m
+        memory: 3.75Gi
     enableRemoteWriteReceiver: true
     externalLabels:
       cluster_name: capten-controlplane
 alertmanager:
   alertmanagerSpec:
+    resources: 
+      requests:
+        cpu: 10m
+        memory: 30Mi
+      limits:
+        cpu: 20m
+        memory: 51Mi
     alertmanagerConfigMatcherStrategy:
       type: None
+prometheusOperator:
+  resources: 
+    requests:
+      cpu: 50m
+      memory: 164Mi
+    limits:
+      cpu: 75m
+      memory: 246Mi

@@ -1,4 +1,11 @@
 frontend:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 4Mi
+    limits:
+      cpu: 20m
+      memory: 8Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -17,6 +24,37 @@ frontend:
       - "signoz.{{.DomainName}}"
       secretName: cert-signoz
 otelCollector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 145Mi
+    limits:
+      cpu: 20m
+      memory: 220Mi
   ingressRoute:
     enabled: true
-    host: "otelcollector.{{.DomainName}}" 
+    host: "otelcollector.{{.DomainName}}"
+otelCollectorMetrics:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 130Mi
+    limits:
+      cpu: 20m
+      memory: 190Mi
+queryService:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 20m
+      memory: 25Mi
+alertmanager:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 14Mi
+    limits:
+      cpu: 20m
+      memory: 23Mi

@@ -1,0 +1,33 @@
+primary:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 27Mi
+    requests:
+      cpu: 10m
+      memory: 18Mi
+readReplicas:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 27Mi
+    requests:
+      cpu: 10m
+      memory: 18Mi
+volumePermissions:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 27Mi
+    requests:
+      cpu: 10m
+      memory: 18Mi
+metrics:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 27Mi
+    requests:
+      cpu: 100m
+      memory: 18Mi
+

@@ -1,3 +1,10 @@
 kubescape:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 25Mi
+    limits:
+      cpu: 20m
+      memory: 48Mi
   prometheusAnnotation:
     enabled: true

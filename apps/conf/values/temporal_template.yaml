@@ -31,15 +31,47 @@ server:
 
   autoscaling:
     enabled: false
-frontend:
-  autoscaling:
-    enabled: false
-history:
-  autoscaling:
-    enabled: false
-matching:
-  autoscaling:
-    enabled: false
-worker:
-  autoscaling:
-    enabled: false
+  frontend:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 72Mi
+      limits:
+        cpu: 200m
+        memory: 110Mi
+
+  history:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 400m
+        memory: 420Mi
+      limits:
+        cpu: 600m
+        memory: 630Mi  
+      
+
+  matching:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 72Mi
+      limits:
+        cpu: 200m
+        memory: 110Mi
+
+  worker:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 200m
+        memory: 98Mi
+      limits:
+        cpu: 400m
+        memory: 150Mi

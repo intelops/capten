@@ -60,3 +60,10 @@ jobs:
           asset_path: ./capten.zip
           asset_name: capten.zip
           asset_content_type: application
+      - name: Install cosign
+        uses: sigstore/gh-action-sigstore-python@v2.0.0
+        with:
+          inputs: dist/scsctl-0.0.3-py3-none-any.whl
+      - name: Sign with sigstore using GitHub App credentials
+        run: |
+          sigstore sign --overwrite dist/scsctl-0.0.3-py3-none-any.whl
