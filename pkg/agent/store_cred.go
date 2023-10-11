@@ -49,6 +49,19 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 		return err
 	}
 
+
+
+	return nil
+}
+
+
+
+
+func StoreClusterCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
+	agentClient, err := GetAgentClient(captenConfig)
+	if err != nil {
+		return err
+	}
 	err = storeTerraformStateConfig(captenConfig, agentClient)
 	if err != nil {
 		return err
@@ -56,6 +69,7 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 
 	return nil
 }
+
 
 func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
 	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName))

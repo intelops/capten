@@ -133,8 +133,15 @@ var appsCmd = &cobra.Command{
 		err = execActionIfEnabled(actions.Actions.StoreClusterCredentials, func() error {
 			err = agent.StoreCredentials(captenConfig, globalValues)
 			if err != nil {
-				return errors.WithMessage(err, "failed to store cluster credentials")
+				return errors.WithMessage(err, "failed to store credentials")
 			}
+			if (captenConfig.CloudService=="aws"){
+				err=agent.StoreClusterCredentials(captenConfig,globalValues)
+				if err != nil {
+					return errors.WithMessage(err, "failed to store cluster credentials")
+				}
+			}
+			
 			return nil
 		})
 		if err != nil {

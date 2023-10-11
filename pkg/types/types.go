@@ -9,6 +9,21 @@ import (
 type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
+type AzureClusterInfo struct {
+	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
+	CloudService            string   `yaml:"CloudService"`
+	ClusterType             string   `yaml:"ClusterType"`
+	Region                  string   `yaml:"Region"`
+	MasterCount             []string `yaml:"MasterCount"`
+	WorkerCount             []string `yaml:"WorkerCount"`
+	NICs                    []string `yaml:"NICs"`
+	WorkerNics              []string `yaml:"WorkerNics"`
+	InstanceType            string   `yaml:"InstanceType"`
+	PublicIPName            []string `yaml:"PublicIpName"`
+	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
+	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
+}
 
 type AppConfig struct {
 	Name                string                 `yaml:"Name"`
@@ -30,8 +45,9 @@ type AppConfig struct {
 	TemplateValues      []byte                 `yaml:"TemplateValues"`
 }
 
-type ClusterInfo struct {
+type AWSClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`
 	AwsAccessKey            string   `yaml:"AwsAccessKey"`

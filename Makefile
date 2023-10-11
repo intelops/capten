@@ -40,6 +40,17 @@ build.release: build.all
 	# make all scripts executable
 	@find ./capten/ -type f -name "*.sh" -exec chmod +x {} \;
 
+	# Download and extract Terraform binary
+	@curl -LO https://releases.hashicorp.com/terraform/0.12.31/terraform_0.12.31_linux_amd64.zip
+	@unzip terraform_0.12.31_linux_amd64.zip -d capten/
+	@chmod +x capten/terraform
+	@rm terraform_0.12.31_linux_amd64.zip
+
+
+	@curl -LO https://github.com/siderolabs/talos/releases/download/v1.5.2/talosctl-linux-amd64
+	@mv talosctl-linux-amd64 capten/terraform_modules/talosctl
+	@chmod +x capten/terraform_modules/talosctl
+
 	@zip -r capten.zip capten/*
 	# remove this release folder as ci pipeline is complaining
 	@rm -rf capten

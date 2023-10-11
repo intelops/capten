@@ -1,6 +1,5 @@
 DomainName: demo.optimizor.app
-LoadBalancerHost: ""
-CloudService: aws
+CloudService: azure
 ClusterType: talos
 ClusterCAIssuer: ""
 SocialIntegration: "teams"
