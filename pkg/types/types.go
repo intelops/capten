@@ -47,6 +47,7 @@ type AppConfig struct {
 
 type AWSClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`
 	AwsAccessKey            string   `yaml:"AwsAccessKey"`

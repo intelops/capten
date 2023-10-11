@@ -1,5 +1,4 @@
 Region: "centralindia"
-TerraformModulesDirPath: "/home/shifnazarnaz/go/src/github.com/intelops/capten/capten/terraform_modules"
 MasterCount:
   - "talos-master1"
   - "talos-master2"

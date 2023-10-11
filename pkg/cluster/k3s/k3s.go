@@ -46,6 +46,7 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 	switch info := clusterInfo.(type) {
 	case types.AWSClusterInfo:
 		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
 		err = generateTemplateVarFile(captenConfig, info, captenConfig.AWSTerraformTemplateFileName)
 		if err != nil {
 			return err
@@ -63,6 +64,7 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 		}
 	case types.AzureClusterInfo:
 		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
 		err = generateTemplateVarFile(captenConfig, info, captenConfig.AzureTerraformTemplateFileName)
 		if err != nil {
 			return err
