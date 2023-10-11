@@ -69,7 +69,6 @@ type CaptenConfig struct {
 
 type CaptenClusterValues struct {
 	DomainName string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
-	// LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
 	CloudService    string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
 	ClusterType     string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
 	ClusterCAIssuer string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
