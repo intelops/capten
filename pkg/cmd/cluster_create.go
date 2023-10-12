@@ -36,6 +36,11 @@ var clusterCreateSubCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to create cluster, %v", err)
 			return
 		}
+		err = config.UpdateClusterEndpoint(&captenConfig, captenConfig.CaptenClusterHost.LoadBalancerHost)
+		if err != nil {
+			clog.Logger.Errorf("failed to update LoadBalancer Host, %v", err)
+			return
+		}
 		clog.Logger.Info("Cluster Created")
 	},
 }

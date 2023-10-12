@@ -1,4 +1,5 @@
 Apps:
   - "openebs-cstor"
-  - "cert-manager"
-  - "traefik"
+ # - "cert-manager"
+ # - "traefik"
+ 

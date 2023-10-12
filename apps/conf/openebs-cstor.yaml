@@ -4,7 +4,7 @@ Category: "Platform"
 Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
-Namespace: "openebs-cstor"
+Namespace: "openebs"
 ReleaseName: "openebs-cstor"
 Version: "1.0.0"
 CreateNamespace: true

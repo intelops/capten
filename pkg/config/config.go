@@ -68,10 +68,14 @@ type CaptenConfig struct {
 }
 
 type CaptenClusterValues struct {
-	DomainName string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
-	CloudService    string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
-	ClusterType     string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
-	ClusterCAIssuer string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
+	DomainName        string `yaml:"DomainName" envconfig:"DOMAIN_NAME" default:"dev.intelops.app"`
+	CloudService      string `yaml:"CloudService" envconfig:"CLOUD_SERVICE"`
+	ClusterType       string `yaml:"ClusterType" envconfig:"CLUSTER_TYPE"`
+	ClusterCAIssuer   string `yaml:"ClusterCAIssuer" envconfig:"CLUSTER_CA_ISSUER" default:"capten-issuer"`
+	SocialIntegration string `yaml:"SocialIntegration" envconfig:"SOCIAL_INTEGRATION"`
+	SlackURL          string `yaml:"SlackURL" envconfig:"SLACK_URL" `
+	SlackChannel      string `yaml:"SlackChannel" envconfig:"SLACK_CHANNEL"`
+	TeamsURL          string `yaml:"TeamsURL" envconfig:"TEAMS_URL"`
 }
 
 type CaptenClusterHost struct {
@@ -112,6 +116,18 @@ func GetCaptenConfig() (CaptenConfig, error) {
 	}
 	if len(values.(*CaptenClusterValues).ClusterType) != 0 {
 		cfg.ClusterType = values.(*CaptenClusterValues).ClusterType
+	}
+	if len(values.(*CaptenClusterValues).SlackChannel) != 0 {
+		cfg.ClusterType = values.(*CaptenClusterValues).SlackChannel
+	}
+	if len(values.(*CaptenClusterValues).SlackURL) != 0 {
+		cfg.ClusterType = values.(*CaptenClusterValues).SlackURL
+	}
+	if len(values.(*CaptenClusterValues).SocialIntegration) != 0 {
+		cfg.ClusterType = values.(*CaptenClusterValues).SocialIntegration
+	}
+	if len(values.(*CaptenClusterValues).TeamsURL) != 0 {
+		cfg.ClusterType = values.(*CaptenClusterValues).TeamsURL
 	}
 	if len(hostvalue.(*CaptenClusterHost).LoadBalancerHost) != 0 {
 		cfg.LoadBalancerHost = hostvalue.(*CaptenClusterHost).LoadBalancerHost
@@ -219,5 +235,28 @@ func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) er
 	}
 	cfg.CloudService = cloudService
 	cfg.ClusterType = clusterType
+	return nil
+}
+func UpdateClusterEndpoint(cfg *CaptenConfig, cloudendpoint string) error {
+	clusterHostPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName)
+	clusterValues, err := GetCaptenClusterValues(clusterHostPath, &CaptenClusterHost{})
+	if err != nil {
+		return err
+	}
+	values, ok := clusterValues.(*CaptenClusterHost)
+	if !ok {
+		return errors.New("failed to assert clusterHost as CaptenClusterEndpoint")
+	}
+
+	clusterValuesData, err := yaml.Marshal(&values)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(clusterHostPath, clusterValuesData, 0644)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
