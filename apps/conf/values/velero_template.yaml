@@ -19,6 +19,7 @@ initContainers:
         name: plugins
 configuration:
   features: EnableCSI
+  defaultVolumesToFsBackup: true
   backupStorageLocation:
   - name:
     provider: 
@@ -33,4 +34,5 @@ configuration:
 credentials:
   secretContents: 
     cloud: |
-      
+
+deployNodeAgent: true      

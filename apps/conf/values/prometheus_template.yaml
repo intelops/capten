@@ -16,6 +16,7 @@ grafana:
   plugins:
   - vertamedia-clickhouse-datasource
   - grafana-clickhouse-datasource
+  - volkovlabs-echarts-panel
   sidecar:
     dashboards:
       enabled: true

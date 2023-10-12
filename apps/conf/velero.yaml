@@ -8,3 +8,4 @@ Namespace: "velero"
 ReleaseName: "velero"
 Version: "0.0.1"
 CreateNamespace: true
+PrivilegedNamespace: true
