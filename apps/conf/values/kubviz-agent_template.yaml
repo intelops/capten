@@ -1,8 +1,16 @@
+image:
+  repository: ghcr.io/intelops/kubviz/kubviz-agent
+  pullPolicy: Always
+  tag: "v1.1.3-alpha"
 nats: 
   auth:
     token: "{{ .NATSToken }}"
 git_bridge:
   enabled: true
+  image:
+    repository: ghcr.io/intelops/kubviz/git-agent
+    pullPolicy: Always
+    tag: "v1.1.3-alpha"
   ingress:
     hosts:
       - host: "gitbridge.{{.DomainName}}"
@@ -15,6 +23,10 @@ git_bridge:
           - "gitbridge.{{.DomainName}}"
 container_bridge:
   enabled: true
+  image:
+    repository: ghcr.io/intelops/kubviz/container-agent
+    pullPolicy: Always
+    tag: "v1.1.3-alpha"
   ingress:
     hosts:
       - host: "containerbridge.{{.DomainName}}"
