@@ -118,16 +118,16 @@ func GetCaptenConfig() (CaptenConfig, error) {
 		cfg.ClusterType = values.(*CaptenClusterValues).ClusterType
 	}
 	if len(values.(*CaptenClusterValues).SlackChannel) != 0 {
-		cfg.ClusterType = values.(*CaptenClusterValues).SlackChannel
+		cfg.SlackChannel = values.(*CaptenClusterValues).SlackChannel
 	}
 	if len(values.(*CaptenClusterValues).SlackURL) != 0 {
-		cfg.ClusterType = values.(*CaptenClusterValues).SlackURL
+		cfg.SlackURL = values.(*CaptenClusterValues).SlackURL
 	}
 	if len(values.(*CaptenClusterValues).SocialIntegration) != 0 {
-		cfg.ClusterType = values.(*CaptenClusterValues).SocialIntegration
+		cfg.SocialIntegration = values.(*CaptenClusterValues).SocialIntegration
 	}
 	if len(values.(*CaptenClusterValues).TeamsURL) != 0 {
-		cfg.ClusterType = values.(*CaptenClusterValues).TeamsURL
+		cfg.TeamsURL = values.(*CaptenClusterValues).TeamsURL
 	}
 	if len(hostvalue.(*CaptenClusterHost).LoadBalancerHost) != 0 {
 		cfg.LoadBalancerHost = hostvalue.(*CaptenClusterHost).LoadBalancerHost
@@ -210,6 +210,7 @@ func addCurrentDirToPath(dir string) error {
 }
 
 func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) error {
+
 	clusterValuesPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenGlobalValuesFileName)
 	clusterValues, err := GetCaptenClusterValues(clusterValuesPath, &CaptenClusterValues{})
 	if err != nil {
@@ -222,8 +223,7 @@ func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) er
 
 	values.CloudService = cloudService
 	values.ClusterType = clusterType
-	// clusterValues.CloudService = cloudService
-	// clusterValues.ClusterType = clusterType
+
 	clusterValuesData, err := yaml.Marshal(&values)
 	if err != nil {
 		return err
@@ -235,28 +235,5 @@ func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) er
 	}
 	cfg.CloudService = cloudService
 	cfg.ClusterType = clusterType
-	return nil
-}
-func UpdateClusterEndpoint(cfg *CaptenConfig, cloudendpoint string) error {
-	clusterHostPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName)
-	clusterValues, err := GetCaptenClusterValues(clusterHostPath, &CaptenClusterHost{})
-	if err != nil {
-		return err
-	}
-	values, ok := clusterValues.(*CaptenClusterHost)
-	if !ok {
-		return errors.New("failed to assert clusterHost as CaptenClusterEndpoint")
-	}
-
-	clusterValuesData, err := yaml.Marshal(&values)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(clusterHostPath, clusterValuesData, 0644)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
