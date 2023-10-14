@@ -1,12 +1,12 @@
 Name: "tracetest"
-ChartName: "tools/tracetest"
+ChartName: "tracetest/tracetest"
 Category: "Observability"
 Description: ""
-RepoName: "tools"
-RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+RepoName: "tracetest"
+RepoURL: "https://intelops.github.io/tracetest"
 Namespace: "tracetest"
 ReleaseName: "tracetest"
-Version: "0.0.1"
+Version: "1.0.0"
 CreateNamespace: true
 OverrideValues:
   DomainName: "{{.DomainName}}"
