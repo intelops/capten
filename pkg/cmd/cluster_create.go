@@ -36,6 +36,7 @@ var clusterCreateSubCmd = &cobra.Command{
 			clog.Logger.Errorf("failed to create cluster, %v", err)
 			return
 		}
+		
 		clog.Logger.Info("Cluster Created")
 	},
 }
