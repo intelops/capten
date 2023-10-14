@@ -97,7 +97,6 @@ var appsCmd = &cobra.Command{
 		}
 
 		err = execActionIfEnabled(actions.Actions.ConfigureCstorPool, func() error {
-			
 			err = k8s.CreateCStorPoolClusters(captenConfig)
 			if err != nil {
 				return errors.WithMessage(err, "failed to configure storage pool")
@@ -136,13 +135,13 @@ var appsCmd = &cobra.Command{
 			if err != nil {
 				return errors.WithMessage(err, "failed to store credentials")
 			}
-			if (captenConfig.CloudService=="aws"){
-				err=agent.StoreClusterCredentials(captenConfig,globalValues)
+			if captenConfig.CloudService == "aws" {
+				err = agent.StoreClusterCredentials(captenConfig, globalValues)
 				if err != nil {
 					return errors.WithMessage(err, "failed to store cluster credentials")
 				}
 			}
-			
+
 			return nil
 		})
 		if err != nil {

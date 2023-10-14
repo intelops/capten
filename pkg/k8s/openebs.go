@@ -4,6 +4,7 @@ import (
 	"capten/pkg/clog"
 	"capten/pkg/config"
 	"context"
+	"strings"
 
 	v1 "github.com/openebs/api/v2/pkg/apis/cstor/v1"
 	clientset "github.com/openebs/api/v2/pkg/client/clientset/versioned"
@@ -31,58 +32,26 @@ func getOpenEBSClient(captenConfig config.CaptenConfig) (*clientset.Clientset, e
 }
 
 func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig config.CaptenConfig) ([]map[string]string, error) {
-
 	bdList, err := openebsClientset.OpenebsV1alpha1().BlockDevices(captenConfig.PoolClusterNamespace).List(context.TODO(), metav1.ListOptions{})
-
 	if err != nil {
 		return nil, err
 	}
 
 	var blockDevicesMappings []map[string]string
-
 	for _, bd := range bdList.Items {
-		if bd.Name != "" {
+		if strings.EqualFold(bd.Spec.Details.DeviceType, "disk") {
 			nodename := bd.Spec.NodeAttributes.NodeName
 			blockDeviceMapping := map[string]string{
 				"blockDevice": bd.Name,
 				"nodeName":    nodename,
 			}
 			blockDevicesMappings = append(blockDevicesMappings, blockDeviceMapping)
-
+			clog.Logger.Debugf("Added Block device %s", bd.Name)
+		} else {
+			clog.Logger.Infof("Skipped Block device %s", bd.Name)
 		}
-
 	}
 	return blockDevicesMappings, nil
-}
-
-func CstorPoolClusterExists(openebsClient *clientset.Clientset, captenConfig config.CaptenConfig) bool {
-	resourceName := captenConfig.PoolClusterName
-	_, err := openebsClient.CstorV1().CStorPoolClusters(captenConfig.PoolClusterNamespace).Get(context.TODO(), resourceName, metav1.GetOptions{})
-	//_, err := openebsClient.CstorV1alpha1().CStorPoolClusters("namespace").Get(context.TODO(), resourceName, metav1.GetOptions{})
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-func CstorPoolClusterCreation(captenConfig config.CaptenConfig) error {
-
-	openebsClientset, err := getOpenEBSClient(captenConfig)
-	if err != nil {
-		return errors.WithMessage(err, "error while creating openebsClientset")
-
-	}
-	if !CstorPoolClusterExists(openebsClientset, captenConfig) {
-
-		err = CreateCStorPoolClusters(captenConfig)
-		if err != nil {
-			clog.Logger.Errorf("failed to create cluster issuer, %v", err)
-			return err
-		}
-	} else {
-		return nil
-	}
-	return nil
 }
 
 func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
@@ -91,13 +60,13 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 		return errors.WithMessage(err, "error while creating openebsClientset")
 	}
 
-	nodename, err := getOpenEBSBlockDevices(openebsClientset, captenConfig)
+	bdNodeMap, err := getOpenEBSBlockDevices(openebsClientset, captenConfig)
 	if err != nil {
 		return errors.WithMessage(err, "failed to retrieve blockdevices")
 	}
-	var poolSpecs []v1.PoolSpec
-	for _, bd := range nodename {
 
+	var poolSpecs []v1.PoolSpec
+	for _, bd := range bdNodeMap {
 		blockDevice := bd["blockDevice"]
 		nodeName := bd["nodeName"]
 		if err != nil {
@@ -122,7 +91,6 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 			},
 		}
 		poolSpecs = append(poolSpecs, poolspec)
-
 	}
 
 	poolClusterClient := openebsClientset.CstorV1().CStorPoolClusters(captenConfig.PoolClusterNamespace)
