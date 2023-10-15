@@ -4,6 +4,7 @@ import (
 	"capten/pkg/config"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"os"
 
 	"capten/pkg/agent/agentpb"
@@ -16,6 +17,7 @@ import (
 
 func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 	agentEndpoint := config.GetCaptenAgentEndpoint()
+	authorityAgentHost := fmt.Sprintf("%s.%s", config.AgentHostName, config.DomainName)
 
 	var conn *grpc.ClientConn
 	var err error
@@ -25,7 +27,7 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 			return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
 		}
 
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials))
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials), grpc.WithAuthority(authorityAgentHost))
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}

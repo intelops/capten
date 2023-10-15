@@ -142,9 +142,9 @@ func GetCaptenConfig() (CaptenConfig, error) {
 
 func (c CaptenConfig) GetCaptenAgentEndpoint() string {
 	if c.AgentSecure {
-		return fmt.Sprintf("%s.%s%s", c.AgentHostName, c.DomainName, c.AgentHostPort)
+		return fmt.Sprintf("%s%s", c.LoadBalancerHost, c.AgentHostPort)
 	}
-	return fmt.Sprintf("%s.%s:80", c.AgentHostName, c.DomainName)
+	return fmt.Sprintf("%s:80", c.LoadBalancerHost)
 }
 
 func GetCaptenClusterValues(valuesFilePath string, v interface{}) (interface{}, error) {

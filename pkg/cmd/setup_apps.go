@@ -141,7 +141,7 @@ var appsCmd = &cobra.Command{
 					return errors.WithMessage(err, "failed to store cluster credentials")
 				}
 			}
-
+			clog.Logger.Info("Stored cluster credentails on custer")
 			return nil
 		})
 		if err != nil {
