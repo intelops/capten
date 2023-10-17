@@ -1,6 +1,10 @@
-image:
-  repository: ghcr.io/kube-tarian/helmrepo-supporting-tools/tracetest
-  tag: v0.13.6
+resources:
+  limits:
+    cpu: 200m
+    memory: 30Mi
+  requests:
+    cpu: 100m
+    memory: 10Mi
 ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -17,16 +21,3 @@ ingress:
     - secretName: cert-tracetest
       hosts:
       - "tracetest.{{.DomainName}}"
-telemetry:
-  exporters:
-    collector:
-      exporter:
-        collector:
-          endpoint: tracetest-otel-collector.tracetest.svc.cluster.local:4317
-otelCollector:
-  config:
-    exporters:
-      otlp/tracetest:
-        endpoint: tracetest.tracetest.svc.cluster.local:4317
-      otlp/signoz:
-        endpoint: signoz-otel-collector.observability.svc.cluster.local:4317

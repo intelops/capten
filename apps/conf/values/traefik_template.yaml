@@ -13,3 +13,10 @@ ports:
 service:
   enabled: "true"
   type: NodePort
+resources: {}
+  requests:
+    cpu: 20m
+    memory: 50Mi
+  limits:
+    cpu: 30m
+    memory: 100Mi

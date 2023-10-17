@@ -1,0 +1,16 @@
+ndm:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 140Mi
+    requests:
+      cpu: 10m
+      memory: 70Mi
+ndmOperator:
+  resources:
+    limits:
+      cpu: 20m
+      memory: 30Mi
+    requests:
+      cpu: 10m
+      memory: 5Mi

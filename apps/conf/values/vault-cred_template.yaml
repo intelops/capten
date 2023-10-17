@@ -1,3 +1,0 @@
-vault:
-  haEnabled: false
-  vaultAddress: http://vault:8200

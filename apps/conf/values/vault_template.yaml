@@ -1,0 +1,16 @@
+injector:
+  resources:
+    limits:
+      memory: 30Mi
+      cpu: 10m
+    requests:
+      memory: 10Mi
+      cpu: 5m
+server:
+  resources:
+    limits:
+      memory: 120Mi
+      cpu: 40m
+    requests:
+      memory: 55Mi
+      cpu: 20m

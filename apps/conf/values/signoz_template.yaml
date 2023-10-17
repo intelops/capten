@@ -1,4 +1,11 @@
 frontend:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 4Mi
+    limits:
+      cpu: 20m
+      memory: 10Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -17,10 +24,37 @@ frontend:
       - "signoz.{{.DomainName}}"
       secretName: cert-signoz
 otelCollector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 150Mi
+    limits:
+      cpu: 20m
+      memory: 250Mi
   ingressRoute:
     enabled: true
-    host: "otelcollector.{{.DomainName}}" 
-  config:
-    exporters:
-      otlp/tracetest:
-        endpoint: http://tracetest-otel-collector.tracetest.svc.cluster.local:4317
+    host: "otelcollector.{{.DomainName}}"
+otelCollectorMetrics:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 130Mi
+    limits:
+      cpu: 20m
+      memory: 230Mi
+queryService:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 15Mi
+    limits:
+      cpu: 20m
+      memory: 45Mi
+alertmanager:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 15Mi
+    limits:
+      cpu: 20m
+      memory: 45Mi

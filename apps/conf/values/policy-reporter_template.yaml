@@ -10,3 +10,10 @@ target:
     host: http://loki.observability:3100
     path: /loki/api/v1/push
     minimumPriority: target.loki.minimumPriority|warning
+resources:
+  limits:
+    memory: 40Mi
+    cpu: 20m
+  requests:
+    memory: 10Mi
+    cpu: 10m

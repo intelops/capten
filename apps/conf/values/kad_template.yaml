@@ -2,3 +2,11 @@ cert:
   secretName: "kad-agent-cert"
 ingressroute:
   host: "captenagent.{{.DomainName}}"
+resources: 
+  requests:
+    cpu: 200m
+    memory: 200Mi
+  limits:
+    cpu: 500m
+    memory: 500Mi
+

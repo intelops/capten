@@ -16,7 +16,6 @@ grafana:
   plugins:
   - vertamedia-clickhouse-datasource
   - grafana-clickhouse-datasource
-  - volkovlabs-echarts-panel
   sidecar:
     dashboards:
       enabled: true
@@ -42,10 +41,32 @@ prometheus:
       - "prometheus.{{.DomainName}}"
       secretName: cert-prometheus
   prometheusSpec:
+    resources: 
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 900m
+        memory: 4Gi
     enableRemoteWriteReceiver: true
     externalLabels:
       cluster_name: capten-controlplane
 alertmanager:
   alertmanagerSpec:
+    resources: 
+      requests:
+        cpu: 10m
+        memory: 30Mi
+      limits:
+        cpu: 20m
+        memory: 70Mi
     alertmanagerConfigMatcherStrategy:
       type: None
+prometheusOperator:
+  resources: 
+    requests:
+      cpu: 50m
+      memory: 150Mi
+    limits:
+      cpu: 75m
+      memory: 280Mi
