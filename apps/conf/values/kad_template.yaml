@@ -4,9 +4,9 @@ ingressroute:
   host: "captenagent.{{.DomainName}}"
 resources: 
   requests:
-    cpu: 100m
-    memory: 17Mi
+    cpu: 200m
+    memory: 200Mi
   limits:
-    cpu: 150m
-    memory: 24Mi
+    cpu: 500m
+    memory: 500Mi
 

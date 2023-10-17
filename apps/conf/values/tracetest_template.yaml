@@ -1,10 +1,10 @@
 resources:
   limits:
     cpu: 200m
-    memory: 18Mi
+    memory: 30Mi
   requests:
     cpu: 100m
-    memory: 12Mi
+    memory: 10Mi
 ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod-cluster

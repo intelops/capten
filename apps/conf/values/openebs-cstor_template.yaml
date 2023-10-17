@@ -2,39 +2,39 @@ cvcOperator:
   resources:
     limits:
       cpu: 20m
-      memory: 21Mi
+      memory: 40Mi
     requests:
       cpu: 10m
-      memory: 12Mi
+      memory: 10Mi
 cspcOperator:
   resources:
     limits:
       cpu: 20m
-      memory: 21Mi
+      memory: 40Mi
     requests:
       cpu: 10m
-      memory: 12Mi
+      memory: 10Mi
 admissionServer:
   resources:
     limits:
       cpu: 20m
-      memory: 12Mi
+      memory: 20Mi
     requests:
       cpu: 10m
-      memory: 8Mi
+      memory: 5Mi
 csiController:
   resources:
     limits:
       cpu: 20m
-      memory: 111Mi
+      memory: 150Mi
     requests:
       cpu: 10m
-      memory: 74Mi
+      memory: 70Mi
 csiNode:
   resources:
     limits:
       cpu: 20m
-      memory: 168Mi
+      memory: 200Mi
     requests:
       cpu: 10m
-      memory: 112Mi
+      memory: 100Mi

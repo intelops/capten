@@ -5,7 +5,7 @@ git_bridge:
   resources: 
     limits:
       cpu: 150m
-      memory: 96Mi
+      memory: 100Mi
     requests:
       cpu: 100m
       memory: 60Mi
@@ -24,7 +24,7 @@ container_bridge:
   resources: 
     limits:
       cpu: 150m
-      memory: 96Mi
+      memory: 100Mi
     requests:
       cpu: 100m
       memory: 60Mi
@@ -43,7 +43,7 @@ clusterName: "capten-controlplane"
 resources: 
   limits:
     cpu: 150m
-    memory: 96Mi
+    memory: 100Mi
   requests:
     cpu: 100m
     memory: 60Mi

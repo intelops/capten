@@ -44,10 +44,10 @@ prometheus:
     resources: 
       requests:
         cpu: 500m
-        memory: 2.3Gi
+        memory: 2Gi
       limits:
-        cpu: 810m
-        memory: 3.75Gi
+        cpu: 900m
+        memory: 4Gi
     enableRemoteWriteReceiver: true
     externalLabels:
       cluster_name: capten-controlplane
@@ -59,14 +59,14 @@ alertmanager:
         memory: 30Mi
       limits:
         cpu: 20m
-        memory: 51Mi
+        memory: 70Mi
     alertmanagerConfigMatcherStrategy:
       type: None
 prometheusOperator:
   resources: 
     requests:
       cpu: 50m
-      memory: 164Mi
+      memory: 150Mi
     limits:
       cpu: 75m
-      memory: 246Mi
+      memory: 280Mi

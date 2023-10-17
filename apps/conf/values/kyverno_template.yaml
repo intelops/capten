@@ -3,31 +3,31 @@ admissionController:
     resources:      
       limits:
         cpu: 60m
-        memory: 400Mi
+        memory: 450Mi
       requests:
         cpu: 40m
-        memory: 260Mi
+        memory: 250Mi
   container:
     resources:
       limits:
         cpu: 60m
-        memory: 400Mi
+        memory: 450Mi
       requests:
         cpu: 40m
-        memory: 260Mi
+        memory: 250Mi
 backgroundController:
   resources:
       limits:
         cpu: 20m
-        memory: 60Mi
+        memory: 80Mi
       requests:
         cpu: 10m
-        memory: 36Mi
+        memory: 30Mi
 cleanupController:
   resources:
       limits:
         cpu: 20m
-        memory: 48Mi
+        memory: 80Mi
       requests:
         cpu: 10m
         memory: 30Mi
@@ -35,7 +35,7 @@ reportsController:
   resources:
       limits:
         cpu: 20m
-        memory: 60Mi
+        memory: 80Mi
       requests:
         cpu: 10m
-        memory: 36Mi
+        memory: 30Mi

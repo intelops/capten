@@ -37,10 +37,10 @@ server:
     resources:
       requests:
         cpu: 100m
-        memory: 72Mi
+        memory: 70Mi
       limits:
         cpu: 200m
-        memory: 110Mi
+        memory: 140Mi
 
   history:
     autoscaling:
@@ -48,10 +48,10 @@ server:
     resources:
       requests:
         cpu: 400m
-        memory: 420Mi
+        memory: 400Mi
       limits:
-        cpu: 600m
-        memory: 630Mi  
+        cpu: 800m
+        memory: 800Mi  
       
 
   matching:
@@ -60,10 +60,10 @@ server:
     resources:
       requests:
         cpu: 100m
-        memory: 72Mi
+        memory: 70Mi
       limits:
         cpu: 200m
-        memory: 110Mi
+        memory: 140Mi
 
   worker:
     autoscaling:
@@ -71,7 +71,7 @@ server:
     resources:
       requests:
         cpu: 200m
-        memory: 98Mi
+        memory: 90Mi
       limits:
         cpu: 400m
-        memory: 150Mi
+        memory: 180Mi

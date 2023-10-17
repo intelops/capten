@@ -2,15 +2,15 @@ ndm:
   resources:
     limits:
       cpu: 20m
-      memory: 110Mi
+      memory: 140Mi
     requests:
       cpu: 10m
-      memory: 73Mi
+      memory: 70Mi
 ndmOperator:
   resources:
     limits:
       cpu: 20m
-      memory: 20Mi
+      memory: 30Mi
     requests:
       cpu: 10m
-      memory: 10Mi
+      memory: 5Mi

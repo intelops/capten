@@ -12,8 +12,8 @@ target:
     minimumPriority: target.loki.minimumPriority|warning
 resources:
   limits:
-    memory: 21Mi
-    cpu: 10m
+    memory: 40Mi
+    cpu: 20m
   requests:
     memory: 10Mi
-    cpu: 5m
+    cpu: 10m

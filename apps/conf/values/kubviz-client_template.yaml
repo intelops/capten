@@ -2,16 +2,16 @@ nats:
   resources: 
     requests:
       cpu: 10m
-      memory: 213Mi
+      memory: 200Mi
     limits:
       cpu: 20m
-      memory: 323Mi
+      memory: 350Mi
   auth:
     token: "{{ .NATSToken }}"
 resources: 
   requests:
     cpu: 10m
-    memory: 12Mi
+    memory: 10Mi
   limits:
     cpu: 20m
-    memory: 24Mi
+    memory: 40Mi

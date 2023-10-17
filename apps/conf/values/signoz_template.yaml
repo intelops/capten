@@ -5,7 +5,7 @@ frontend:
       memory: 4Mi
     limits:
       cpu: 20m
-      memory: 8Mi
+      memory: 10Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -27,10 +27,10 @@ otelCollector:
   resources:
     requests:
       cpu: 10m
-      memory: 145Mi
+      memory: 150Mi
     limits:
       cpu: 20m
-      memory: 220Mi
+      memory: 250Mi
   ingressRoute:
     enabled: true
     host: "otelcollector.{{.DomainName}}"
@@ -41,20 +41,20 @@ otelCollectorMetrics:
       memory: 130Mi
     limits:
       cpu: 20m
-      memory: 190Mi
+      memory: 230Mi
 queryService:
   resources:
     requests:
       cpu: 10m
-      memory: 16Mi
+      memory: 15Mi
     limits:
       cpu: 20m
-      memory: 25Mi
+      memory: 45Mi
 alertmanager:
   resources:
     requests:
       cpu: 10m
-      memory: 14Mi
+      memory: 15Mi
     limits:
       cpu: 20m
-      memory: 23Mi
+      memory: 45Mi

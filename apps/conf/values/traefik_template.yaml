@@ -15,8 +15,8 @@ service:
   type: NodePort
 resources: {}
   requests:
-    cpu: "100m"
-    memory: "50Mi"
+    cpu: 20m
+    memory: 50Mi
   limits:
-    cpu: "300m"
-    memory: "75Mi"
+    cpu: 30m
+    memory: 100Mi
