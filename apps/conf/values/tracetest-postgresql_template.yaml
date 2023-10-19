@@ -1,31 +1,31 @@
 primary:
   resources:
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 15Mi
 readReplicas:
   resources:
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 15Mi
 volumePermissions:
   resources:
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 15Mi
 metrics:
   resources:
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
     requests:
       cpu: 100m

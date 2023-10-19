@@ -3,8 +3,8 @@ vault:
   vaultAddress: http://vault:8200
 resources:
   limits:
-    cpu: 20m
+    cpu: 200m
     memory: 45Mi
   requests:
-    cpu: 10m
+    cpu: 100m
     memory: 15Mi

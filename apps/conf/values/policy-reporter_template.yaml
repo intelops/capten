@@ -13,7 +13,7 @@ target:
 resources:
   limits:
     memory: 40Mi
-    cpu: 20m
+    cpu: 200m
   requests:
     memory: 10Mi
-    cpu: 10m
+    cpu: 100m

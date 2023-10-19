@@ -2,40 +2,40 @@ admissionController:
   initContainer:
     resources:      
       limits:
-        cpu: 60m
+        cpu: 200m
         memory: 450Mi
       requests:
-        cpu: 40m
+        cpu: 100m
         memory: 250Mi
   container:
     resources:
       limits:
-        cpu: 60m
+        cpu: 200m
         memory: 450Mi
       requests:
-        cpu: 40m
+        cpu: 100m
         memory: 250Mi
 backgroundController:
   resources:
       limits:
-        cpu: 20m
+        cpu: 200m
         memory: 80Mi
       requests:
-        cpu: 10m
+        cpu: 100m
         memory: 30Mi
 cleanupController:
   resources:
       limits:
-        cpu: 20m
+        cpu: 200m
         memory: 80Mi
       requests:
-        cpu: 10m
+        cpu: 100m
         memory: 30Mi
 reportsController:
   resources:
       limits:
-        cpu: 20m
+        cpu: 200m
         memory: 80Mi
       requests:
-        cpu: 10m
+        cpu: 100m
         memory: 30Mi

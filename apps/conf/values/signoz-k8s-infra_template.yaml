@@ -1,16 +1,16 @@
 otelAgent:
   resources:
     requests:
-      cpu: 20m
+      cpu: 100m
       memory: 400Mi
     limits:
-      cpu: 40m
+      cpu: 200m
       memory: 700Mi
 otelDeployment:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 60Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 120Mi

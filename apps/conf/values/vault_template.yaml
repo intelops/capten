@@ -2,15 +2,15 @@ injector:
   resources:
     limits:
       memory: 30Mi
-      cpu: 10m
+      cpu: 200m
     requests:
       memory: 10Mi
-      cpu: 5m
+      cpu: 100m
 server:
   resources:
     limits:
       memory: 120Mi
-      cpu: 40m
+      cpu: 200m
     requests:
       memory: 55Mi
-      cpu: 20m
+      cpu: 100m

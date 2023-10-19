@@ -1,10 +1,10 @@
 frontend:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 4Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 10Mi
   ingress:
     annotations:
@@ -26,10 +26,10 @@ frontend:
 otelCollector:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 150Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 250Mi
   ingressRoute:
     enabled: true
@@ -41,24 +41,24 @@ otelCollector:
 otelCollectorMetrics:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 130Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 230Mi
 queryService:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 15Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
 alertmanager:
   resources:
     requests:
-      cpu: 10m
+      cpu: 100m
       memory: 15Mi
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 45Mi
