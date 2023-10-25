@@ -119,22 +119,19 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 	return err
 }
 
-func RetryOperation(maxRetries int, retryInterval time.Duration, operation func() error) error {
-	var err error
-	for i := 0; i < maxRetries; i++ {
-		err = operation()
-		if err == nil {
+func retry(retries int, interval time.Duration, f func() error) (err error) {
+	for i := 0; i <= retries; i++ {
+		if err = f(); err == nil {
 			return nil
 		}
-		if i < maxRetries-1 {
-			time.Sleep(retryInterval)
-		}
+		time.Sleep(interval)
+
 	}
-	return err
+	return
 }
 
 func CreateCStorPoolClusterWithRetries(captenConfig config.CaptenConfig) error {
-	return RetryOperation(3, 5*time.Second, func() error {
+	return retry(3, 5*time.Second, func() error {
 		err := CreateCStorPoolClusters(captenConfig)
 		if err == nil {
 			clog.Logger.Info("Configured storage pool")
