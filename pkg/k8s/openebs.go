@@ -132,10 +132,6 @@ func retry(retries int, interval time.Duration, f func() error) (err error) {
 
 func CreateCStorPoolClusterWithRetries(captenConfig config.CaptenConfig) error {
 	return retry(3, 5*time.Second, func() error {
-		err := CreateCStorPoolClusters(captenConfig)
-		if err == nil {
-			clog.Logger.Info("Configured storage pool")
-		}
-		return err
+		return CreateCStorPoolClusters(captenConfig)
 	})
 }
