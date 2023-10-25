@@ -12,7 +12,7 @@ frontend:
       kubernetes.io/force-ssl-redirect: "true"
       kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
-    enabled": true
+    enabled: true
     hosts:
     - host: "signoz.{{.DomainName}}"
       paths:
