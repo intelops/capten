@@ -5,6 +5,7 @@ import (
 	"capten/pkg/config"
 	"context"
 	"strings"
+	"time"
 
 	v1 "github.com/openebs/api/v2/pkg/apis/cstor/v1"
 	clientset "github.com/openebs/api/v2/pkg/client/clientset/versioned"
@@ -116,4 +117,21 @@ func CreateCStorPoolClusters(captenConfig config.CaptenConfig) error {
 	}
 	_, err = poolClusterClient.Update(context.TODO(), poolCluster, metav1.UpdateOptions{})
 	return err
+}
+
+func retry(retries int, interval time.Duration, f func() error) (err error) {
+	for i := 0; i <= retries; i++ {
+		if err = f(); err == nil {
+			return nil
+		}
+		time.Sleep(interval)
+
+	}
+	return
+}
+
+func CreateCStorPoolClusterWithRetries(captenConfig config.CaptenConfig) error {
+	return retry(3, 5*time.Second, func() error {
+		return CreateCStorPoolClusters(captenConfig)
+	})
 }
