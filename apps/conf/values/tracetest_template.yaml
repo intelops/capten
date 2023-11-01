@@ -21,6 +21,18 @@ telemetry:
         collector:
           endpoint: tracetest-otel-collector.tracetest.svc.cluster.local:4317
 otelCollector:
+  ingressRoute:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    host: "tracetest-otelcollector.{{.DomainName}}"
+    service:
+      port: 4317
+    tls:
+      - secretName: cert-tracetest-otelcollector
   config:
     exporters:
       otlp/tracetest:

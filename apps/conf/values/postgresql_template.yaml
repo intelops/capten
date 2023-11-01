@@ -1,0 +1,5 @@
+global:
+  postgresql:
+    auth:
+      username: "temporal"
+      database: "temporal"

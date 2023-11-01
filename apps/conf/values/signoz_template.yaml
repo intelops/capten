@@ -19,8 +19,4 @@ frontend:
 otelCollector:
   ingressRoute:
     enabled: true
-    host: "otelcollector.{{.DomainName}}" 
-  config:
-    exporters:
-      otlp/tracetest:
-        endpoint: http://tracetest-otel-collector.tracetest.svc.cluster.local:4317
+    host: "otelcollector.{{.DomainName}}"
