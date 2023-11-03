@@ -1,5 +1,20 @@
 grafana:
   enabled: true
+  grafana.ini:
+    database:
+      enabled: true
+      type: postgres
+      host: postgresql.observability.svc.cluster.local:5432
+      name: postgres
+      ssl_mode: disable
+      user: postgres
+      password: $__file{/etc/secrets/postgresql/postgres-password}
+      #ssl_mode = require
+  extraSecretMounts: 
+  - name: my-postgresql-mount 
+    mountPath: /etc/secrets/postgresql
+    secretName: postgresql
+    readOnly: true
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster

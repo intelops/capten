@@ -1,0 +1,11 @@
+Name: "postgres"
+ChartName: "tools/postgresql"
+Category: "Platform"
+Description: ""
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "observability"
+ReleaseName: "postgresql"
+Version: "1.0.0"
+CreateNamespace: true
+PrivilegedNamespace: true
