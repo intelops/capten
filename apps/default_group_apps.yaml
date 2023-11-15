@@ -5,6 +5,7 @@ Apps:
   - "vault-cred"
   - "external-secrets"
   - "k8ssandra-operator"
+  - "postgresql"
   - "loki"
   - "kyverno"
   - "k8ssandra-cluster"
