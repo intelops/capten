@@ -8,7 +8,7 @@ on:
       - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
 
 jobs:
-  build:
+  build_linux:
     runs-on: ubuntu-latest
     
     steps:
@@ -58,5 +58,59 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ./capten.zip
-          asset_name: capten.zip
+          asset_name: capten_linux.zip
+          asset_content_type: application
+
+  build_macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Set release tag as env
+        id: release
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Check release tag
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.tag }}
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ steps.release.outputs.tag }}
+          echo ${{ github.ref }}
+
+      - uses: nowsprinting/check-version-format-action@v3
+        id: version
+        with:
+          prefix: 'v'
+
+      - name: Build release for macOS
+        if: steps.version.outputs.is_valid == 'true'
+        run: make build.release
+
+      - name: Create GitHub release for macOS
+        if: steps.version.outputs.is_valid == 'true'
+        id: create-release-macos
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          release_name: ${{ steps.release.outputs.tag }}
+
+      - name: Upload Artifacts for macOS
+        if: steps.version.outputs.is_valid == 'true'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release-macos.outputs.upload_url }}
+          asset_path: ./capten.zip
+          asset_name: capten_macOS.zip
           asset_content_type: application
