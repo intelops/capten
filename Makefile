@@ -47,8 +47,8 @@ build.release-linux: build.linux
 
 	# Download and extract Terraform binary for linux
 	@curl -LO https://releases.hashicorp.com/terraform/0.12.31/terraform_0.12.31_linux_amd64.zip
-	@unzip terraform_0.12.31_linux_amd64.zip -d capten/ && mv capten/terraform capten/terraform-linux
-	@chmod +x capten/terraform-linux
+	@unzip terraform_0.12.31_linux_amd64.zip -d capten/
+	@chmod +x capten/terraform
 	@rm terraform_0.12.31_linux_amd64.zip
 
 	# Download and extract Talosctl binary for linux
@@ -89,8 +89,8 @@ build.release-mac: build.mac
 
 	# Download and extract Terraform binary for mac
 	@curl -LO https://releases.hashicorp.com/terraform/0.12.31/terraform_0.12.31_darwin_amd64.zip
-	@unzip terraform_0.12.31_darwin_amd64.zip -d capten/ && mv capten/terraform capten/terraform-mac
-	@chmod +x capten/terraform-mac
+	@unzip terraform_0.12.31_darwin_amd64.zip -d capten/ 
+	@chmod +x capten/terraform
 	@rm terraform_0.12.31_darwin_amd64.zip
 
 	# Download and extract Talosctl binary for mac
