@@ -23,8 +23,23 @@ grafana:
       folderAnnotation: grafana_folder
       provider:
         foldersFromFilesStructure: true
+        allowUiUpdates: true
     datasources:
       enabled: true
+  postgresql:
+    enabled: true
+  database: 
+    type: postgres
+    host: prometheus-postgresql:5432
+    name: postgres
+    ssl_mode: disable
+    user: postgres
+    password: $__file{/etc/secrets/postgresql/postgres-password}
+    secretMount:
+      name: postgresql-mount
+      mountPath: /etc/secrets/postgresql
+      secretName: prometheus-postgresql
+      readOnly: true
 prometheus:
   ingress:
     annotations:

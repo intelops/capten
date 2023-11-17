@@ -1,11 +1,11 @@
-Name: "temporal"
-ChartName: "tools/temporal"
+Name: "postgresql"
+ChartName: "tools/postgresql"
 Category: "Platform"
 Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
-ReleaseName: "temporal"
-Version: "0.1.8"
+ReleaseName: "postgresql"
+Version: "1.0.0"
 CreateNamespace: true
 PrivilegedNamespace: true

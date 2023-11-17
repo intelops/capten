@@ -6,7 +6,7 @@ RepoName: "tracetest"
 RepoURL: "https://intelops.github.io/tracetest"
 Namespace: "tracetest"
 ReleaseName: "tracetest"
-Version: "1.0.0"
+Version: "1.0.1"
 CreateNamespace: true
 OverrideValues:
   DomainName: "{{.DomainName}}"
