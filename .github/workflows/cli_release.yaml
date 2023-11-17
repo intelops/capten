@@ -38,7 +38,7 @@ jobs:
 
       - name: Build release
         if: steps.version.outputs.is_valid == 'true'
-        run: make build.release
+        run: make build.release-linux
       
       - name: Create Github release
         if: steps.version.outputs.is_valid == 'true'
@@ -61,7 +61,7 @@ jobs:
           asset_name: capten_linux.zip
           asset_content_type: application
 
-  build_macos:
+  build_mac:
     runs-on: macos-latest
 
     steps:
@@ -90,13 +90,13 @@ jobs:
         with:
           prefix: 'v'
 
-      - name: Build release for macOS
+      - name: Build release for mac
         if: steps.version.outputs.is_valid == 'true'
-        run: make build.release
+        run: make build.release-mac
 
-      - name: Create GitHub release for macOS
+      - name: Create GitHub release for mac
         if: steps.version.outputs.is_valid == 'true'
-        id: create-release-macos
+        id: create-release-mac
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
@@ -104,13 +104,13 @@ jobs:
           tag_name: ${{ steps.release.outputs.tag }}
           release_name: ${{ steps.release.outputs.tag }}
 
-      - name: Upload Artifacts for macOS
+      - name: Upload Artifacts for mac
         if: steps.version.outputs.is_valid == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          upload_url: ${{ steps.create-release-macos.outputs.upload_url }}
+          upload_url: ${{ steps.create-release-mac.outputs.upload_url }}
           asset_path: ./capten.zip
-          asset_name: capten_macOS.zip
+          asset_name: capten_mac.zip
           asset_content_type: application
