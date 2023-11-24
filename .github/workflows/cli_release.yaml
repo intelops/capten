@@ -8,7 +8,9 @@ on:
       - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
 
 jobs:
-  build_linux:
+  build_and_release:
+
+
     runs-on: ubuntu-latest
     
     steps:
@@ -36,10 +38,6 @@ jobs:
         with:
           prefix: 'v'
 
-      - name: Build release
-        if: steps.version.outputs.is_valid == 'true'
-        run: make build.release-linux
-      
       - name: Create Github release
         if: steps.version.outputs.is_valid == 'true'
         id: create-release
@@ -49,6 +47,10 @@ jobs:
         with:
           tag_name: ${{ steps.release.outputs.tag }}
           release_name: ${{ steps.release.outputs.tag }}
+
+      - name: Build release
+        if: steps.version.outputs.is_valid == 'true'
+        run: make build.release-linux
       
       - name: Upload Artifacts
         if: steps.version.outputs.is_valid == 'true'
@@ -61,48 +63,9 @@ jobs:
           asset_name: capten_linux.zip
           asset_content_type: application
 
-  build_mac:
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
-
-      - name: Set release tag as env
-        id: release
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Check release tag
-        env:
-          RELEASE_VERSION: ${{ steps.release.outputs.tag }}
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ steps.release.outputs.tag }}
-          echo ${{ github.ref }}
-
-      - uses: nowsprinting/check-version-format-action@v3
-        id: version
-        with:
-          prefix: 'v'
-
       - name: Build release for mac
         if: steps.version.outputs.is_valid == 'true'
         run: make build.release-mac
-
-      - name: Create GitHub release for mac
-        if: steps.version.outputs.is_valid == 'true'
-        id: create-release-mac
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          tag_name: ${{ steps.release.outputs.tag }}
-          release_name: ${{ steps.release.outputs.tag }}
 
       - name: Upload Artifacts for mac
         if: steps.version.outputs.is_valid == 'true'
