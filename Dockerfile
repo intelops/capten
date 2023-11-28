@@ -4,7 +4,6 @@ FROM golang AS builder
 WORKDIR /go/src/app
 
 COPY . /go/src/app
-RUN ls
 
 RUN go mod download
 
