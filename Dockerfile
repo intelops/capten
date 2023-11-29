@@ -16,6 +16,8 @@ WORKDIR /app
 
 COPY --from=builder /go/src/app /app/
 
+RUN apk add --no-cache bash
+
 # Clone the Git repository for Terraform modules
 RUN apk add --no-cache git && \
     git clone https://github.com/kube-tarian/controlplane-dataplane.git /app/terraform_modules && \
