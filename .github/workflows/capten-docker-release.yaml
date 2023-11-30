@@ -42,6 +42,13 @@ jobs:
           context: ./
           file: ./Dockerfile
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.RELEASE_VERSION }}
+
+      - name: Publish to GitHub Packages
+        run: docker tag ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.RELEASE_VERSION }} docker.pkg.github.com/${{ github.repository }}/${{ env.RELEASE_VERSION }}
+
+      - name: Push to GitHub Packages
+        run: docker push docker.pkg.github.com/${{ github.repository }}/${{ env.RELEASE_VERSION }}
+
       - name: Install cosign
         uses: sigstore/cosign-installer@main
       - name: Sign the images
