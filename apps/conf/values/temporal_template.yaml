@@ -11,19 +11,19 @@ server:
         driver: "sql"
         sql:
           driver: "postgres"
-          host: postgresql-postgresql
+          host: postgresql
           port: 5432
           database: temporal
           user: temporal
-          existingSecret: postgresql-postgresql
+          existingSecret: postgresql
 
       visibility:
         driver: "sql"
 
         sql:
           driver: "postgres"
-          host: postgresql-postgresql
+          host: postgresql
           port: 5432
           database: temporal_visibility
           user: temporal
-          existingSecret: postgresql-postgresql
+          existingSecret: postgresql
