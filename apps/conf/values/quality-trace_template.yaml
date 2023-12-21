@@ -6,20 +6,20 @@ ingress:
     kubernetes.io/tls-acme: "true"
   enabled: true
   hosts:
-  - host: "tracetest.{{.DomainName}}"
+  - host: "quality-trace.{{.DomainName}}"
     paths:
       - path: /
         pathType: ImplementationSpecific
   tls:
-    - secretName: cert-tracetest
+    - secretName: cert-quality-trace
       hosts:
-      - "tracetest.{{.DomainName}}"
+      - "quality-trace.{{.DomainName}}"
 telemetry:
   exporters:
     collector:
       exporter:
         collector:
-          endpoint: tracetest-otel-collector.tracetest.svc.cluster.local:4317
+          endpoint: quality-trace-otel-collector.quality-trace.svc.cluster.local:4317
 otelCollector:
   ingressRoute:
     enabled: true
@@ -28,14 +28,14 @@ otelCollector:
       kubernetes.io/force-ssl-redirect: "true"
       kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
-    host: "tracetest-otelcollector.{{.DomainName}}"
+    host: "quality-trace-otelcollector.{{.DomainName}}"
     service:
       port: 4317
     tls:
-      - secretName: cert-tracetest-otelcollector
+      - secretName: cert-quality-trace-otelcollector
   config:
     exporters:
-      otlp/tracetest:
-        endpoint: tracetest.tracetest.svc.cluster.local:4317
+      otlp/quality-trace:
+        endpoint: quality-trace.quality-trace.svc.cluster.local:4317
       otlp/signoz:
         endpoint: signoz-otel-collector.observability.svc.cluster.local:4317
