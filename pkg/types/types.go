@@ -23,6 +23,12 @@ type AzureClusterInfo struct {
 	PublicIPName            []string `yaml:"PublicIpName"`
 	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
 	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
+	Talosrgname             string   `yaml:"Talosrgname"`
+	Storagergname           string   `yaml:"Storagergname"`
+	Storage_account_name    string   `yaml:"Storage_account_name"`
+	Talos_imagecont_name    string   `yaml:"Talos_imagecont_name"`
+	Talos_cluster_name      string   `yaml:"Talos_cluster_name"`
+	Nats_client_port        int      `yaml:"Nats_client_port"`
 }
 
 type AppConfig struct {
