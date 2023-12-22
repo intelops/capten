@@ -18,5 +18,5 @@ Apps:
   - "policy-reporter"
   - "kubescape"
   - "falco"
-  - "tracetest"
+  - "quality-trace"
   - "velero"
