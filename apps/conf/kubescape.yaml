@@ -7,4 +7,4 @@ RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "kubescape-prometheus"
 ReleaseName: "kubescape-prometheus"
 CreateNamespace: true
-Version: "0.0.2"
+Version: "0.0.3"
