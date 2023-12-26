@@ -2,7 +2,12 @@ package app
 
 import (
 	"capten/pkg/config"
+	"html/template"
+
+	//"capten/pkg/k8s"
 	"capten/pkg/types"
+
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -89,9 +94,61 @@ func PrepareGlobalVaules(captenConfig config.CaptenConfig) (map[string]interface
 		return nil, err
 	}
 
+	cacertpath := captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName)
+	log.Println("cacertPath", cacertpath)
+	readfile, err := os.ReadFile(cacertpath)
+	if err != nil {
+		log.Println("error while reading file", readfile)
+	}
+	//
+	// cacert,err:=k8s.GetCACert(captenConfig)
+	// if err != nil {
+	// 	log.Println("error while getting cacer",err)
+	// 	return nil, err
+	// }
+	globalValues["identityTrustAnchorsPEM"] = string(readfile)
+
 	err = generateAppGlobalValuesandAppend(globalValues)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Global values", globalValues)
 	return globalValues, err
+}
+
+type TemplateData struct {
+	FilePath string
+}
+
+func LinkerdCreation(captenConfig config.CaptenConfig, appName string) {
+	// Set the file path variable
+	filePath := captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName)
+	log.Println("cacertPath", filePath)
+	// filePath := "/path/to/your/file.txt"
+	readfile, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Println("error while reading file", readfile)
+	}
+	// Create template data with the file path
+	data := TemplateData{
+		FilePath: string(readfile),
+	}
+	templatefilepath := captenConfig.PrepareFilePath(captenConfig.AppsConfigDirPath, appName+".yaml")
+	// Read the content of the template file
+	templateContent, err := os.ReadFile(templatefilepath)
+	if err != nil {
+		panic(err)
+	}
+
+	// Parse the template
+	tmpl, err := template.New("yaml").Parse(string(templateContent))
+	if err != nil {
+		panic(err)
+	}
+
+	// Execute the template and print the result to stdout
+	err = tmpl.Execute(os.Stdout, data)
+	if err != nil {
+		panic(err)
+	}
 }

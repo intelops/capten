@@ -13,6 +13,9 @@ func generateAppGlobalValuesandAppend(globalValues map[string]interface{}) error
 		return err
 	}
 	globalValues["NatsToken"] = token
+
+	// globalValues["identityTrustAnchorsPEM"] = k8s.GetCACert()
+
 	return nil
 }
 

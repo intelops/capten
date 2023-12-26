@@ -1,6 +1,7 @@
 Apps:
   - "pre-install"
   - "prometheus"
+  - "linkerd"
   - "vault"
   - "vault-cred"
   - "external-secrets"
