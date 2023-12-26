@@ -2,7 +2,10 @@ package app
 
 import (
 	"capten/pkg/config"
+
 	"capten/pkg/types"
+
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -89,9 +92,20 @@ func PrepareGlobalVaules(captenConfig config.CaptenConfig) (map[string]interface
 		return nil, err
 	}
 
+	cacertpath := captenConfig.PrepareFilePath(captenConfig.CertDirPath, captenConfig.CAFileName)
+	log.Println("Ca-cert Path", cacertpath)
+	readfile, err := os.ReadFile(cacertpath)
+	if err != nil {
+		log.Println("error while reading file", err)
+		return nil, err
+	}
+
+	globalValues["identityTrustAnchorsPEM"] = string(readfile)
+
 	err = generateAppGlobalValuesandAppend(globalValues)
 	if err != nil {
 		return nil, err
 	}
+
 	return globalValues, err
 }

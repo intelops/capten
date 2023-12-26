@@ -1,0 +1,11 @@
+Name: "linkerd"
+ChartName: "linkerd/linkerd-control-plane"
+Category: "platform"
+Description: ""
+RepoName: "linkerd"
+RepoURL: "https://helm.linkerd.io/stable"
+Namespace: "linkerd"
+ReleaseName: "linkerd"
+Version: "1.16.7"
+CreateNamespace: true
+PrivilegedNamespace: true
