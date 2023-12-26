@@ -1,3 +1,5 @@
 nats:
   auth:
     token: "{{ .NATSToken }}"
+  service:
+    type: NodePort
