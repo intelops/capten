@@ -8,7 +8,7 @@ The open-source platform for creating the cluster,deploying the application and 
 <hr>
 
 ## CAPTEN
-
+Capten likely leverages infrastructure as code (IaC) tools, such as Terraform to automate the creation and destruction of Kubernetes clusters.
 A tool to create cluster, set up application in the cluster and destroy cluster.
 
 ## How Capten works
