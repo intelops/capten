@@ -45,27 +45,17 @@ Then capten also suuports cluster to be destroyed.
 ## How to install and run capten
 
 #### Prerequisites
-* go binary 
+* Kubernetes
+* Cloud Provider Account: CAPTEN supports creating clusters for AWS and Azure. Ensure you have the necessary credentials and permissions.
+* Azure CLI: Required if using Azure cloud.
+* Docker
 
 
-1.Clone the repo
-```bash
-git clone git@github.com:intelops/capten.git
-```
-or 
-```bash
-git clone https://github.com/intelops/capten.git
-```
-2.Give the below command to create capten zip folder
+1.Download the latest release .
 
-```bash
-make build.release
-```
-3.Unzip the capten folder
-```bash
-unzip capten.zip
-```
-4.Navigate to the unzipped capten folder
+2.Extract the capten zip folder which was downloaded.
+
+3.Navigate to the extracted capten folder
 ```bash
 cd capten
 ```
