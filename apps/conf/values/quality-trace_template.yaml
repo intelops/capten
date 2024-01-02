@@ -23,16 +23,9 @@ telemetry:
 otelCollector:
   ingressRoute:
     enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
-      kubernetes.io/force-ssl-redirect: "true"
-      kubernetes.io/ssl-redirect: "true"
-      kubernetes.io/tls-acme: "true"
     host: "quality-trace-otelcollector.{{.DomainName}}"
     service:
       port: 4317
-    tls:
-      - secretName: cert-quality-trace-otelcollector
   config:
     exporters:
       otlp/quality-trace:
