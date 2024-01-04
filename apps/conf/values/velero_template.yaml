@@ -22,17 +22,21 @@ configuration:
   defaultVolumesToFsBackup: true
   backupStorageLocation:
   - name:
-    provider: 
-    bucket: 
+    provider: aws
+    bucket: velero-backup
     config:
-      region: 
+      region: west
   volumeSnapshotLocation:
   - name:
-    provider: 
+    provider: aws
     config:
-      region: 
+      region: west
+
 credentials:
   secretContents: 
     cloud: |
-
-deployNodeAgent: true      
+      [default]
+      aws_access_key_id=xxxyyy
+      aws_secret_access_key=yyyzzz
+      
+deployNodeAgent: true
