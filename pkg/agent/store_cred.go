@@ -96,9 +96,13 @@ func storeClusterGlobalValues(captenConfig config.CaptenConfig, agentClient agen
 	if err != nil {
 		return err
 	}
+	hostValues, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CaptenHostValuesFileName))
+	if err != nil {
+		return err
+	}
 
 	credentail := map[string]string{
-		globalValuesCredIdentifier: string(configContent),
+		globalValuesCredIdentifier: string(configContent) + "\n" + string(hostValues),
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
