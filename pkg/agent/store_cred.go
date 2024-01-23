@@ -2,6 +2,12 @@ package agent
 
 import (
 	"context"
+	"crypto"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"os"
 
@@ -9,11 +15,15 @@ import (
 	"capten/pkg/config"
 
 	"github.com/pkg/errors"
+	"github.com/sigstore/sigstore/pkg/cryptoutils"
+	"github.com/theupdateframework/go-tuf/encrypted"
 )
 
 const (
-	natsCredEntity     string = "nats"
-	natsCredIdentifier string = "auth-token"
+	natsCredEntity       string = "nats"
+	natsCredIdentifier   string = "auth-token"
+	cosignEntity         string = "cosign"
+	cosignCredIdentifier string = "signer"
 
 	genericCredentailType        string = "generic"
 	k8sCredEntityName            string = "k8s"
@@ -45,6 +55,11 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 	}
 
 	err = storeNatsCredentials(captenConfig, appGlobalVaules, agentClient)
+	if err != nil {
+		return err
+	}
+
+	err = storeCosignKeys(agentClient)
 	if err != nil {
 		return err
 	}
@@ -176,4 +191,64 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
 	}
 	return nil
+}
+
+func storeCosignKeys(agentClient agentpb.AgentClient) error {
+	privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
+	if err != nil {
+		return fmt.Errorf("Cosign key generation failed")
+	}
+	credentail := map[string]string{
+		"cosign.key": string(privateKeyBytes),
+		"cosign.pub": string(publicKeyBytes),
+	}
+
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: genericCredentailType,
+		CredEntityName: cosignEntity,
+		CredIdentifier: cosignCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
+	return nil
+}
+
+func generateCosignKeyPair() ([]byte, []byte, error) {
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	keypair := struct {
+		private crypto.PrivateKey
+		public  crypto.PublicKey
+	}{priv, priv.Public()}
+
+	x509Encoded, err := x509.MarshalPKCS8PrivateKey(keypair.private)
+	if err != nil {
+		return nil, nil, fmt.Errorf("x509 encoding private key: %w", err)
+	}
+
+	encBytes, err := encrypted.Encrypt(x509Encoded, []byte{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	privBytes := pem.EncodeToMemory(&pem.Block{
+		Bytes: encBytes,
+		Type:  "ENCRYPTED COSIGN PRIVATE KEY",
+	})
+
+	pubBytes, err := cryptoutils.MarshalPublicKeyToPEM(keypair.public)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return privBytes, pubBytes, nil
 }
