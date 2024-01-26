@@ -2,20 +2,28 @@ package agent
 
 import (
 	"context"
+	"crypto"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
-	"log"
-
 	"os"
 
 	"capten/pkg/agent/agentpb"
 	"capten/pkg/config"
 
 	"github.com/pkg/errors"
+	"github.com/sigstore/sigstore/pkg/cryptoutils"
+	"github.com/theupdateframework/go-tuf/encrypted"
 )
 
 const (
-	natsCredEntity     string = "nats"
-	natsCredIdentifier string = "auth-token"
+	natsCredEntity       string = "nats"
+	natsCredIdentifier   string = "auth-token"
+	cosignEntity         string = "cosign"
+	cosignCredIdentifier string = "signer"
 
 	genericCredentailType        string = "generic"
 	k8sCredEntityName            string = "k8s"
@@ -28,11 +36,11 @@ const (
 	terraformStateBucketNameKey string = "bucketName"
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
-	externalsecretns            string = "external-secrets"
-	externalsecretname          string = "nats-token"
-	natsTokenSecretPath         string = "generic/nats/auth-token"
-	vaultTokenSecretName        string = "vaultToken"
-	clusterId                   string = "1"
+
+	natsNamespace        string = "observability"
+	natsSecretName       string = "nats-token"
+	natsTokenSecretPath  string = "generic/nats/auth-token"
+	vaultTokenSecretName string = "vaultToken"
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
@@ -55,13 +63,16 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 	if err != nil {
 		return err
 	}
-	err = RetrieveNatsCredential(captenConfig, appGlobalVaules, agentClient)
 
+	err = storeCosignKeys(agentClient)
 	if err != nil {
-		log.Println("Error while retrieving nats credential", err)
 		return err
 	}
 
+	err = configireNatsSecret(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -191,16 +202,76 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	return nil
 }
 
-func RetrieveNatsCredential(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
+func storeCosignKeys(agentClient agentpb.AgentClient) error {
+	privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
+	if err != nil {
+		return fmt.Errorf("Cosign key generation failed")
+	}
+	credentail := map[string]string{
+		"cosign.key": string(privateKeyBytes),
+		"cosign.pub": string(publicKeyBytes),
+	}
+
+	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+		CredentialType: genericCredentailType,
+		CredEntityName: cosignEntity,
+		CredIdentifier: cosignCredIdentifier,
+		Credential:     credentail,
+	})
+	if err != nil {
+		return err
+	}
+
+	if response.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
+	return nil
+}
+
+func generateCosignKeyPair() ([]byte, []byte, error) {
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	keypair := struct {
+		private crypto.PrivateKey
+		public  crypto.PublicKey
+	}{priv, priv.Public()}
+
+	x509Encoded, err := x509.MarshalPKCS8PrivateKey(keypair.private)
+	if err != nil {
+		return nil, nil, fmt.Errorf("x509 encoding private key: %w", err)
+	}
+
+	encBytes, err := encrypted.Encrypt(x509Encoded, []byte{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	privBytes := pem.EncodeToMemory(&pem.Block{
+		Bytes: encBytes,
+		Type:  "ENCRYPTED COSIGN PRIVATE KEY",
+	})
+
+	pubBytes, err := cryptoutils.MarshalPublicKeyToPEM(keypair.public)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return privBytes, pubBytes, nil
+}
+
+func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
 	resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
-		SecretName: externalsecretname,
-		Namespace:  externalsecretns,
+		SecretName: natsSecretName,
+		Namespace:  natsNamespace,
 		SecretPathData: []*agentpb.SecretPathRef{
 			&agentpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: "nats"},
 		},
 	})
 	if err != nil {
-		fmt.Errorf("Unable to configure vault secret, %s", err)
+		fmt.Errorf("Unable to configure nats secret, %s", err)
 		return err
 	}
 	if resp.Status != agentpb.StatusCode_OK {
