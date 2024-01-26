@@ -3,6 +3,7 @@ package cmd
 import (
 	"capten/pkg/agent"
 	"capten/pkg/app"
+
 	"capten/pkg/cert"
 	"capten/pkg/clog"
 	"capten/pkg/config"
