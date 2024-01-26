@@ -36,6 +36,11 @@ const (
 	terraformStateBucketNameKey string = "bucketName"
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
+
+	natsNamespace        string = "observability"
+	natsSecretName       string = "nats-token"
+	natsTokenSecretPath  string = "generic/nats/auth-token"
+	vaultTokenSecretName string = "vaultToken"
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
@@ -64,6 +69,10 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 		return err
 	}
 
+	err = configireNatsSecret(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -251,4 +260,25 @@ func generateCosignKeyPair() ([]byte, []byte, error) {
 	}
 
 	return privBytes, pubBytes, nil
+}
+
+func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+	resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
+		SecretName: natsSecretName,
+		Namespace:  natsNamespace,
+		SecretPathData: []*agentpb.SecretPathRef{
+			&agentpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: "nats"},
+		},
+	})
+	if err != nil {
+		fmt.Errorf("Unable to configure nats secret, %s", err)
+		return err
+	}
+	if resp.Status != agentpb.StatusCode_OK {
+		return fmt.Errorf("retrieve credentails failed, %s", resp.StatusMessage)
+
+	}
+	fmt.Println("Retrieved the nats token successfully")
+
+	return nil
 }

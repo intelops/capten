@@ -1,8 +1,6 @@
 Apps:
   - "pre-install"
   - "prometheus"
-  - "vault"
-  - "vault-cred"
   - "external-secrets"
   - "k8ssandra-operator"
   - "postgresql"
@@ -14,7 +12,6 @@ Apps:
   - "kubviz-agent"
   - "signoz"
   - "temporal"
-  - "kad"
   - "policy-reporter"
   - "kubescape"
   - "falco"

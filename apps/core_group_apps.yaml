@@ -1,5 +1,11 @@
 Apps:
-  - "openebs-cstor"
-  - "cert-manager"
-  - "traefik"
+   - "openebs-cstor"
+   - "cert-manager"
+   - "traefik"
+   - "k8ssandra-operator"
+   - "vault"
+   - "vault-cred"
+   - "external-secrets"
+   - "kad"
+
  
