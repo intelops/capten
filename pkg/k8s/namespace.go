@@ -1,31 +1,28 @@
 package k8s
 
 import (
-	"context"
 	"capten/pkg/clog"
+	"context"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/client-go/kubernetes"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 )
 
 var labels = map[string]string{
-    "pod-security.kubernetes.io/enforce": "privileged",
-    
+	"pod-security.kubernetes.io/enforce": "privileged",
 }
 
-func CreateorUpdateNamespaceWithLabel(kubeconfigPath,namespaceName string) error{
-	
+func CreateNamespaceIfNotExist(kubeconfigPath, namespaceName string) error {
 	clientset, err := GetK8SClient(kubeconfigPath)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	exists, err := namespaceExists(clientset, namespaceName)
-	
 	if err != nil {
 		return err
 	}
@@ -36,14 +33,36 @@ func CreateorUpdateNamespaceWithLabel(kubeconfigPath,namespaceName string) error
 			return err
 		}
 		clog.Logger.Debugf("Namespace %s created with label %s\n", namespaceName, labels)
-		
-	} else {
-		err := updateNamespaceLabel(clientset, namespaceName, labels)
-		if err != nil {			
+
+	}
+	return nil
+}
+
+func CreateorUpdateNamespaceWithLabel(kubeconfigPath, namespaceName string) error {
+	clientset, err := GetK8SClient(kubeconfigPath)
+	if err != nil {
+		return err
+	}
+
+	exists, err := namespaceExists(clientset, namespaceName)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		err := createNamespace(clientset, namespaceName, labels)
+		if err != nil {
 			return err
 		}
-		clog.Logger.Debugf("Namespace %s updated with label %s\n", namespaceName,labels)
-		
+		clog.Logger.Debugf("Namespace %s created with label %s\n", namespaceName, labels)
+
+	} else {
+		err := updateNamespaceLabel(clientset, namespaceName, labels)
+		if err != nil {
+			return err
+		}
+		clog.Logger.Debugf("Namespace %s updated with label %s\n", namespaceName, labels)
+
 	}
 	return nil
 }
@@ -58,14 +77,12 @@ func namespaceExists(clientset *kubernetes.Clientset, name string) (bool, error)
 	}
 	return false, err
 
-
 }
-func createNamespace(clientset *kubernetes.Clientset, name string,  labels map[string]string) error {
+func createNamespace(clientset *kubernetes.Clientset, name string, labels map[string]string) error {
 	newNamespace := &v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name:   name,
 			Labels: labels,
-
 		},
 	}
 
@@ -73,8 +90,7 @@ func createNamespace(clientset *kubernetes.Clientset, name string,  labels map[s
 	return err
 }
 
-
-func updateNamespaceLabel(clientset *kubernetes.Clientset, name string,  labels map[string]string) error {
+func updateNamespaceLabel(clientset *kubernetes.Clientset, name string, labels map[string]string) error {
 	namespace, err := clientset.CoreV1().Namespaces().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err

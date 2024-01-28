@@ -112,13 +112,6 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
-		err = execActionIfEnabled(actions.Actions.InstallDefaultAppGroup, func() error {
-			return app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
-		})
-		if err != nil {
-			clog.Logger.Errorf("%v", err)
-			return
-		}
 		err = execActionIfEnabled(actions.Actions.StoreClusterCredentials, func() error {
 			err = agent.StoreCredentials(captenConfig, globalValues)
 			if err != nil {
@@ -137,6 +130,15 @@ var appsCmd = &cobra.Command{
 			clog.Logger.Errorf("%v", err)
 			return
 		}
+
+		err = execActionIfEnabled(actions.Actions.InstallDefaultAppGroup, func() error {
+			return app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
+		})
+		if err != nil {
+			clog.Logger.Errorf("%v", err)
+			return
+		}
+
 		err = execActionIfEnabled(actions.Actions.SynchApps, func() error {
 			clog.Logger.Info("Synchonizing Applications with Cluster Agent")
 			if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {

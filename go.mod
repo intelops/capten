@@ -11,10 +11,10 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openebs/api/v2 v2.4.0
 	github.com/pkg/errors v0.9.1
+	github.com/secure-systems-lab/go-securesystemslib v0.8.0
 	github.com/sigstore/sigstore v1.8.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
-	github.com/theupdateframework/go-tuf v0.7.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -115,7 +115,6 @@ require (
 	github.com/rubenv/sql-migrate v1.5.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
-	github.com/secure-systems-lab/go-securesystemslib v0.8.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
