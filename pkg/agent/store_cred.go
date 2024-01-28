@@ -7,19 +7,22 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"os"
 
 	"capten/pkg/agent/agentpb"
 	"capten/pkg/config"
+	"capten/pkg/k8s"
 
 	"github.com/pkg/errors"
+	"github.com/secure-systems-lab/go-securesystemslib/encrypted"
 	"github.com/sigstore/sigstore/pkg/cryptoutils"
-	"github.com/theupdateframework/go-tuf/encrypted"
 )
 
-const (
+var (
+	tokenAttributeName   string = "token"
 	natsCredEntity       string = "nats"
 	natsCredIdentifier   string = "auth-token"
 	cosignEntity         string = "cosign"
@@ -37,10 +40,13 @@ const (
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 
-	natsNamespace        string = "observability"
-	natsSecretName       string = "nats-token"
-	natsTokenSecretPath  string = "generic/nats/auth-token"
-	vaultTokenSecretName string = "vaultToken"
+	natsTokenSecretName     = "nats-token"
+	cosignKeysSecretName    = "cosign-keys"
+	natsSecretNameVar       = "natsTokenSecretName"
+	cosignKeysSecretNameVar = "cosignKeysSecretName"
+
+	natsTokenNamespaces  []string = []string{"observability"}
+	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines"}
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
@@ -64,12 +70,7 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 		return err
 	}
 
-	err = storeCosignKeys(agentClient)
-	if err != nil {
-		return err
-	}
-
-	err = configireNatsSecret(captenConfig, agentClient)
+	err = storeCosignKeys(captenConfig, appGlobalVaules, agentClient)
 	if err != nil {
 		return err
 	}
@@ -178,12 +179,12 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 }
 
 func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
-	val, ok := appGlobalVaules["NatsToken"]
-	if !ok {
-		return fmt.Errorf("NatsToken is missing")
+	val, err := randomTokenGeneration()
+	if err != nil {
+		return fmt.Errorf("Nats Token generation failed, %v", err)
 	}
 	credentail := map[string]string{
-		natsCredEntity: val.(string),
+		tokenAttributeName: val,
 	}
 
 	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
@@ -199,10 +200,43 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	if response.Status != agentpb.StatusCode_OK {
 		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
 	}
+
+	err = configireNatsSecret(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
+	appGlobalVaules[natsSecretNameVar] = natsTokenSecretName
 	return nil
 }
 
-func storeCosignKeys(agentClient agentpb.AgentClient) error {
+func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, natsCredEntity, natsCredIdentifier)
+	for _, natsTokenNamespace := range natsTokenNamespaces {
+		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace)
+		if err != nil {
+			return err
+		}
+
+		resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
+			SecretName: natsTokenSecretName,
+			Namespace:  natsTokenNamespace,
+			SecretPathData: []*agentpb.SecretPathRef{
+				&agentpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: tokenAttributeName},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("failed to configure nats secret, %v", err)
+		}
+		if resp.Status != agentpb.StatusCode_OK {
+			return fmt.Errorf("failed to configure nats secret, %s", resp.StatusMessage)
+
+		}
+	}
+	return nil
+}
+
+func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
 	privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
 	if err != nil {
 		return fmt.Errorf("Cosign key generation failed")
@@ -224,6 +258,40 @@ func storeCosignKeys(agentClient agentpb.AgentClient) error {
 
 	if response.Status != agentpb.StatusCode_OK {
 		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
+	}
+
+	err = configireCosignKeysSecret(captenConfig, agentClient)
+	if err != nil {
+		return err
+	}
+	appGlobalVaules[cosignKeysSecretNameVar] = cosignKeysSecretName
+	return nil
+}
+
+func configireCosignKeysSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, cosignEntity, cosignCredIdentifier)
+	for _, cosignKeysNamespace := range cosignKeysNamespaces {
+		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace)
+		if err != nil {
+			return err
+		}
+
+		resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
+			SecretName: cosignKeysSecretName,
+			Namespace:  cosignKeysNamespace,
+			SecretPathData: []*agentpb.SecretPathRef{
+				&agentpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.key"},
+				&agentpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.pub"},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("failed to configure cosign keys secret, %v", err)
+		}
+		if resp.Status != agentpb.StatusCode_OK {
+			return fmt.Errorf("failed to configure cosign keys secret, %s", resp.StatusMessage)
+
+		}
 	}
 	return nil
 }
@@ -262,23 +330,12 @@ func generateCosignKeyPair() ([]byte, []byte, error) {
 	return privBytes, pubBytes, nil
 }
 
-func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
-	resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
-		SecretName: natsSecretName,
-		Namespace:  natsNamespace,
-		SecretPathData: []*agentpb.SecretPathRef{
-			&agentpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: "nats"},
-		},
-	})
+func randomTokenGeneration() (string, error) {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
 	if err != nil {
-		fmt.Errorf("Unable to configure nats secret, %s", err)
-		return err
+		return "", errors.WithMessage(err, "error while generating random key")
 	}
-	if resp.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("retrieve credentails failed, %s", resp.StatusMessage)
-
-	}
-	fmt.Println("Retrieved the nats token successfully")
-
-	return nil
+	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)[:32]
+	return randomString, nil
 }

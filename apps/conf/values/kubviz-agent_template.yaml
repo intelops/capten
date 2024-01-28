@@ -1,6 +1,5 @@
-nats: 
-  auth:
-    token: "{{ .NATSToken }}"
+nats:
+  secret: "{{ .natsTokenSecretName }}"
 git_bridge:
   enabled: true
   ingress:
@@ -9,7 +8,7 @@ git_bridge:
         paths:
           - path: /
             pathType: Prefix
-    tls: 
+    tls:
       - secretName: cert-gitbridge
         hosts:
           - "gitbridge.{{.DomainName}}"

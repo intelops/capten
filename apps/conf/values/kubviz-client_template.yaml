@@ -1,5 +1,4 @@
 nats:
-  auth:
-    token: "{{ .NATSToken }}"
+  secret: "{{ .natsTokenSecretName }}"
   service:
     type: NodePort

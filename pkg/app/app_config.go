@@ -88,10 +88,5 @@ func PrepareGlobalVaules(captenConfig config.CaptenConfig) (map[string]interface
 	if err != nil {
 		return nil, err
 	}
-
-	err = generateAppGlobalValuesandAppend(globalValues)
-	if err != nil {
-		return nil, err
-	}
 	return globalValues, err
 }
