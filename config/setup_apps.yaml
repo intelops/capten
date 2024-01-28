@@ -1,5 +1,5 @@
 actions:
-  create-namespaces: 
+  create-namespaces:
     enabled: true
   install-core-app-group:
     enabled: true
@@ -10,7 +10,7 @@ actions:
   configure-cert-issuer:
     enabled: true
   configure-cstor-pool:
-    enabled: true
+    enabled: false
   install-default-app-group:
     enabled: true
   synch-apps:
