@@ -1,8 +1,8 @@
-DomainName: demo.optimizor.app
+DomainName: azureagent.optimizor.app
 CloudService: azure
 ClusterType: talos
 ClusterCAIssuer: ""
-SocialIntegration: "teams"
-SlackURL: "slack.com"
-SlackChannel: "intelops"
-TeamsURL: "teams.com"
+SocialIntegration: teams
+SlackURL: slack.com
+SlackChannel: intelops
+TeamsURL: https://intelopsai.webhook.office.com/webhookb2/f4847766-12f8-493b-bdfd-9f7e91dcae6a@51870632-7414-4197-8a61-0cc21e2bba54/IncomingWebhook/ac39c7237f294914a9320c0ff977a773/2b1fdddf-0450-495e-af64-cfc8af608c8e
