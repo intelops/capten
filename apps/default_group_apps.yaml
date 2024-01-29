@@ -1,6 +1,5 @@
 Apps:
   - "pre-install"
-  - "prometheus"
   - "external-secrets"
   - "k8ssandra-operator"
   - "postgresql"

@@ -3,6 +3,7 @@ Apps:
   - "cert-manager"
   - "traefik"
   - "k8ssandra-operator"
+  - "prometheus"
   - "vault"
   - "vault-cred"
   - "external-secrets"
