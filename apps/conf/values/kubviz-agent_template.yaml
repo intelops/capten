@@ -1,5 +1,7 @@
 nats:
-  secret: "{{ .natsTokenSecretName }}"
+  secret:
+    name: "{{ .natsTokenSecretName }}"
+    key: "token"
 git_bridge:
   enabled: true
   ingress:
@@ -25,3 +27,4 @@ container_bridge:
         hosts:
           - "containerbridge.{{.DomainName}}"
 clusterName: "capten-controlplane"
+

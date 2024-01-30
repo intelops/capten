@@ -1,4 +1,7 @@
 nats:
-  secret: "{{ .natsTokenSecretName }}"
+  secret:
+    name: "{{ .natsTokenSecretName }}"
+    key: "token"
   service:
     type: NodePort
+

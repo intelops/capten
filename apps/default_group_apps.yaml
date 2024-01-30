@@ -1,6 +1,6 @@
 Apps:
   - "pre-install"
-  - "external-secrets"
+  - "prometheus"
   - "k8ssandra-operator"
   - "postgresql"
   - "loki"
@@ -11,6 +11,7 @@ Apps:
   - "kubviz-agent"
   - "signoz"
   - "temporal"
+  - "kad"
   - "policy-reporter"
   - "kubescape"
   - "falco"
