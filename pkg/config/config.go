@@ -14,6 +14,7 @@ import (
 type CaptenConfig struct {
 	CaptenClusterValues
 	CaptenClusterHost
+	VaultHostName                  string   `envconfig:"VAULT_HOST_NAME" default:"vaultcred"`
 	AgentHostName                  string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
 	AgentHostPort                  string   `envconfig:"AGENT_HOST_PORT" default:":443"`
 	AgentSecure                    bool     `envconfig:"AGENT_SECURE" default:"true"`
