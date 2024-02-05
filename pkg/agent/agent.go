@@ -41,12 +41,10 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 	return agentpb.NewAgentClient(conn), nil
 }
 
-
 func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, error) {
 	agentEndpoint := config.GetCaptenAgentEndpoint()
-	authorityAgentHost := fmt.Sprintf("%s.%s", config.VaultHostName, config.DomainName)
-	res := fmt.Sprintf("%s.%s", config.VaultHostName, config.DomainName)
-	fmt.Println("Vault cleint", res)
+	authorityAgentHost := fmt.Sprintf("%s.%s", config.VaultCredHostName, config.DomainName)
+
 	var conn *grpc.ClientConn
 	var err error
 	if config.AgentSecure {
@@ -66,7 +64,7 @@ func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, er
 		}
 	}
 	return vaultcredpb.NewVaultCredClient(conn), nil
-	
+
 }
 
 func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.TransportCredentials, error) {
