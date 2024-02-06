@@ -42,10 +42,10 @@ var (
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 
-	natsTokenSecretName     = "nats-token"
-	cosignKeysSecretName    = "cosign-keys"
-	natsSecretNameVar       = "natsTokenSecretName"
-	cosignKeysSecretNameVar = "cosignKeysSecretName"
+	natsTokenSecretName     = "test2nats-token"
+	cosignKeysSecretName    = "test2cosign-keys"
+	natsSecretNameVar       = "test2natsTokenSecretName"
+	cosignKeysSecretNameVar = "test2cosignKeysSecretName"
 
 	natsTokenNamespaces  []string = []string{"observability"}
 	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
@@ -222,6 +222,7 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 			SecretPathData: []*vaultcredpb.SecretPathRef{
 				&vaultcredpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: tokenAttributeName},
 			},
+			DomainName: captenConfig.DomainName,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to configure nats secret, %v", err)
@@ -275,6 +276,7 @@ func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vau
 				&vaultcredpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.key"},
 				&vaultcredpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.pub"},
 			},
+			DomainName: captenConfig.DomainName,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to configure cosign keys secret, %v", err)
