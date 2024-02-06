@@ -52,10 +52,7 @@ var (
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
-	// agentClient, err := GetAgentClient(captenConfig)
-	// if err != nil {
-	// 	return err
-	// }
+
 	vaultClient, err := GetVaultClient(captenConfig)
 	if err != nil {
 		log.Println("Error while connecting to vault client", err)
