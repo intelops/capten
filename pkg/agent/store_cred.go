@@ -10,7 +10,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"log"
 	"os"
 
 	"capten/pkg/agent/agentpb"
@@ -42,20 +41,18 @@ var (
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 
-	natsTokenSecretName     = "test2nats-token"
-	cosignKeysSecretName    = "test2cosign-keys"
-	natsSecretNameVar       = "test2natsTokenSecretName"
-	cosignKeysSecretNameVar = "test2cosignKeysSecretName"
+	natsTokenSecretName     = "nats-token"
+	cosignKeysSecretName    = "cosign-keys"
+	natsSecretNameVar       = "natsTokenSecretName"
+	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
 	natsTokenNamespaces  []string = []string{"observability"}
 	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
-
 	vaultClient, err := GetVaultClient(captenConfig)
 	if err != nil {
-		log.Println("Error while connecting to vault client", err)
 		return err
 	}
 	err = storeKubeConfig(captenConfig, vaultClient)
@@ -70,7 +67,6 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 
 	err = storeNatsCredentials(captenConfig, appGlobalVaules, vaultClient)
 	if err != nil {
-		log.Println("Error while stroing credentials to vault", err)
 		return err
 	}
 

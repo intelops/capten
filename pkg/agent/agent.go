@@ -34,7 +34,7 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}
 	} else {
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithAuthority(authorityAgentHost))
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}
@@ -44,7 +44,7 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 
 func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, error) {
 	agentEndpoint := config.GetCaptenAgentEndpoint()
-	authorityAgentHost := fmt.Sprintf("%s.%s", config.VaultCredHostName, config.DomainName)
+	authorityVaultCredHost := fmt.Sprintf("%s.%s", config.VaultCredHostName, config.DomainName)
 
 	var conn *grpc.ClientConn
 	var err error
@@ -54,12 +54,12 @@ func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, er
 			return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
 		}
 
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials), grpc.WithAuthority(authorityAgentHost))
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials), grpc.WithAuthority(authorityVaultCredHost))
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to vault client")
 		}
 	} else {
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithAuthority(authorityVaultCredHost))
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}

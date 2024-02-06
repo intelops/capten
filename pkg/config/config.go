@@ -52,7 +52,7 @@ type CaptenConfig struct {
 	RootCACommonName               string   `envconfig:"ROOT_CA_CN" default:"Capten Root CA"`
 	IntermediateCACommonName       string   `envconfig:"INTERMEDIATE_CA_CN" default:"Capten Cluster CA"`
 	AgentCertCommonName            string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
-	AgentDNSNamePrefixes           []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
+	AgentDNSNamePrefixes           []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,vaultcred,agent"`
 	CaptenClientCertCommonName     string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AppDeployDryRun                bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug                 bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`
