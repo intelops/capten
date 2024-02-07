@@ -98,7 +98,6 @@ var appsCmd = &cobra.Command{
 		}
 
 		err = execActionIfEnabled(actions.Actions.ConfigureCstorPool, func() error {
-
 			err = k8s.CreateCStorPoolClusterWithRetries(captenConfig)
 			if err != nil {
 				clog.Logger.Errorf("Failed to configure storage pool, %v", err)

@@ -14,6 +14,7 @@ import (
 type CaptenConfig struct {
 	CaptenClusterValues
 	CaptenClusterHost
+	VaultCredHostName              string   `envconfig:"VAULTCRED_HOST_NAME" default:"vaultcred"`
 	AgentHostName                  string   `envconfig:"AGENT_HOST_NAME" default:"captenagent"`
 	AgentHostPort                  string   `envconfig:"AGENT_HOST_PORT" default:":443"`
 	AgentSecure                    bool     `envconfig:"AGENT_SECURE" default:"true"`
@@ -51,7 +52,7 @@ type CaptenConfig struct {
 	RootCACommonName               string   `envconfig:"ROOT_CA_CN" default:"Capten Root CA"`
 	IntermediateCACommonName       string   `envconfig:"INTERMEDIATE_CA_CN" default:"Capten Cluster CA"`
 	AgentCertCommonName            string   `envconfig:"AGENT_CERT_CN" default:"Capten Agent"`
-	AgentDNSNamePrefixes           []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,agent"`
+	AgentDNSNamePrefixes           []string `envconfig:"AGENT_DNS_NAME_PREFIX" default:"*,vaultcred,agent"`
 	CaptenClientCertCommonName     string   `envconfig:"CAPTEN_CLIENT_CA_CN" default:"Capten Client"`
 	AppDeployDryRun                bool     `envconfig:"APP_DEPLOY_DRYRUN" default:"false"`
 	AppDeployDebug                 bool     `envconfig:"APP_DEPLOY_DEBUG" default:"false"`

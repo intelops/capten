@@ -5,9 +5,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+
 	"os"
 
 	"capten/pkg/agent/agentpb"
+	"capten/pkg/agent/vaultcredpb"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -32,12 +34,38 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}
 	} else {
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithAuthority(authorityAgentHost))
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}
 	}
 	return agentpb.NewAgentClient(conn), nil
+}
+
+func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, error) {
+	agentEndpoint := config.GetCaptenAgentEndpoint()
+	authorityVaultCredHost := fmt.Sprintf("%s.%s", config.VaultCredHostName, config.DomainName)
+
+	var conn *grpc.ClientConn
+	var err error
+	if config.AgentSecure {
+		tlsCredentials, err := loadTLSCredentials(config)
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
+		}
+
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials), grpc.WithAuthority(authorityVaultCredHost))
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to connect to vault client")
+		}
+	} else {
+		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithAuthority(authorityVaultCredHost))
+		if err != nil {
+			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
+		}
+	}
+	return vaultcredpb.NewVaultCredClient(conn), nil
+
 }
 
 func loadTLSCredentials(captenConfig config.CaptenConfig) (credentials.TransportCredentials, error) {

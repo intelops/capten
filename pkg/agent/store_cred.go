@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"capten/pkg/agent/agentpb"
+	"capten/pkg/agent/vaultcredpb"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
 
@@ -50,27 +51,26 @@ var (
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
-	agentClient, err := GetAgentClient(captenConfig)
+	vaultClient, err := GetVaultClient(captenConfig)
+	if err != nil {
+		return err
+	}
+	err = storeKubeConfig(captenConfig, vaultClient)
 	if err != nil {
 		return err
 	}
 
-	err = storeKubeConfig(captenConfig, agentClient)
+	err = storeClusterGlobalValues(captenConfig, vaultClient)
 	if err != nil {
 		return err
 	}
 
-	err = storeClusterGlobalValues(captenConfig, agentClient)
+	err = storeNatsCredentials(captenConfig, appGlobalVaules, vaultClient)
 	if err != nil {
 		return err
 	}
 
-	err = storeNatsCredentials(captenConfig, appGlobalVaules, agentClient)
-	if err != nil {
-		return err
-	}
-
-	err = storeCosignKeys(captenConfig, appGlobalVaules, agentClient)
+	err = storeCosignKeys(captenConfig, appGlobalVaules, vaultClient)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func StoreClusterCredentials(captenConfig config.CaptenConfig, appGlobalVaules m
 	return nil
 }
 
-func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func storeKubeConfig(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
 	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName))
 	if err != nil {
 		return err
@@ -100,23 +100,22 @@ func storeKubeConfig(captenConfig config.CaptenConfig, agentClient agentpb.Agent
 		kubeconfigCredIdentifier: string(configContent),
 	}
 
-	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
 		CredEntityName: k8sCredEntityName,
 		CredIdentifier: kubeconfigCredIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
-		return err
+
+		return fmt.Errorf("store credentails failed, %s", err)
+
 	}
 
-	if response.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	}
 	return nil
 }
 
-func storeClusterGlobalValues(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func storeClusterGlobalValues(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
 	configContent, err := os.ReadFile(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CaptenGlobalValuesFileName))
 	if err != nil {
 		return err
@@ -130,19 +129,17 @@ func storeClusterGlobalValues(captenConfig config.CaptenConfig, agentClient agen
 		globalValuesCredIdentifier: string(configContent) + "\n" + string(hostValues),
 	}
 
-	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
 		CredEntityName: captenConfigEntityName,
 		CredIdentifier: globalValuesCredIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("store credentails failed, %s", err)
+
 	}
 
-	if response.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	}
 	return nil
 }
 
@@ -178,7 +175,7 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 	return nil
 }
 
-func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
+func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
 	val, err := randomTokenGeneration()
 	if err != nil {
 		return fmt.Errorf("Nats Token generation failed, %v", err)
@@ -187,21 +184,18 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 		tokenAttributeName: val,
 	}
 
-	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
 		CredEntityName: natsCredEntity,
 		CredIdentifier: natsCredIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("store credentails failed, %s", err)
+
 	}
 
-	if response.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	}
-
-	err = configireNatsSecret(captenConfig, agentClient)
+	err = configireNatsSecret(captenConfig, vaultClient)
 	if err != nil {
 		return err
 	}
@@ -209,7 +203,7 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	return nil
 }
 
-func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
 	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, natsCredEntity, natsCredIdentifier)
 	for _, natsTokenNamespace := range natsTokenNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
@@ -218,35 +212,33 @@ func configireNatsSecret(captenConfig config.CaptenConfig, agentClient agentpb.A
 			return err
 		}
 
-		resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
+		_, err = vaultClient.ConfigureVaultSecret(context.Background(), &vaultcredpb.ConfigureVaultSecretRequest{
 			SecretName: natsTokenSecretName,
 			Namespace:  natsTokenNamespace,
-			SecretPathData: []*agentpb.SecretPathRef{
-				&agentpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: tokenAttributeName},
+			SecretPathData: []*vaultcredpb.SecretPathRef{
+				&vaultcredpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: tokenAttributeName},
 			},
+			DomainName: captenConfig.DomainName,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to configure nats secret, %v", err)
 		}
-		if resp.Status != agentpb.StatusCode_OK {
-			return fmt.Errorf("failed to configure nats secret, %s", resp.StatusMessage)
 
-		}
 	}
 	return nil
 }
 
-func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, agentClient agentpb.AgentClient) error {
+func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
 	privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
 	if err != nil {
-		return fmt.Errorf("Cosign key generation failed")
+		return fmt.Errorf("cosign key generation failed")
 	}
 	credentail := map[string]string{
 		"cosign.key": string(privateKeyBytes),
 		"cosign.pub": string(publicKeyBytes),
 	}
 
-	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
 		CredEntityName: cosignEntity,
 		CredIdentifier: cosignCredIdentifier,
@@ -256,11 +248,7 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 		return err
 	}
 
-	if response.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	}
-
-	err = configireCosignKeysSecret(captenConfig, agentClient)
+	err = configireCosignKeysSecret(captenConfig, vaultClient)
 	if err != nil {
 		return err
 	}
@@ -268,7 +256,7 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 	return nil
 }
 
-func configireCosignKeysSecret(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
 	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, cosignEntity, cosignCredIdentifier)
 	for _, cosignKeysNamespace := range cosignKeysNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
@@ -277,21 +265,19 @@ func configireCosignKeysSecret(captenConfig config.CaptenConfig, agentClient age
 			return err
 		}
 
-		resp, err := agentClient.ConfigureVaultSecret(context.Background(), &agentpb.ConfigureVaultSecretRequest{
+		_, err = vaultClient.ConfigureVaultSecret(context.Background(), &vaultcredpb.ConfigureVaultSecretRequest{
 			SecretName: cosignKeysSecretName,
 			Namespace:  cosignKeysNamespace,
-			SecretPathData: []*agentpb.SecretPathRef{
-				&agentpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.key"},
-				&agentpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.pub"},
+			SecretPathData: []*vaultcredpb.SecretPathRef{
+				&vaultcredpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.key"},
+				&vaultcredpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.pub"},
 			},
+			DomainName: captenConfig.DomainName,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to configure cosign keys secret, %v", err)
 		}
-		if resp.Status != agentpb.StatusCode_OK {
-			return fmt.Errorf("failed to configure cosign keys secret, %s", resp.StatusMessage)
 
-		}
 	}
 	return nil
 }
