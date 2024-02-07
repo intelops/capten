@@ -1,3 +1,10 @@
 vault:
   haEnabled: false
   vaultAddress: http://vault:8200
+cert:
+  secretName: kad-agent-cert
+ingressroute:
+  enabled: true
+  host: "vault-cred.{{.DomainName}}"
+  mtls:
+    enabled: true
