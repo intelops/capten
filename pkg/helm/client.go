@@ -148,7 +148,7 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart install run with values")
 	}
 
-	clog.Logger.Infof("release info: %v", releaseInfo)
+	clog.Logger.Debugf("release info: %v", releaseInfo)
 	return nil
 }
 
@@ -197,7 +197,7 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart upgrade run with values")
 	}
 
-	clog.Logger.Debug("release info ", releaseInfo)
+	clog.Logger.Debugf("release info: %v", releaseInfo)
 	return nil
 }
 

@@ -49,7 +49,7 @@ func getOpenEBSBlockDevices(openebsClientset *clientset.Clientset, captenConfig 
 			blockDevicesMappings = append(blockDevicesMappings, blockDeviceMapping)
 			clog.Logger.Debugf("Added Block device %s", bd.Name)
 		} else {
-			clog.Logger.Infof("Skipped Block device %s", bd.Name)
+			clog.Logger.Debugf("Skipped Block device %s", bd.Name)
 		}
 	}
 	return blockDevicesMappings, nil

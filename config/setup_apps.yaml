@@ -10,7 +10,7 @@ actions:
   configure-cert-issuer:
     enabled: true
   configure-cstor-pool:
-    enabled: false
+    enabled: true
   install-default-app-group:
     enabled: true
   synch-apps:
