@@ -3,6 +3,7 @@ package cmd
 import (
 	"capten/pkg/agent"
 	"capten/pkg/app"
+	"time"
 
 	"capten/pkg/cert"
 	"capten/pkg/clog"
@@ -112,17 +113,25 @@ var appsCmd = &cobra.Command{
 		}
 
 		err = execActionIfEnabled(actions.Actions.StoreClusterCredentials, func() error {
-			err = agent.StoreCredentials(captenConfig, globalValues)
-			if err != nil {
-				return errors.WithMessage(err, "failed to store credentials")
-			}
-			if captenConfig.CloudService == "aws" {
-				err = agent.StoreClusterCredentials(captenConfig, globalValues)
+			clog.Logger.Info("Storing credentails on cluster")
+			err = retry(10, 30*time.Second, func() error {
+				err = agent.StoreCredentials(captenConfig, globalValues)
 				if err != nil {
-					return errors.WithMessage(err, "failed to store cluster credentials")
+					clog.Logger.Infof("Vault is not ready")
+					return errors.WithMessage(err, "failed to store credentials")
 				}
+				if captenConfig.CloudService == "aws" {
+					err = agent.StoreClusterCredentials(captenConfig, globalValues)
+					if err != nil {
+						return errors.WithMessage(err, "failed to store cluster credentials")
+					}
+				}
+				return nil
+			})
+			if err != nil {
+				return err
 			}
-			clog.Logger.Info("Stored cluster credentails on custer")
+			clog.Logger.Info("Stored credentails on cluster")
 			return nil
 		})
 		if err != nil {
@@ -186,4 +195,14 @@ func execActionIfEnabled(actionConfig map[string]interface{}, f func() error) er
 		return f()
 	}
 	return nil
+}
+
+func retry(retries int, interval time.Duration, f func() error) (err error) {
+	for i := 0; i <= retries; i++ {
+		if err = f(); err == nil {
+			return nil
+		}
+		time.Sleep(interval)
+	}
+	return
 }

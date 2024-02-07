@@ -6,6 +6,6 @@ RepoName: "vault-cred"
 RepoURL: "https://intelops.github.io/vault-cred"
 Namespace: "capten"
 ReleaseName: "vault-cred"
-Version: "0.1.5"
+Version: "0.1.9"
 CreateNamespace: true
 PrivilegedNamespace: true

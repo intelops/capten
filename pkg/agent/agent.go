@@ -5,12 +5,14 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"time"
 
 	"os"
 
 	"capten/pkg/agent/agentpb"
 	"capten/pkg/agent/vaultcredpb"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/timeout"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -48,18 +50,24 @@ func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, er
 
 	var conn *grpc.ClientConn
 	var err error
+	dialOptions := []grpc.DialOption{
+		grpc.WithUnaryInterceptor(timeout.UnaryClientInterceptor(60 * time.Second)),
+		grpc.WithAuthority(authorityVaultCredHost),
+	}
 	if config.AgentSecure {
 		tlsCredentials, err := loadTLSCredentials(config)
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to load capten agent client certs")
 		}
 
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(tlsCredentials), grpc.WithAuthority(authorityVaultCredHost))
+		dialOptions = append(dialOptions, grpc.WithTransportCredentials(tlsCredentials))
+		conn, err = grpc.Dial(agentEndpoint, dialOptions...)
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to vault client")
 		}
 	} else {
-		conn, err = grpc.Dial(agentEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithAuthority(authorityVaultCredHost))
+		dialOptions = append(dialOptions, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err = grpc.Dial(agentEndpoint, dialOptions...)
 		if err != nil {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}

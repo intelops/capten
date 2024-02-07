@@ -7,6 +7,7 @@ toolchain go1.21.1
 require (
 	github.com/cert-manager/cert-manager v1.12.2
 	github.com/fatih/color v1.15.0
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/hc-install v0.5.2
 	github.com/hashicorp/terraform-exec v0.18.1
