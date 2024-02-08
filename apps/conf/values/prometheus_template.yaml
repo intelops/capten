@@ -1,4 +1,11 @@
 grafana:
+  resources: 
+    requests:
+      cpu: 100m
+      memory: 300Mi
+    limits:
+      cpu: 200m
+      memory: 600Mi
   enabled: true
   ingress:
     annotations:
@@ -23,23 +30,8 @@ grafana:
       folderAnnotation: grafana_folder
       provider:
         foldersFromFilesStructure: true
-        allowUiUpdates: true
     datasources:
       enabled: true
-  postgresql:
-    enabled: true
-  database: 
-    type: postgres
-    host: prometheus-postgresql:5432
-    name: postgres
-    ssl_mode: disable
-    user: postgres
-    password: $__file{/etc/secrets/postgresql/postgres-password}
-    secretMount:
-      name: postgresql-mount
-      mountPath: /etc/secrets/postgresql
-      secretName: prometheus-postgresql
-      readOnly: true
 prometheus:
   ingress:
     annotations:
@@ -57,10 +49,48 @@ prometheus:
       - "prometheus.{{.DomainName}}"
       secretName: cert-prometheus
   prometheusSpec:
+    resources: 
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
     enableRemoteWriteReceiver: true
     externalLabels:
       cluster_name: capten-controlplane
 alertmanager:
   alertmanagerSpec:
+    resources: 
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 150Mi
     alertmanagerConfigMatcherStrategy:
       type: None
+prometheusOperator:
+  resources: 
+    requests:
+      cpu: 100m
+      memory: 150Mi
+    limits:
+      cpu: 200m
+      memory: 280Mi
+kube-state-metrics:
+  resources: 
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 130Mi
+prometheus-node-exporter:
+  resources: 
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 150Mi
