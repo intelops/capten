@@ -8,22 +8,70 @@ server:
   config:
     persistence:
       default:
-        driver: "sql"
+        driver: "cassandra"
+        cassandra:
+          hosts: ["capten-cass-capten-cass-service"]
+          user: "capten-cass-superuser"
+          existingSecret: "capten-cass-superuser"
+
         sql:
-          driver: "postgres"
-          host: postgresql
-          port: 5432
-          database: temporal
-          user: temporal
-          existingSecret: postgresql
+          user: "capten-cass-superuser"
+          password: "capten-cass-superuser"
 
       visibility:
-        driver: "sql"
+        driver: "cassandra"
+        cassandra:
+          hosts: ["capten-cass-capten-cass-service"]
+          user: "capten-cass-superuser"
+          existingSecret: "capten-cass-superuser"
 
         sql:
-          driver: "postgres"
-          host: postgresql
-          port: 5432
-          database: temporal_visibility
-          user: temporal
-          existingSecret: postgresql
+          user: "capten-cass-superuser"
+          password: "capten-cass-superuser"
+
+  autoscaling:
+    enabled: false
+  frontend:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 180Mi
+
+  history:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 400m
+        memory: 400Mi
+      limits:
+        cpu: 800m
+        memory: 800Mi  
+      
+
+  matching:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 180Mi
+
+  worker:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 200m
+        memory: 100Mi
+      limits:
+        cpu: 400m
+        memory: 180Mi

@@ -1,4 +1,11 @@
 loki:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 150Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
@@ -15,8 +22,15 @@ loki:
       - "loki.{{.DomainName}}"
       secretName: cert-loki
 promtail:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1600Mi
+    requests:
+      cpu: 100m
+      memory: 1000Mi
   config:
     clients:
-    - url: http://loki:3100/loki/api/v1/push
+    - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
       external_labels:
         cluster_name: capten-controlplane

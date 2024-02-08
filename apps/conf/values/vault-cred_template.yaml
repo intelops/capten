@@ -1,10 +1,10 @@
 vault:
   haEnabled: false
   vaultAddress: http://vault:8200
-cert:
-  secretName: kad-agent-cert
-ingressroute:
-  enabled: true
-  host: "vault-cred.{{.DomainName}}"
-  mtls:
-    enabled: true
+resources:
+  limits:
+    cpu: 200m
+    memory: 130Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
