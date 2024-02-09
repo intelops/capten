@@ -2,7 +2,7 @@ module capten
 
 go 1.21
 
-toolchain go1.21.1
+
 
 require (
 	github.com/cert-manager/cert-manager v1.12.2
