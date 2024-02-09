@@ -9,3 +9,6 @@ ReleaseName: "vault-cred"
 Version: "0.1.10"
 CreateNamespace: true
 PrivilegedNamespace: true
+OverrideValues:
+  DomainName: "{{.DomainName}}"
+
