@@ -10,8 +10,8 @@ nats:
       memory: 350Mi
   auth:
     secret:
-    name: "{{ .natsTokenSecretName }}"
-    key: "token"
+      name: "{{ .natsTokenSecretName }}"
+      key: "token"
 resources: 
   requests:
     cpu: 100m

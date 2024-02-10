@@ -1,8 +1,8 @@
 nats: 
   auth:
     secret:
-    name: "{{ .natsTokenSecretName }}"
-    key: "token"
+      name: "{{ .natsTokenSecretName }}"
+      key: "token"
 git_bridge:
   resources: 
     limits:
