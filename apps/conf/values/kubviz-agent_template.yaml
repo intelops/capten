@@ -1,4 +1,7 @@
-nats: 
+nats:
+  secret:
+    name: "{{ .natsTokenSecretName }}"
+    key: "token" 
   auth:
     token: "{{ .NATSToken }}"
 git_bridge:

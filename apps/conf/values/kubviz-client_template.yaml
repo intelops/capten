@@ -1,4 +1,9 @@
 nats:
+  secret:
+    name: "{{ .natsTokenSecretName }}"
+    key: "token"
+  service:
+    type: NodePort
   resources: 
     requests:
       cpu: 100m

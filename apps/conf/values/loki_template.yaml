@@ -31,6 +31,6 @@ promtail:
       memory: 1000Mi
   config:
     clients:
-    - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+    - url: http://loki:3100/loki/api/v1/push
       external_labels:
         cluster_name: capten-controlplane
