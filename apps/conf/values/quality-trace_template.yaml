@@ -1,0 +1,34 @@
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+    kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+  enabled: true
+  hosts:
+  - host: "quality-trace.{{.DomainName}}"
+    paths:
+      - path: /
+        pathType: ImplementationSpecific
+  tls:
+    - secretName: cert-quality-trace
+      hosts:
+      - "quality-trace.{{.DomainName}}"
+telemetry:
+  exporters:
+    collector:
+      exporter:
+        collector:
+          endpoint: quality-trace-otel-collector.quality-trace.svc.cluster.local:4317
+otelCollector:
+  ingressRoute:
+    enabled: true
+    host: "quality-trace-otelcollector.{{.DomainName}}"
+    service:
+      port: 4317
+  config:
+    exporters:
+      otlp/quality-trace:
+        endpoint: quality-trace.quality-trace.svc.cluster.local:4317
+      otlp/signoz:
+        endpoint: signoz-otel-collector.observability.svc.cluster.local:4317
