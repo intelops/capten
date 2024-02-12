@@ -10,5 +10,4 @@ Version: "1.1.17"
 CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:
-  NATSToken: "{{ .NATSToken }}"
-  
+  natsTokenSecretName: "{{.natsTokenSecretName}}"

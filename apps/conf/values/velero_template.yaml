@@ -21,21 +21,20 @@ configuration:
   features: EnableCSI
   defaultVolumesToFsBackup: true
   backupStorageLocation:
-  - name:
-    provider: aws
-    bucket: velero-backup
-    config:
-      region: west
+    - name:
+      provider: aws
+      bucket: velero-backup
+      config:
+        region: west
   volumeSnapshotLocation:
-  - name:
-    provider: aws
-    config:
-      region: west
+    - name:
+      provider: aws
+      config:
+        region: west
 credentials:
-  secretContents: 
+  secretContents:
     cloud: |
       [default]
       aws_access_key_id=xxxyyy
       aws_secret_access_key=yyyzzz
-deployNodeAgent: true  
-      
+deployNodeAgent: false

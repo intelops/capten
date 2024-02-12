@@ -11,4 +11,4 @@ CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:
   DomainName: "{{.DomainName}}"
-      
+  natsTokenSecretName: "{{.natsTokenSecretName}}"

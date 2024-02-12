@@ -2,8 +2,6 @@ module capten
 
 go 1.21
 
-
-
 require (
 	github.com/cert-manager/cert-manager v1.12.2
 	github.com/fatih/color v1.15.0
