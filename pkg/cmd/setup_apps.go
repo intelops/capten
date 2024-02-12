@@ -149,8 +149,15 @@ var appsCmd = &cobra.Command{
 
 		err = execActionIfEnabled(actions.Actions.SynchApps, func() error {
 			clog.Logger.Info("Synchonizing Applications with Cluster Agent")
-			if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {
-				return errors.WithMessage(err, "failed to sync installed apps config in cluster")
+			err = retry(10, 30*time.Second, func() error {
+				if err := agent.SyncInstalledAppConfigsOnAgent(captenConfig); err != nil {
+					clog.Logger.Infof("Capten Agent is not ready")
+					return errors.WithMessage(err, "failed to sync installed apps config in cluster")
+				}
+				return nil
+			})
+			if err != nil {
+				return err
 			}
 			clog.Logger.Info("Applications Synchonized with Cluster Agent")
 			return nil
