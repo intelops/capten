@@ -9,3 +9,5 @@ ReleaseName: "vault"
 Version: "0.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
+OverrideValues:
+  DomainName: "{{.DomainName}}"
