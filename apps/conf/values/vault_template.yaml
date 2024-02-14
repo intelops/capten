@@ -14,3 +14,18 @@ server:
     requests:
       memory: 100Mi
       cpu: 100m
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+    - "vault.{{.DomainName}}"
+    paths:
+    - /
+    tls:
+    - hosts:
+      - "vault.{{.DomainName}}"
+      secretName: cert-vault
