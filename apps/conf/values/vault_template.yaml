@@ -21,8 +21,9 @@ server:
       kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
     enabled: true
-    host: vault.{{.DomainName}}
-    paths: /
+    hosts:
+    - host: vault.{{.DomainName}}
+      paths: /
     tls:
     - hosts:
       - vault.{{.DomainName}}
