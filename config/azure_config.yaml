@@ -8,6 +8,7 @@ WorkerCount:
   - "talos-worker2"
   - "talos-worker3"
   - "talos-worker4"
+  - "talos-worker5"
 NICs:
   - "talos-nic-master1"
   - "talos-nic-master2" 
