@@ -18,6 +18,7 @@ WorkerNics:
   - "talos-nic-worker2"
   - "talos-nic-worker3"
   - "talos-nic-worker4"
+  - "talos-nic-worker5"
 
 InstanceType: "Standard_D4_v3"
 PublicIpName:
