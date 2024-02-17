@@ -97,6 +97,11 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
 			return
 		}
+		appConfig.APIEndpoint, err = replaceTemplateStringValues(appConfig.APIEndpoint, globalValues)
+		if err != nil {
+			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
+			return
+		}
 		appConfigs = append(appConfigs, appConfig)
 		clog.Logger.Debug(appName, " : ", appConfig)
 	}
