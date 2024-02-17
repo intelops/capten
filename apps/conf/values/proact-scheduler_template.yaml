@@ -1,0 +1,32 @@
+postgresql:
+  host: "postgresql"
+  port: "5432"
+  database: "scsctl"
+  username: "postgres"
+  existingSecret: 
+    name: "postgresql"
+    passwordKey: "postgres-password"
+
+temporal:
+  host: temporal-frontend-headless
+  port: 7233
+
+env:
+  SCSCTL_ENVIRONMENT: "prod"
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+    kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: proact-scheduler.{{.DomainName}}
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: cert-proact-scheduler
+      hosts:
+        - proact-scheduler.{{.DomainName}}

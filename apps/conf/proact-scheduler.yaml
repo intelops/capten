@@ -1,0 +1,13 @@
+Name: "proact-scheduler"
+ChartName: "proact-scheduler/proact-scheduler"
+Category: "Platform"
+Description: ""
+RepoName: "proact-scheduler"
+RepoURL: "https://intelops.github.io/proact-scheduler"
+Namespace: "capten"
+ReleaseName: "proact-scheduler"
+Version: "0.1.0"
+CreateNamespace: true
+PrivilegedNamespace: true
+OverrideValues:
+  DomainName: "{{.DomainName}}"
