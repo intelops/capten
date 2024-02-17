@@ -49,6 +49,8 @@ type AppConfig struct {
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
 	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
 	TemplateValues      []byte                 `yaml:"TemplateValues"`
+	PluginName          string                 `yaml:"PluginName"`
+	PluginDescription   string                 `yaml:"PluginDescription"`
 }
 
 type AWSClusterInfo struct {
@@ -104,6 +106,8 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			Icon:                []byte(a.LaunchUIIcon),
 			LaunchURL:           a.LaunchURL,
 			DefualtApp:          true,
+			PluginName:          a.PluginName,
+			PluginDescription:   a.PluginDescription,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,

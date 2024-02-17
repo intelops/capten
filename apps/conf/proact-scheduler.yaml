@@ -9,5 +9,7 @@ ReleaseName: "proact-scheduler"
 Version: "0.1.0"
 CreateNamespace: true
 PrivilegedNamespace: true
+PluginName: ProAct
+PluginDescription: "ProAct"
 OverrideValues:
   DomainName: "{{.DomainName}}"
