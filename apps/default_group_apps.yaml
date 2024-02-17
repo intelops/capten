@@ -16,4 +16,5 @@ Apps:
   - "kubescape"
   - "falco"
   - "quality-trace"
+  - "proact-scheduler"
   - "velero"
