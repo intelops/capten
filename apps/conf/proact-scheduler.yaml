@@ -11,6 +11,6 @@ CreateNamespace: true
 PrivilegedNamespace: true
 PluginName: proact
 PluginDescription: "ProAct"
-APIEndpoint: https://proact.{{.DomainName}}
+APIEndpoint: https://proact-scheduler.{{.DomainName}}
 OverrideValues:
   DomainName: "{{.DomainName}}"
