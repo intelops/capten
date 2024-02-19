@@ -8,11 +8,11 @@ postgresql:
     passwordKey: "postgres-password"
 
 temporal:
-  host: temporal-frontend-headless
+  host: temporal-frontend
   port: 7233
 
 env:
-  SCSCTL_ENVIRONMENT: "prod"
+  PROACT_ENVIRONMENT: "prod"
 
 ingress:
   enabled: true
