@@ -9,7 +9,7 @@ ReleaseName: "proact-scheduler"
 Version: "0.1.1"
 CreateNamespace: true
 PrivilegedNamespace: true
-PluginName: ProAct
+PluginName: proact
 PluginDescription: "ProAct"
 APIEndpoint: https://proact.{{.DomainName}}
 OverrideValues:
