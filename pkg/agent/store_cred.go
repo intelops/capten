@@ -10,7 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"log"
+
 	"os"
 
 	"capten/pkg/agent/agentpb"
@@ -177,7 +177,6 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	if err != nil {
 		return fmt.Errorf("error reading credential config YAML file: %v", err)
 	}
-	log.Println("Config", config)
 
 	credentail := map[string]string{
 		config.TokenAttributeName: val,
