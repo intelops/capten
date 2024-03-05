@@ -10,25 +10,22 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"os"
 
 	"capten/pkg/agent/agentpb"
 	"capten/pkg/agent/vaultcredpb"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
+	"capten/pkg/types"
 
 	"github.com/pkg/errors"
 	"github.com/secure-systems-lab/go-securesystemslib/encrypted"
 	"github.com/sigstore/sigstore/pkg/cryptoutils"
+	"gopkg.in/yaml.v2"
 )
 
 var (
-	tokenAttributeName   string = "token"
-	natsCredEntity       string = "nats"
-	natsCredIdentifier   string = "auth-token"
-	cosignEntity         string = "cosign"
-	cosignCredIdentifier string = "signer"
-
 	genericCredentailType        string = "generic"
 	k8sCredEntityName            string = "k8s"
 	captenConfigEntityName       string = "capten-config"
@@ -41,13 +38,8 @@ var (
 	terraformStateAwsAccessKey  string = "awsAccessKey"
 	terraformStateAwsSecretKey  string = "awsSecretKey"
 
-	natsTokenSecretName     = "nats-token"
-	cosignKeysSecretName    = "cosign-keys"
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
-
-	natsTokenNamespaces  []string = []string{"observability"}
-	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
@@ -178,16 +170,23 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
 	val, err := randomTokenGeneration()
 	if err != nil {
-		return fmt.Errorf("Nats Token generation failed, %v", err)
+		return fmt.Errorf("nats Token generation failed, %v", err)
 	}
+
+	config, err := readCredAppConfig(captenConfig, "nats-cred.yaml")
+	if err != nil {
+		return fmt.Errorf("error reading credential config YAML file: %v", err)
+	}
+	log.Println("Config", config)
+
 	credentail := map[string]string{
-		tokenAttributeName: val,
+		config.TokenAttributeName: val,
 	}
 
 	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
-		CredEntityName: natsCredEntity,
-		CredIdentifier: natsCredIdentifier,
+		CredEntityName: config.CredentialEntity,
+		CredIdentifier: config.CredentialIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
@@ -199,13 +198,21 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 	if err != nil {
 		return err
 	}
-	appGlobalVaules[natsSecretNameVar] = natsTokenSecretName
+	appGlobalVaules[natsSecretNameVar] = config.SecretName
+
 	return nil
 }
 
 func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
-	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, natsCredEntity, natsCredIdentifier)
-	for _, natsTokenNamespace := range natsTokenNamespaces {
+
+	config, err := readCredAppConfig(captenConfig, "nats-cred.yaml")
+	if err != nil {
+		return fmt.Errorf("Error reading Credential Configuration YAML file: %v", err)
+	}
+
+	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
+
+	for _, natsTokenNamespace := range config.Namespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
 		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace)
 		if err != nil {
@@ -213,10 +220,11 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 		}
 
 		_, err = vaultClient.ConfigureVaultSecret(context.Background(), &vaultcredpb.ConfigureVaultSecretRequest{
-			SecretName: natsTokenSecretName,
+			SecretName: config.SecretName,
 			Namespace:  natsTokenNamespace,
+
 			SecretPathData: []*vaultcredpb.SecretPathRef{
-				&vaultcredpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: tokenAttributeName},
+				&vaultcredpb.SecretPathRef{SecretPath: natsTokenSecretPath, SecretKey: config.TokenAttributeName},
 			},
 			DomainName: captenConfig.DomainName,
 		})
@@ -233,6 +241,12 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 	if err != nil {
 		return fmt.Errorf("cosign key generation failed")
 	}
+
+	config, err := readCredAppConfig(captenConfig, "cosign-cred.yaml")
+	if err != nil {
+		return fmt.Errorf("Error reading Credential Config YAML file: %v", err)
+	}
+
 	credentail := map[string]string{
 		"cosign.key": string(privateKeyBytes),
 		"cosign.pub": string(publicKeyBytes),
@@ -240,8 +254,8 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 
 	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
-		CredEntityName: cosignEntity,
-		CredIdentifier: cosignCredIdentifier,
+		CredEntityName: config.CredentialEntity,
+		CredIdentifier: config.CredentialIdentifier,
 		Credential:     credentail,
 	})
 	if err != nil {
@@ -252,13 +266,18 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 	if err != nil {
 		return err
 	}
-	appGlobalVaules[cosignKeysSecretNameVar] = cosignKeysSecretName
+	appGlobalVaules[cosignKeysSecretNameVar] = config.SecretName
 	return nil
 }
 
 func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
-	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, cosignEntity, cosignCredIdentifier)
-	for _, cosignKeysNamespace := range cosignKeysNamespaces {
+
+	config, err := readCredAppConfig(captenConfig, "cosign-cred.yaml")
+	if err != nil {
+		return fmt.Errorf("Error while reading Credential Config YAML file: %v", err)
+	}
+	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
+	for _, cosignKeysNamespace := range config.Namespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
 		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace)
 		if err != nil {
@@ -266,7 +285,7 @@ func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vau
 		}
 
 		_, err = vaultClient.ConfigureVaultSecret(context.Background(), &vaultcredpb.ConfigureVaultSecretRequest{
-			SecretName: cosignKeysSecretName,
+			SecretName: config.SecretName,
 			Namespace:  cosignKeysNamespace,
 			SecretPathData: []*vaultcredpb.SecretPathRef{
 				&vaultcredpb.SecretPathRef{SecretPath: cosignKeysSecretPath, SecretKey: "cosign.key"},
@@ -324,4 +343,23 @@ func randomTokenGeneration() (string, error) {
 	}
 	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)[:32]
 	return randomString, nil
+}
+
+func readCredAppConfig(captenConfig config.CaptenConfig, filename string) (types.CredentialAppConfig, error) {
+	var config types.CredentialAppConfig
+	dirpath := captenConfig.PrepareDirPath(captenConfig.AppsConfigDirPath + captenConfig.AppsCredentialDirPath)
+
+	filePath := dirpath + filename
+
+	yamlFile, err := os.ReadFile(filePath)
+	if err != nil {
+		return config, fmt.Errorf("error reading YAML file: %v", err)
+	}
+
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		return config, fmt.Errorf("error parsing YAML: %v", err)
+	}
+
+	return config, nil
 }
