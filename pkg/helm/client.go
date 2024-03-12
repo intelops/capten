@@ -86,7 +86,6 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	alreadyInstalled, err = h.isAppInstalled(actionConfig, appConfig.ReleaseName)
-
 	if err != nil {
 		return
 	}
@@ -211,12 +210,6 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 
 	for _, release := range releases {
 		if strings.EqualFold(release.Name, releaseName) {
-			if release.Info.Status == "deployed" {
-				return true, nil
-			} else if release.Info.Status == "failed" {
-				return false, nil
-			}
-
 			return true, nil
 		}
 	}
