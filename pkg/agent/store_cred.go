@@ -78,10 +78,7 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 }
 
 func StoreClusterCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
-	// agentClient, err := GetAgentClient(captenConfig)
-	// if err != nil {
-	// 	return err
-	// }
+
 	vaultClient, err := GetVaultClient(captenConfig)
 	if err != nil {
 		return err
@@ -169,9 +166,6 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, vaultClient vau
 		return err
 	}
 
-	// if response.Status != agentpb.StatusCode_OK {
-	// 	return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	// }
 	return nil
 }
 
