@@ -10,9 +10,9 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+
 	"os"
 
-	"capten/pkg/agent/agentpb"
 	"capten/pkg/agent/vaultcredpb"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
@@ -78,11 +78,12 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[stri
 }
 
 func StoreClusterCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
-	agentClient, err := GetAgentClient(captenConfig)
+
+	vaultClient, err := GetVaultClient(captenConfig)
 	if err != nil {
 		return err
 	}
-	err = storeTerraformStateConfig(captenConfig, agentClient)
+	err = storeTerraformStateConfig(captenConfig, vaultClient)
 	if err != nil {
 		return err
 	}
@@ -143,14 +144,10 @@ func storeClusterGlobalValues(captenConfig config.CaptenConfig, vaultClient vaul
 	return nil
 }
 
-func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient agentpb.AgentClient) error {
+func storeTerraformStateConfig(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient) error {
 	clusterInfo, err := config.GetClusterInfo(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.CloudService+"_config.yaml"))
 	if err != nil {
 		return err
-	}
-
-	if len(clusterInfo.TerraformBackendConfigs) > 0 {
-		return errors.New("Terraform backend configs are missing")
 	}
 
 	credentail := map[string]string{
@@ -159,7 +156,7 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 		terraformStateAwsSecretKey:  clusterInfo.AwsSecretKey,
 	}
 
-	response, err := agentClient.StoreCredential(context.Background(), &agentpb.StoreCredentialRequest{
+	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
 		CredentialType: genericCredentailType,
 		CredEntityName: s3BucketCredEntityName,
 		CredIdentifier: terraformStateCredIdentifier,
@@ -169,9 +166,6 @@ func storeTerraformStateConfig(captenConfig config.CaptenConfig, agentClient age
 		return err
 	}
 
-	if response.Status != agentpb.StatusCode_OK {
-		return fmt.Errorf("store credentails failed, %s", response.StatusMessage)
-	}
 	return nil
 }
 
@@ -207,7 +201,7 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, natsCredEntity, natsCredIdentifier)
 	for _, natsTokenNamespace := range natsTokenNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace, nil)
 		if err != nil {
 			return err
 		}
@@ -260,7 +254,7 @@ func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vau
 	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, cosignEntity, cosignCredIdentifier)
 	for _, cosignKeysNamespace := range cosignKeysNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace, nil)
 		if err != nil {
 			return err
 		}

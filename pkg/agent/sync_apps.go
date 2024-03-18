@@ -28,6 +28,7 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 	}
 
 	for _, appConfig := range appConfigs {
+
 		syncAppData, err := appConfig.ToSyncAppData()
 		if err != nil {
 			clog.Logger.Errorf("failed to parse '%s' app config, %v", appConfig.ReleaseName, err)
@@ -45,8 +46,13 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 
 		templateValues := app.GetAppValuesTemplate(captenConfig, appConfig.ReleaseName)
 		syncAppData.Values.TemplateValues = templateValues
+		if appConfig.InstallStatus != "Deployed" {
+			syncAppData.Config.InstallStatus = "failed"
+			continue
+		} else {
+			syncAppData.Config.InstallStatus = "Installed"
+		}
 
-		syncAppData.Config.InstallStatus = "Installed"
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
 		if err != nil {
 			return err
