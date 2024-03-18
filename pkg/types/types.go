@@ -52,6 +52,7 @@ type AppConfig struct {
 	PluginName          string                 `yaml:"PluginName"`
 	PluginDescription   string                 `yaml:"PluginDescription"`
 	APIEndpoint         string                 `yaml:"APIEndpoint"`
+	InstallStatus       string                 `yaml:"InstallStatus"`
 }
 
 type AWSClusterInfo struct {
@@ -110,6 +111,7 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			PluginName:          a.PluginName,
 			PluginDescription:   a.PluginDescription,
 			ApiEndpoint:         a.APIEndpoint,
+			InstallStatus:       a.InstallStatus,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,

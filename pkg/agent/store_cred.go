@@ -201,7 +201,7 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	natsTokenSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, natsCredEntity, natsCredIdentifier)
 	for _, natsTokenNamespace := range natsTokenNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, natsTokenNamespace, nil)
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func configireCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vau
 	cosignKeysSecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, cosignEntity, cosignCredIdentifier)
 	for _, cosignKeysNamespace := range cosignKeysNamespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, cosignKeysNamespace, nil)
 		if err != nil {
 			return err
 		}

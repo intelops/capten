@@ -16,7 +16,7 @@ var labels = map[string]string{
 	"pod-security.kubernetes.io/enforce": "privileged",
 }
 
-func CreateNamespaceIfNotExist(kubeconfigPath, namespaceName string) error {
+func CreateNamespaceIfNotExist(kubeconfigPath, namespaceName string, label map[string]string) error {
 	clientset, err := GetK8SClient(kubeconfigPath)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func CreateNamespaceIfNotExist(kubeconfigPath, namespaceName string) error {
 	}
 
 	if !exists {
-		err := createNamespace(clientset, namespaceName, labels)
+		err := createNamespace(clientset, namespaceName, label)
 		if err != nil {
 			return err
 		}

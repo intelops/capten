@@ -92,10 +92,16 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	if !alreadyInstalled {
+
 		err = h.installApp(ctx, settings, actionConfig, appConfig)
 		return
 	}
 
+	if alreadyInstalled {
+		appConfig.InstallStatus = "deployed"
+	} else {
+		appConfig.InstallStatus = "failed"
+	}
 	if h.captenConfig.UpgradeAppIfInstalled {
 		err = h.upgradeApp(ctx, settings, actionConfig, appConfig)
 		return

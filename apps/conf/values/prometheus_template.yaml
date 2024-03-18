@@ -24,6 +24,8 @@ grafana:
   - vertamedia-clickhouse-datasource
   - grafana-clickhouse-datasource
   - volkovlabs-echarts-panel
+  - marcusolsson-json-datasource
+  - camptocamp-prometheus-alertmanager-datasource
   sidecar:
     dashboards:
       enabled: true
