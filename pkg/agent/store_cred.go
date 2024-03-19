@@ -11,6 +11,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"capten/pkg/agent/vaultcredpb"
 	"capten/pkg/config"
@@ -309,7 +310,7 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			DomainName:     captenConfig.DomainName,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to configure secret, %v", err)
+			return fmt.Errorf("failed to configure secret in vault, %v", err)
 		}
 	}
 	return nil
