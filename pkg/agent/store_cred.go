@@ -269,7 +269,22 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while configuring cosign key: %v", err)
 		}
 		appGlobalValues[natsSecretNameVar] = config.SecretName
-
+	case "password":
+		val, err := randomTokenGeneration()
+		if err != nil {
+			return fmt.Errorf(" Password  generation failed, %v", err)
+		}
+		credential = map[string]string{
+			"password": val,
+		}
+		err = putCredentialInVault(vaultClient, config, credential)
+		if err != nil {
+			return fmt.Errorf("error storing credentials: %v", err)
+		}
+		err = configureSecret(captenConfig, vaultClient, config, credential)
+		if err != nil {
+			return fmt.Errorf("error while configuring secret: %v", err)
+		}
 	default:
 
 		return fmt.Errorf("unknown credential type: %s", config.CredentialType)
@@ -293,7 +308,7 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
 	for _, namespace := range config.Namespaces {
 		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, namespace)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, namespace, nil)
 		if err != nil {
 			return err
 		}
