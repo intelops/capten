@@ -85,7 +85,7 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 		return
 	}
 
-	alreadyInstalled, err = h.IsAppInstalled(actionConfig, appConfig.ReleaseName)
+	alreadyInstalled, err = h.isAppInstalled(actionConfig, appConfig.ReleaseName)
 
 	if err != nil {
 		return
@@ -208,7 +208,7 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	return nil
 }
 
-func (h *Client) IsAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
+func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
 	releaseClient := action.NewList(actionConfig)
 	releases, err := releaseClient.Run()
 	if err != nil {
