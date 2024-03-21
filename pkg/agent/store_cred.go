@@ -39,6 +39,7 @@ var (
 
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
+	postgresSecretNameVar   = "postgresSecretName"
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}) error {
@@ -281,10 +282,15 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		if err != nil {
 			return fmt.Errorf("error storing credentials: %v", err)
 		}
-		err = configureSecret(captenConfig, vaultClient, config, credential)
+		secretKeyMapping := map[string]string{
+			config.CredentialType: "usercred",
+		}
+		err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
 		if err != nil {
 			return fmt.Errorf("error while configuring secret: %v", err)
 		}
+
+		appGlobalValues[postgresSecretNameVar] = config.SecretName
 	default:
 
 		return fmt.Errorf("unknown credential type: %s", config.CredentialType)
