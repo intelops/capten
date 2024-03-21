@@ -6,6 +6,7 @@ import (
 	"capten/pkg/app"
 	"capten/pkg/clog"
 	"capten/pkg/config"
+
 	"capten/pkg/types"
 	"context"
 
@@ -88,6 +89,7 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 		}
 
 		var appConfig types.AppConfig
+
 		if err := yaml.NewDecoder(bytes.NewBuffer(data)).Decode(&appConfig); err != nil {
 			return errors.Wrapf(err, "in file %s", appConfigFilePath)
 		}

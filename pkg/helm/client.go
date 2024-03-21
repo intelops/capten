@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"html/template"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -86,7 +85,7 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 		return
 	}
 
-	alreadyInstalled, err = h.isAppInstalled(actionConfig, appConfig.ReleaseName)
+	alreadyInstalled, err = h.IsAppInstalled(actionConfig, appConfig.ReleaseName)
 
 	if err != nil {
 		return
@@ -209,7 +208,7 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	return nil
 }
 
-func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
+func (h *Client) IsAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
 	releaseClient := action.NewList(actionConfig)
 	releases, err := releaseClient.Run()
 	if err != nil {
@@ -218,14 +217,14 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 
 	for _, release := range releases {
 		if strings.EqualFold(release.Name, releaseName) {
-			log.Printf("Release: %v, Status: %v", release.Name, release.Info.Status)
+
 			if release.Info.Status == "deployed" {
 				return true, nil
 			} else if release.Info.Status == "failed" {
 				return false, nil
 			}
 
-			return true, nil
+			//return true, nil
 		}
 	}
 	return false, nil
