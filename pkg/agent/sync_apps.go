@@ -93,6 +93,7 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 		}
 
 		ret = append(ret, appConfig)
+
 		return nil
 	})
 

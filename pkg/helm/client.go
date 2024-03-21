@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"html/template"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -217,6 +218,7 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 
 	for _, release := range releases {
 		if strings.EqualFold(release.Name, releaseName) {
+			log.Printf("Release: %v, Status: %v", release.Name, release.Info.Status)
 			if release.Info.Status == "deployed" {
 				return true, nil
 			} else if release.Info.Status == "failed" {

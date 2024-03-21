@@ -2,6 +2,7 @@ package types
 
 import (
 	"capten/pkg/agent/agentpb"
+	"log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -92,6 +93,7 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 		return agentpb.SyncAppData{}, err
 	}
 
+
 	return agentpb.SyncAppData{
 		Config: &agentpb.AppConfig{
 			ReleaseName:         a.ReleaseName,
@@ -111,7 +113,7 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			PluginName:          a.PluginName,
 			PluginDescription:   a.PluginDescription,
 			ApiEndpoint:         a.APIEndpoint,
-			InstallStatus:       a.InstallStatus,
+			//InstallStatus:       a.InstallStatus,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,
