@@ -8,6 +8,7 @@ import (
 	"capten/pkg/config"
 	"capten/pkg/types"
 	"context"
+
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,9 +47,10 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 
 		templateValues := app.GetAppValuesTemplate(captenConfig, appConfig.ReleaseName)
 		syncAppData.Values.TemplateValues = templateValues
-		if appConfig.InstallStatus != "Deployed" {
+
+		if appConfig.InstallStatus != "deployed" {
 			syncAppData.Config.InstallStatus = "failed"
-			continue
+
 		} else {
 			syncAppData.Config.InstallStatus = "Installed"
 		}
