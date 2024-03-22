@@ -1,0 +1,13 @@
+Name: "pyroscope"
+ChartName: "tools/pyroscope"
+Category: "Observability"
+Description: ""
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "observability"
+ReleaseName: "pyroscope"
+Version: "1.0.0"
+CreateNamespace: true
+PrivilegedNamespace: true
+OverrideValues:
+  DomainName: "{{.DomainName}}"
