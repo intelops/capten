@@ -204,7 +204,7 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 			}
 
 		} else {
-			// Handle other errors
+
 			return fmt.Errorf("Error while getting credential: %s", err)
 		}
 	} else {
@@ -242,29 +242,46 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 }
 
 func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
-	privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
-	if err != nil {
-		return fmt.Errorf("cosign key generation failed")
-	}
-	credentail := map[string]string{
-		"cosign.key": string(privateKeyBytes),
-		"cosign.pub": string(publicKeyBytes),
-	}
-
-	_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
+	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
 		CredentialType: genericCredentailType,
-		CredEntityName: cosignEntity,
-		CredIdentifier: cosignCredIdentifier,
-		Credential:     credentail,
+		CredEntityName: natsCredEntity,
+		CredIdentifier: natsCredIdentifier,
 	})
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "secret not found") {
+			privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
+			if err != nil {
+				return fmt.Errorf("cosign key generation failed")
+			}
+			credentail := map[string]string{
+				"cosign.key": string(privateKeyBytes),
+				"cosign.pub": string(publicKeyBytes),
+			}
+
+			_, err = vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
+				CredentialType: genericCredentailType,
+				CredEntityName: cosignEntity,
+				CredIdentifier: cosignCredIdentifier,
+				Credential:     credentail,
+			})
+			if err != nil {
+				return err
+			}
+
+			err = configireCosignKeysSecret(captenConfig, vaultClient)
+			if err != nil {
+				return err
+			}
+
+		} else {
+			// 		// Handle other errors
+			return fmt.Errorf("Error while getting credential: %s", err)
+		}
+	} else {
+
+		logrus.Info("Credential already exists in vault")
 	}
 
-	err = configireCosignKeysSecret(captenConfig, vaultClient)
-	if err != nil {
-		return err
-	}
 	appGlobalVaules[cosignKeysSecretNameVar] = cosignKeysSecretName
 	return nil
 }
