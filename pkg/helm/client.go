@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"html/template"
+
 	"os"
 	"strings"
 	"time"
@@ -79,13 +80,13 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	actionConfig := new(action.Configuration)
-	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", logHelmDebug)
+	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", LogHelmDebug)
 	if err != nil {
 		err = errors.Wrap(err, "failed to setup actionConfig for helm")
 		return
 	}
 
-	alreadyInstalled, err = h.isAppInstalled(actionConfig, appConfig.ReleaseName)
+	alreadyInstalled, err = h.IsAppInstalled(actionConfig, appConfig.ReleaseName)
 
 	if err != nil {
 		return
@@ -208,7 +209,7 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	return nil
 }
 
-func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
+func (h *Client) IsAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
 	releaseClient := action.NewList(actionConfig)
 	releases, err := releaseClient.Run()
 	if err != nil {
@@ -223,14 +224,15 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 			} else if release.Info.Status == "failed" {
 				return false, nil
 			}
+		
 
-			//return true, nil
+			
 		}
 	}
 	return false, nil
 }
 
-func logHelmDebug(format string, v ...interface{}) {
+func LogHelmDebug(format string, v ...interface{}) {
 	clog.Logger.Debug(format, v)
 }
 
