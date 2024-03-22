@@ -1,0 +1,16 @@
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+    kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: pyroscope.{{.DomainName}}
+      paths:
+      - path: /
+        pathType: Prefix
+  tls:
+    - secretName: pyroscope-cert
+      hosts:
+        - pyroscope.{{.DomainName}}
