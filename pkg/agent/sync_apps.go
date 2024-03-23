@@ -6,8 +6,8 @@ import (
 	"capten/pkg/app"
 	"capten/pkg/clog"
 	"capten/pkg/config"
-
 	"capten/pkg/helm"
+
 	"capten/pkg/types"
 	"context"
 
@@ -16,10 +16,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	
-	"gopkg.in/yaml.v2"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
+
+	"gopkg.in/yaml.v2"
 )
 
 func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
@@ -54,8 +54,6 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 		syncAppData.Values.TemplateValues = templateValues
 
 		syncAppData.Config.InstallStatus = appConfig.InstallStatus
-		
-
 
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
 		if err != nil {
@@ -99,25 +97,27 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 			return errors.Wrapf(err, "in file %s", appConfigFilePath)
 		}
 		settings := cli.New()
+
 		actionConfig := new(action.Configuration)
 		err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", helm.LogHelmDebug)
 		if err != nil {
 			err = errors.Wrap(err, "failed to setup actionConfig for helm")
-			//	return
+
 		}
 		client := action.NewList(actionConfig)
 		client.All = true
 
 		res, err := hc.IsAppInstalled(actionConfig, appConfig.ReleaseName)
 		if err != nil {
-			 return errors.Wrap(err, "failed to  get Install Status")
+			return errors.Wrap(err, "failed to  get Install Status")
 		}
+
 		if res {
 			appConfig.InstallStatus = "Installed"
 		} else {
 			appConfig.InstallStatus = "Installation failed"
 		}
-	
+
 		ret = append(ret, appConfig)
 
 		return nil

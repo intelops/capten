@@ -15,13 +15,13 @@ import (
 	"os"
 
 	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
 
 	"github.com/pkg/errors"
 	"github.com/secure-systems-lab/go-securesystemslib/encrypted"
 	"github.com/sigstore/sigstore/pkg/cryptoutils"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -209,7 +209,7 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 		}
 	} else {
 
-		logrus.Info("Credential already exists in vault")
+		clog.Logger.Info("Credential already exists in vault")
 	}
 
 	appGlobalVaules[natsSecretNameVar] = natsTokenSecretName
@@ -274,12 +274,12 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 			}
 
 		} else {
-			// 		// Handle other errors
+		
 			return fmt.Errorf("Error while getting credential: %s", err)
 		}
 	} else {
 
-		logrus.Info("Credential already exists in vault")
+		clog.Logger.Info("Credential already exists in vault")
 	}
 
 	appGlobalVaules[cosignKeysSecretNameVar] = cosignKeysSecretName
