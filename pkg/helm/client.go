@@ -29,7 +29,7 @@ const (
 )
 
 type Client struct {
-	settings       *cli.EnvSettings
+	Settings       *cli.EnvSettings
 	defaultTimeout time.Duration
 	captenConfig   config.CaptenConfig
 }
@@ -44,7 +44,7 @@ func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
 	}
 	return &Client{
 		captenConfig:   captenConfig,
-		settings:       settings,
+		Settings:       settings,
 		defaultTimeout: time.Second * 900,
 	}, nil
 }
@@ -56,7 +56,7 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	settings := cli.New()
-	settings.KubeConfig = h.settings.KubeConfig
+	settings.KubeConfig = h.Settings.KubeConfig
 	settings.SetNamespace(appConfig.Namespace)
 	r, err := repo.NewChartRepository(repoEntry, getter.All(settings))
 	if err != nil {
@@ -98,11 +98,6 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 		return
 	}
 
-	if alreadyInstalled {
-		appConfig.InstallStatus = "deployed"
-	} else {
-		appConfig.InstallStatus = "failed"
-	}
 	if h.captenConfig.UpgradeAppIfInstalled {
 		err = h.upgradeApp(ctx, settings, actionConfig, appConfig)
 		return
@@ -221,12 +216,10 @@ func (h *Client) IsAppInstalled(actionConfig *action.Configuration, releaseName 
 
 			if release.Info.Status == "deployed" {
 				return true, nil
-			} else if release.Info.Status == "failed" {
+			} else {
 				return false, nil
 			}
-		
 
-			
 		}
 	}
 	return false, nil
