@@ -97,7 +97,7 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 			return errors.Wrapf(err, "in file %s", appConfigFilePath)
 		}
 		settings := cli.New()
-
+		settings.KubeConfig = hc.Settings.KubeConfig
 		actionConfig := new(action.Configuration)
 		err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", helm.LogHelmDebug)
 		if err != nil {
