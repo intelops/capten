@@ -209,7 +209,7 @@ func storeNatsCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[
 		}
 	} else {
 
-		clog.Logger.Info("Credential already exists in vault")
+		clog.Logger.Debug("Credential already exists in vault")
 	}
 
 	appGlobalVaules[natsSecretNameVar] = natsTokenSecretName
@@ -274,12 +274,12 @@ func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[strin
 			}
 
 		} else {
-		
+
 			return fmt.Errorf("Error while getting credential: %s", err)
 		}
 	} else {
 
-		clog.Logger.Info("Credential already exists in vault")
+		clog.Logger.Debug("Credential already exists in vault")
 	}
 
 	appGlobalVaules[cosignKeysSecretNameVar] = cosignKeysSecretName
