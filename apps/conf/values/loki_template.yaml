@@ -2,10 +2,10 @@ loki:
   resources:
     limits:
       cpu: 200m
-      memory: 150Mi
+      memory: 1600Mi
     requests:
       cpu: 100m
-      memory: 100Mi
+      memory: 1000Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
