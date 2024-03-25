@@ -244,8 +244,8 @@ func configireNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 func storeCosignKeys(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
 	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
 		CredentialType: genericCredentailType,
-		CredEntityName: natsCredEntity,
-		CredIdentifier: natsCredIdentifier,
+		CredEntityName: cosignEntity,
+		CredIdentifier: cosignCredIdentifier,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "secret not found") {
