@@ -49,7 +49,7 @@ var (
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
 	natsTokenNamespaces  []string = []string{"observability"}
-	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
+	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines"}
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalVaules map[string]interface{}) error {
