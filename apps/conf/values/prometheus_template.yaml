@@ -26,6 +26,7 @@ grafana:
   - volkovlabs-echarts-panel
   - marcusolsson-json-datasource
   - camptocamp-prometheus-alertmanager-datasource
+  - volkovlabs-variable-panel
   sidecar:
     dashboards:
       enabled: true
