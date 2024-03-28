@@ -1,11 +1,12 @@
 package k3s
 
 import (
+	"capten/pkg/clog"
+	"capten/pkg/config"
+	"capten/pkg/k8s"
 	"os"
 	"text/template"
 
-	"capten/pkg/clog"
-	"capten/pkg/config"
 	"capten/pkg/terraform"
 	"capten/pkg/types"
 
@@ -63,6 +64,7 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 			return tf.Destroy()
 		}
 	case types.AzureClusterInfo:
+
 		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
 		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
 		err = generateTemplateVarFile(captenConfig, info, captenConfig.AzureTerraformTemplateFileName)
@@ -76,7 +78,21 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 		}
 
 		if action == "create" {
-			return tf.Apply()
+			err = tf.Apply()
+			if err != nil {
+				return err
+			}
+			kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+			clientSet, err := k8s.GetK8SClient(kubeconfigPath)
+			if err != nil {
+				return err
+			}
+			err = k8s.UpdateNodeLabels(clientSet, &info)
+
+			if err != nil {
+				clog.Logger.Debug("Error while updating node label", err)
+				return err
+			}
 		} else if action == "destroy" {
 			return tf.Destroy()
 		}
@@ -88,7 +104,9 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 }
 
 func Create(captenConfig config.CaptenConfig) error {
+
 	return createOrDestroyCluster(captenConfig, "create")
+
 }
 
 func Destroy(captenConfig config.CaptenConfig) error {

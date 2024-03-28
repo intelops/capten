@@ -1,8 +1,11 @@
 package k8s
 
 import (
+	"capten/pkg/clog"
+	"capten/pkg/types"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -67,4 +70,40 @@ func CreateNamespaceIfNotExists(kubeconfigPath, namespace string) error {
 		return fmt.Errorf("failed to get namespace %s: %v", namespace, err)
 	}
 	return nil
+}
+
+func UpdateNodeLabels(k8sClient *kubernetes.Clientset, azureConf *types.AzureClusterInfo) error {
+
+	nodeList, err := k8sClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		clog.Logger.Error("Failed to list the nodes", err)
+		return err
+	}
+
+	for _, node := range nodeList.Items {
+		nodeLabel := getNodeLabel(node.Name, azureConf)
+		node.Labels["nodeType"] = nodeLabel
+
+		_, err := k8sClient.CoreV1().Nodes().Update(context.Background(), &node, metav1.UpdateOptions{})
+		if err != nil {
+			clog.Logger.Error("Failed to update the labels in the node")
+			return err
+		}
+	}
+	return nil
+}
+
+func getNodeLabel(nodeName string, azureConf *types.AzureClusterInfo) string {
+	switch {
+	case strings.Contains(nodeName, azureConf.Masterstaticname):
+		return "master static node"
+	case strings.Contains(nodeName, azureConf.Workerstaticname):
+		return "worker static node"
+	case strings.Contains(nodeName, azureConf.Masterscalesetname):
+		return "master scaleset node"
+	case strings.Contains(nodeName, azureConf.Wokerscalesetname):
+		return "worker scaleset node"
+	default:
+		return "unknown"
+	}
 }
