@@ -352,6 +352,13 @@ func randomTokenGeneration() (string, error) {
 	if err != nil {
 		return "", errors.WithMessage(err, "error while generating random key")
 	}
-	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)[:32]
+
+	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)
+	randomString = strings.ReplaceAll(randomString, "-", "")
+
+	if len(randomString) > 32 {
+		randomString = randomString[:32]
+	}
+
 	return randomString, nil
 }
