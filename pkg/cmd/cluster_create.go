@@ -38,5 +38,8 @@ var clusterCreateSubCmd = &cobra.Command{
 		}
 		
 		clog.Logger.Info("Cluster Created")
+
+		
+
 	},
 }
