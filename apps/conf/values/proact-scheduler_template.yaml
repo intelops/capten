@@ -21,6 +21,7 @@ ingress:
     kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ssl-redirect: "true"
     kubernetes.io/tls-acme: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: capten-proact-scheduler-header@kubernetescrd
   hosts:
     - host: proact-scheduler.{{.DomainName}}
       paths:
