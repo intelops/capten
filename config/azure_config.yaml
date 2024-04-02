@@ -1,14 +1,12 @@
 Region: "centralindia"
-MasterCount:
-  - "talos-master1"
-  - "talos-master2"
-  - "talos-master3"
-WorkerCount:
-  - "talos-worker1"
-  - "talos-worker2"
-  - "talos-worker3"
-  - "talos-worker4"
-  - "talos-worker5"
+StaticMasterNodeCount: "3"
+StaticWorkerNodeCount: "3"
+WokerScalesetName: "worker-scaleset"
+MasterStaticName: "master-static"
+WorkerStaticName: "worker-static"
+MasterScalesetname: "master-scaleset"
+SubscriptionId: ""
+
 NICs:
   - "talos-nic-master1"
   - "talos-nic-master2" 

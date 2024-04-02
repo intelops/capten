@@ -15,13 +15,13 @@ type AzureClusterInfo struct {
 	CloudService            string `yaml:"CloudService"`
 	ClusterType             string `yaml:"ClusterType"`
 	Region                  string `yaml:"Region"`
-	Staticmasternodecount   string `yaml:"staticmasternodecount"`
-	Staticworkernodecount   string `yaml:"staticworkernodecount"`
-	Wokerscalesetname       string `yaml:"wokerscalesetname"`
-	Masterstaticname        string `yaml:"masterstaticname"`
-	Workerstaticname        string `yaml:"masterstaticname"`
-	Masterscalesetname      string `yaml:"masterstaticname"`
-	Subscription_id         string `yaml:"masterstaticname"`
+	Staticmasternodecount   string `yaml:"StaticMasterNodeCount"`
+	Staticworkernodecount   string `yaml:"StaticWorkerNodeCount"`
+	Wokerscalesetname       string `yaml:"WokerScalesetName"`
+	Masterstaticname        string `yaml:"MasterStaticName"`
+	Workerstaticname        string `yaml:"WorkerStaticName"`
+	Masterscalesetname      string `yaml:"MasterScalesetname"`
+	Subscription_id         string `yaml:"SubscriptionId"`
 
 	// MasterCount             []string `yaml:"MasterCount"`
 	// WorkerCount             []string `yaml:"WorkerCount"`
