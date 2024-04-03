@@ -1,4 +1,3 @@
-DomainName: {{.DomainName}}
 cert:
   secretName: "kad-agent-cert"
 ingressroute:
