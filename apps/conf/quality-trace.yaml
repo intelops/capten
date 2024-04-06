@@ -8,5 +8,6 @@ Namespace: "quality-trace"
 ReleaseName: "quality-trace"
 Version: "1.0.2"
 CreateNamespace: true
+APIEndpoint: https://quality-trace.{{.DomainName}}
 OverrideValues:
   DomainName: "{{.DomainName}}"
