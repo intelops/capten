@@ -9,5 +9,6 @@ ReleaseName: "vault"
 Version: "0.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
+APIEndpoint: https://vault.{{.DomainName}}
 OverrideValues:
   DomainName: "{{.DomainName}}"
