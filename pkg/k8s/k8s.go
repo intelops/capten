@@ -73,7 +73,6 @@ func CreateNamespaceIfNotExists(kubeconfigPath, namespace string) error {
 }
 
 func UpdateNodeLabels(k8sClient *kubernetes.Clientset, azureConf *types.AzureClusterInfo) error {
-
 	nodeList, err := k8sClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		clog.Logger.Error("Failed to list the nodes", err)
@@ -81,10 +80,11 @@ func UpdateNodeLabels(k8sClient *kubernetes.Clientset, azureConf *types.AzureClu
 	}
 
 	for _, node := range nodeList.Items {
+		nodeCopy := node.DeepCopy() // Create a copy of the node object
 		nodeLabel := getNodeLabel(node.Name, azureConf)
-		node.Labels["nodeType"] = nodeLabel
+		nodeCopy.Labels["nodeType"] = nodeLabel // Update the labels on the copied node object
 
-		_, err := k8sClient.CoreV1().Nodes().Update(context.Background(), &node, metav1.UpdateOptions{})
+		_, err := k8sClient.CoreV1().Nodes().Update(context.Background(), nodeCopy, metav1.UpdateOptions{})
 		if err != nil {
 			clog.Logger.Error("Failed to update the labels in the node")
 			return err
@@ -93,16 +93,37 @@ func UpdateNodeLabels(k8sClient *kubernetes.Clientset, azureConf *types.AzureClu
 	return nil
 }
 
+// func UpdateNodeLabels(k8sClient *kubernetes.Clientset, azureConf *types.AzureClusterInfo) error {
+
+// 	nodeList, err := k8sClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+// 	if err != nil {
+// 		clog.Logger.Error("Failed to list the nodes", err)
+// 		return err
+// 	}
+
+// 	for _, node := range nodeList.Items {
+// 		nodeLabel := getNodeLabel(node.Name, azureConf)
+// 		node.Labels["nodeType"] = nodeLabel
+
+// 		_, err := k8sClient.CoreV1().Nodes().Update(context.Background(), &node, metav1.UpdateOptions{})
+// 		if err != nil {
+// 			clog.Logger.Error("Failed to update the labels in the node")
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
+
 func getNodeLabel(nodeName string, azureConf *types.AzureClusterInfo) string {
 	switch {
 	case strings.Contains(nodeName, azureConf.Masterstaticname):
-		return "master static node"
+		return "masterstaticnode"
 	case strings.Contains(nodeName, azureConf.Workerstaticname):
-		return "worker static node"
+		return "workerstaticnode"
 	case strings.Contains(nodeName, azureConf.Masterscalesetname):
-		return "master scaleset node"
-	case strings.Contains(nodeName, azureConf.Wokerscalesetname):
-		return "worker scaleset node"
+		return "masterscalesetnode"
+	case strings.Contains(nodeName, azureConf.Workerscalesetname):
+		return "workerscalesetnode"
 	default:
 		return "unknown"
 	}

@@ -17,12 +17,14 @@ type AzureClusterInfo struct {
 	Region                  string `yaml:"Region"`
 	Staticmasternodecount   string `yaml:"StaticMasterNodeCount"`
 	Staticworkernodecount   string `yaml:"StaticWorkerNodeCount"`
-	Wokerscalesetname       string `yaml:"WokerScalesetName"`
+	Workerscalesetname      string `yaml:"WorkerScalesetName"`
 	Masterstaticname        string `yaml:"MasterStaticName"`
 	Workerstaticname        string `yaml:"WorkerStaticName"`
 	Masterscalesetname      string `yaml:"MasterScalesetname"`
 	Subscription_id         string `yaml:"SubscriptionId"`
-
+	Tfstatergname           string `yaml:"tfstatergname"`
+	Tfstatesaname           string `yaml:"Tfstatesaname"`
+	Tfstatecontname         string `yaml:"Tfstatecontname"`
 	// MasterCount             []string `yaml:"MasterCount"`
 	// WorkerCount             []string `yaml:"WorkerCount"`
 	NICs                 []string `yaml:"NICs"`

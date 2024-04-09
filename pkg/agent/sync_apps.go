@@ -8,6 +8,8 @@ import (
 	"capten/pkg/config"
 	"capten/pkg/helm"
 
+
+
 	"capten/pkg/types"
 	"context"
 
@@ -56,6 +58,7 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 		syncAppData.Config.InstallStatus = appConfig.InstallStatus
 
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
+	
 		if err != nil {
 			return err
 

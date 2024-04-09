@@ -45,16 +45,8 @@ func NewAzure(captenConfig config.CaptenConfig, config types.AzureClusterInfo) (
 }
 
 func (t *terraform) initAzure() error {
-	backendConfigOptionsStr := []string{
-		"region=" + t.azureconfig.Region,
-		"talosrgname=" + t.azureconfig.Talosrgname,
-		"storagergname=" + t.azureconfig.Storagergname,
-		"storage_account_name=" + t.azureconfig.Storage_account_name,
-		"talos_imagecont_name=" + t.azureconfig.Talos_imagecont_name,
-		"talos_cluster_name=" + t.azureconfig.Talos_cluster_name,
-		//"nats_client_port=" + t.azureconfig.Nats_client_port,
-	}
-	backendConfigOptionsStr = append(backendConfigOptionsStr)
+	backendConfigOptionsStr := []string{}
+	//	backendConfigOptionsStr = append(backendConfigOptionsStr)
 
 	initOptions := make([]tfexec.InitOption, 0)
 	for _, backendConfigOption := range backendConfigOptionsStr {

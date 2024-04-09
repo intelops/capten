@@ -1,16 +1,16 @@
 configfolderpath = "{{.ConfigFolderPath}}"
 talosctlfolderpath= "{{.TerraformModulesDirPath}}"
 region = "{{.Region}}"
-mastercount = [
-{{- range .MasterCount }}
-  "{{ . }}",
-{{- end }}
-]
-workercount = [
-{{- range .WorkerCount }}
-  "{{ . }}",
-{{- end }}
-]
+wokerscalesetname = "{{.Workerscalesetname}}"
+masterstaticname = "{{.Masterstaticname}}"
+workerstaticname = "{{.Workerstaticname}}"
+masterscalesetname = "{{.Masterscalesetname}}"
+subscription_id = "{{.Subscription_id}}"
+tfstatergname = "{{.Tfstatergname}}"
+tfstatesaname = "{{.Tfstatesaname}}"
+tfstatecontname = "{{.Tfstatecontname}}"
+ 
+
 nics = [
 {{- range .NICs }}
   "{{ . }}",
