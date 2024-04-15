@@ -45,9 +45,9 @@ repos:
   rev: v1.0.3
   hooks:
   # Formats Go code
-  # - id: gofumpt # requires gofumpt to be installed from github.com/mvdan/gofumpt
-  #   name: Go formatter
-  #   description: Runs a strict Go formatter
+  - id: gofumpt # requires gofumpt to be installed from github.com/mvdan/gofumpt
+    name: Go formatter
+    description: Runs a strict Go formatter
   - id: go-fmt-import
     name: Go formatter
     description: Go formatter with fmt and imports
