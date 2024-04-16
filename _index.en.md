@@ -5,13 +5,13 @@ weight: 2
 draft: false
 ---
 
-## Setting Up Configurations for cluster creation
+### Setting Up Configurations for cluster creation
 
 You can edit the specifications in [azure_config.yaml](https://github.com/intelops/capten/blob/main/config/azure_config.yaml) or [aws_config.yaml](https://github.com/intelops/capten/blob/main/config/aws_config.yaml) as per your requirements.
 
 
 
-## Setting Up Configurations for App Deployment
+### Setting Up Configurations for App Deployment
 
 you can specify the domain name and  also you can configure alerts (alerting in case when node goes down or when pod is in crashloopbackoff state and in many cases) in `teams` or `slack` by editing the specifications in [capten.yaml](https://github.com/intelops/capten/blob/main/config/capten.yaml)
 
