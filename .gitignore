@@ -12,6 +12,8 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
+.zip/
+capten/
 vendor/
 .idea/
 cert/

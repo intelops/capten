@@ -6,10 +6,11 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "prometheus"
-Version: "1.0.1"
+Version: "1.0.10"
 CreateNamespace: true
 PrivilegedNamespace: true
 LaunchURL: https://grafana.{{.DomainName}}/login/generic_oauth
+APIEndpoint: https://prometheus.{{.DomainName}}
 LaunchUIDescription: "Intelops Grafana"
 LaunchUIIcon: "grafana.svg"
 LaunchUIValues:

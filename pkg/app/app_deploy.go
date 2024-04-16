@@ -36,7 +36,15 @@ func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interf
 func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfigs []types.AppConfig) bool {
 	successStatus := true
 	for _, appConfig := range appConfigs {
-		clog.Logger.Infof("[app: %s] installing", appConfig.Name)
+		if appConfig.PrivilegedNamespace {
+			err := k8s.CreateorUpdateNamespaceWithLabel(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
+				appConfig.Namespace)
+			if err != nil {
+				clog.Logger.Error("failed to patch namespace with privilege", err)
+				successStatus = false
+				continue
+			}
+		}
 		alreadyInstalled, err := hc.Install(context.Background(), &appConfig)
 		if err != nil {
 			clog.Logger.Errorf("[app: %s] installation failed, %v", appConfig.Name, err)
@@ -49,20 +57,13 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			clog.Logger.Infof("[app: %s] installed", appConfig.Name)
 		}
 
+		appConfig.TemplateValues = nil
 		if err := WriteAppConfig(captenConfig, appConfig); err != nil {
 			clog.Logger.Errorf("failed to write %s config, %v", appConfig.Name, err)
 			successStatus = false
 			continue
 		}
-		if appConfig.PrivilegedNamespace {
-			err := k8s.CreateorUpdateNamespaceWithLabel(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName),
-				appConfig.Namespace)
-			if err != nil {
-				clog.Logger.Error("failed to patch namespace with privilege", err)
-				successStatus = false
-				continue
-			}
-		}
+
 	}
 	return successStatus
 }
@@ -92,6 +93,11 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 		}
 
 		appConfig.LaunchURL, err = replaceTemplateStringValues(appConfig.LaunchURL, globalValues)
+		if err != nil {
+			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
+			return
+		}
+		appConfig.APIEndpoint, err = replaceTemplateStringValues(appConfig.APIEndpoint, globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
 			return

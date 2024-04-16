@@ -6,5 +6,5 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "kyverno"
 ReleaseName: "kyverno"
-Version: "1.0.1"
+Version: "1.0.3"
 CreateNamespace: true

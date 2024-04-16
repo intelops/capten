@@ -8,7 +8,9 @@ on:
       - 'v*.*.*' # Only build on tags that match the 'vX.Y.Z' pattern
 
 jobs:
-  build:
+  build_and_release:
+
+
     runs-on: ubuntu-latest
     
     steps:
@@ -17,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.20'
+          go-version: '1.21'
 
       - name: Set release tag as env
         id: release
@@ -36,10 +38,6 @@ jobs:
         with:
           prefix: 'v'
 
-      - name: Build release
-        if: steps.version.outputs.is_valid == 'true'
-        run: make build.release
-      
       - name: Create Github release
         if: steps.version.outputs.is_valid == 'true'
         id: create-release
@@ -49,6 +47,10 @@ jobs:
         with:
           tag_name: ${{ steps.release.outputs.tag }}
           release_name: ${{ steps.release.outputs.tag }}
+
+      - name: Build release
+        if: steps.version.outputs.is_valid == 'true'
+        run: make build.release-linux
       
       - name: Upload Artifacts
         if: steps.version.outputs.is_valid == 'true'
@@ -58,5 +60,20 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ./capten.zip
-          asset_name: capten.zip
+          asset_name: capten_linux.zip
+          asset_content_type: application
+
+      - name: Build release for mac
+        if: steps.version.outputs.is_valid == 'true'
+        run: make build.release-mac
+
+      - name: Upload Artifacts for mac
+        if: steps.version.outputs.is_valid == 'true'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./capten.zip
+          asset_name: capten_mac.zip
           asset_content_type: application

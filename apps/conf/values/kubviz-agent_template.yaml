@@ -1,7 +1,16 @@
 nats: 
   auth:
-    token: "{{ .NATSToken }}"
+    secret:
+      name: "{{ .natsTokenSecretName }}"
+      key: "token"
 git_bridge:
+  resources: 
+    limits:
+      cpu: 200m
+      memory: 150Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
   enabled: true
   ingress:
     hosts:
@@ -14,6 +23,13 @@ git_bridge:
         hosts:
           - "gitbridge.{{.DomainName}}"
 container_bridge:
+  resources: 
+    limits:
+      cpu: 200m
+      memory: 150Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
   enabled: true
   ingress:
     hosts:
@@ -26,3 +42,10 @@ container_bridge:
         hosts:
           - "containerbridge.{{.DomainName}}"
 clusterName: "capten-controlplane"
+resources: 
+  limits:
+    cpu: 200m
+    memory: 150Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi

@@ -6,5 +6,6 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "velero"
 ReleaseName: "velero"
-Version: "0.0.1"
+Version: "0.0.4"
 CreateNamespace: true
+PrivilegedNamespace: true

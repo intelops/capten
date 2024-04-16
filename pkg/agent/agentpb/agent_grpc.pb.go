@@ -19,44 +19,46 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Agent_SubmitJob_FullMethodName             = "/agentpb.Agent/SubmitJob"
-	Agent_ClusterAdd_FullMethodName            = "/agentpb.Agent/ClusterAdd"
-	Agent_ClusterDelete_FullMethodName         = "/agentpb.Agent/ClusterDelete"
-	Agent_RepositoryAdd_FullMethodName         = "/agentpb.Agent/RepositoryAdd"
-	Agent_RepositoryDelete_FullMethodName      = "/agentpb.Agent/RepositoryDelete"
-	Agent_ProjectAdd_FullMethodName            = "/agentpb.Agent/ProjectAdd"
-	Agent_ProjectDelete_FullMethodName         = "/agentpb.Agent/ProjectDelete"
-	Agent_Ping_FullMethodName                  = "/agentpb.Agent/Ping"
-	Agent_StoreCredential_FullMethodName       = "/agentpb.Agent/StoreCredential"
-	Agent_SyncApp_FullMethodName               = "/agentpb.Agent/SyncApp"
-	Agent_GetClusterApps_FullMethodName        = "/agentpb.Agent/GetClusterApps"
-	Agent_GetClusterAppLaunches_FullMethodName = "/agentpb.Agent/GetClusterAppLaunches"
-	Agent_ConfigureAppSSO_FullMethodName       = "/agentpb.Agent/ConfigureAppSSO"
-	Agent_GetClusterAppConfig_FullMethodName   = "/agentpb.Agent/GetClusterAppConfig"
-	Agent_GetClusterAppValues_FullMethodName   = "/agentpb.Agent/GetClusterAppValues"
-	Agent_InstallApp_FullMethodName            = "/agentpb.Agent/InstallApp"
+	Agent_Ping_FullMethodName                   = "/agentpb.Agent/Ping"
+	Agent_StoreCredential_FullMethodName        = "/agentpb.Agent/StoreCredential"
+	Agent_ConfigureVaultSecret_FullMethodName   = "/agentpb.Agent/ConfigureVaultSecret"
+	Agent_CreateVaultRole_FullMethodName        = "/agentpb.Agent/CreateVaultRole"
+	Agent_UpdateVaultRole_FullMethodName        = "/agentpb.Agent/UpdateVaultRole"
+	Agent_DeleteVaultRole_FullMethodName        = "/agentpb.Agent/DeleteVaultRole"
+	Agent_SyncApp_FullMethodName                = "/agentpb.Agent/SyncApp"
+	Agent_GetClusterApps_FullMethodName         = "/agentpb.Agent/GetClusterApps"
+	Agent_GetClusterAppLaunches_FullMethodName  = "/agentpb.Agent/GetClusterAppLaunches"
+	Agent_ConfigureAppSSO_FullMethodName        = "/agentpb.Agent/ConfigureAppSSO"
+	Agent_GetClusterAppConfig_FullMethodName    = "/agentpb.Agent/GetClusterAppConfig"
+	Agent_GetClusterAppValues_FullMethodName    = "/agentpb.Agent/GetClusterAppValues"
+	Agent_GetClusterGlobalValues_FullMethodName = "/agentpb.Agent/GetClusterGlobalValues"
+	Agent_InstallApp_FullMethodName             = "/agentpb.Agent/InstallApp"
+	Agent_UnInstallApp_FullMethodName           = "/agentpb.Agent/UnInstallApp"
+	Agent_UpgradeApp_FullMethodName             = "/agentpb.Agent/UpgradeApp"
+	Agent_UpdateAppValues_FullMethodName        = "/agentpb.Agent/UpdateAppValues"
 )
 
 // AgentClient is the client API for Agent service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentClient interface {
-	SubmitJob(ctx context.Context, in *JobRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	ClusterAdd(ctx context.Context, in *ClusterRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	ClusterDelete(ctx context.Context, in *ClusterRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	RepositoryAdd(ctx context.Context, in *RepositoryAddRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	RepositoryDelete(ctx context.Context, in *RepositoryDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	ProjectAdd(ctx context.Context, in *ProjectAddRequest, opts ...grpc.CallOption) (*JobResponse, error)
-	ProjectDelete(ctx context.Context, in *ProjectDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	StoreCredential(ctx context.Context, in *StoreCredentialRequest, opts ...grpc.CallOption) (*StoreCredentialResponse, error)
+	ConfigureVaultSecret(ctx context.Context, in *ConfigureVaultSecretRequest, opts ...grpc.CallOption) (*ConfigureVaultSecretResponse, error)
+	CreateVaultRole(ctx context.Context, in *CreateVaultRoleRequest, opts ...grpc.CallOption) (*CreateVaultRoleResponse, error)
+	UpdateVaultRole(ctx context.Context, in *UpdateVaultRoleRequest, opts ...grpc.CallOption) (*UpdateVaultRoleResponse, error)
+	DeleteVaultRole(ctx context.Context, in *DeleteVaultRoleRequest, opts ...grpc.CallOption) (*DeleteVaultRoleResponse, error)
 	SyncApp(ctx context.Context, in *SyncAppRequest, opts ...grpc.CallOption) (*SyncAppResponse, error)
 	GetClusterApps(ctx context.Context, in *GetClusterAppsRequest, opts ...grpc.CallOption) (*GetClusterAppsResponse, error)
 	GetClusterAppLaunches(ctx context.Context, in *GetClusterAppLaunchesRequest, opts ...grpc.CallOption) (*GetClusterAppLaunchesResponse, error)
 	ConfigureAppSSO(ctx context.Context, in *ConfigureAppSSORequest, opts ...grpc.CallOption) (*ConfigureAppSSOResponse, error)
 	GetClusterAppConfig(ctx context.Context, in *GetClusterAppConfigRequest, opts ...grpc.CallOption) (*GetClusterAppConfigResponse, error)
 	GetClusterAppValues(ctx context.Context, in *GetClusterAppValuesRequest, opts ...grpc.CallOption) (*GetClusterAppValuesResponse, error)
+	GetClusterGlobalValues(ctx context.Context, in *GetClusterGlobalValuesRequest, opts ...grpc.CallOption) (*GetClusterGlobalValuesResponse, error)
 	InstallApp(ctx context.Context, in *InstallAppRequest, opts ...grpc.CallOption) (*InstallAppResponse, error)
+	UnInstallApp(ctx context.Context, in *UnInstallAppRequest, opts ...grpc.CallOption) (*UnInstallAppResponse, error)
+	UpgradeApp(ctx context.Context, in *UpgradeAppRequest, opts ...grpc.CallOption) (*UpgradeAppResponse, error)
+	UpdateAppValues(ctx context.Context, in *UpdateAppValuesRequest, opts ...grpc.CallOption) (*UpdateAppValuesResponse, error)
 }
 
 type agentClient struct {
@@ -65,69 +67,6 @@ type agentClient struct {
 
 func NewAgentClient(cc grpc.ClientConnInterface) AgentClient {
 	return &agentClient{cc}
-}
-
-func (c *agentClient) SubmitJob(ctx context.Context, in *JobRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_SubmitJob_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) ClusterAdd(ctx context.Context, in *ClusterRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_ClusterAdd_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) ClusterDelete(ctx context.Context, in *ClusterRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_ClusterDelete_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) RepositoryAdd(ctx context.Context, in *RepositoryAddRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_RepositoryAdd_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) RepositoryDelete(ctx context.Context, in *RepositoryDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_RepositoryDelete_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) ProjectAdd(ctx context.Context, in *ProjectAddRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_ProjectAdd_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentClient) ProjectDelete(ctx context.Context, in *ProjectDeleteRequest, opts ...grpc.CallOption) (*JobResponse, error) {
-	out := new(JobResponse)
-	err := c.cc.Invoke(ctx, Agent_ProjectDelete_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *agentClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
@@ -142,6 +81,42 @@ func (c *agentClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.Ca
 func (c *agentClient) StoreCredential(ctx context.Context, in *StoreCredentialRequest, opts ...grpc.CallOption) (*StoreCredentialResponse, error) {
 	out := new(StoreCredentialResponse)
 	err := c.cc.Invoke(ctx, Agent_StoreCredential_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) ConfigureVaultSecret(ctx context.Context, in *ConfigureVaultSecretRequest, opts ...grpc.CallOption) (*ConfigureVaultSecretResponse, error) {
+	out := new(ConfigureVaultSecretResponse)
+	err := c.cc.Invoke(ctx, Agent_ConfigureVaultSecret_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) CreateVaultRole(ctx context.Context, in *CreateVaultRoleRequest, opts ...grpc.CallOption) (*CreateVaultRoleResponse, error) {
+	out := new(CreateVaultRoleResponse)
+	err := c.cc.Invoke(ctx, Agent_CreateVaultRole_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) UpdateVaultRole(ctx context.Context, in *UpdateVaultRoleRequest, opts ...grpc.CallOption) (*UpdateVaultRoleResponse, error) {
+	out := new(UpdateVaultRoleResponse)
+	err := c.cc.Invoke(ctx, Agent_UpdateVaultRole_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) DeleteVaultRole(ctx context.Context, in *DeleteVaultRoleRequest, opts ...grpc.CallOption) (*DeleteVaultRoleResponse, error) {
+	out := new(DeleteVaultRoleResponse)
+	err := c.cc.Invoke(ctx, Agent_DeleteVaultRole_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +177,45 @@ func (c *agentClient) GetClusterAppValues(ctx context.Context, in *GetClusterApp
 	return out, nil
 }
 
+func (c *agentClient) GetClusterGlobalValues(ctx context.Context, in *GetClusterGlobalValuesRequest, opts ...grpc.CallOption) (*GetClusterGlobalValuesResponse, error) {
+	out := new(GetClusterGlobalValuesResponse)
+	err := c.cc.Invoke(ctx, Agent_GetClusterGlobalValues_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentClient) InstallApp(ctx context.Context, in *InstallAppRequest, opts ...grpc.CallOption) (*InstallAppResponse, error) {
 	out := new(InstallAppResponse)
 	err := c.cc.Invoke(ctx, Agent_InstallApp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) UnInstallApp(ctx context.Context, in *UnInstallAppRequest, opts ...grpc.CallOption) (*UnInstallAppResponse, error) {
+	out := new(UnInstallAppResponse)
+	err := c.cc.Invoke(ctx, Agent_UnInstallApp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) UpgradeApp(ctx context.Context, in *UpgradeAppRequest, opts ...grpc.CallOption) (*UpgradeAppResponse, error) {
+	out := new(UpgradeAppResponse)
+	err := c.cc.Invoke(ctx, Agent_UpgradeApp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) UpdateAppValues(ctx context.Context, in *UpdateAppValuesRequest, opts ...grpc.CallOption) (*UpdateAppValuesResponse, error) {
+	out := new(UpdateAppValuesResponse)
+	err := c.cc.Invoke(ctx, Agent_UpdateAppValues_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,22 +226,23 @@ func (c *agentClient) InstallApp(ctx context.Context, in *InstallAppRequest, opt
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
 type AgentServer interface {
-	SubmitJob(context.Context, *JobRequest) (*JobResponse, error)
-	ClusterAdd(context.Context, *ClusterRequest) (*JobResponse, error)
-	ClusterDelete(context.Context, *ClusterRequest) (*JobResponse, error)
-	RepositoryAdd(context.Context, *RepositoryAddRequest) (*JobResponse, error)
-	RepositoryDelete(context.Context, *RepositoryDeleteRequest) (*JobResponse, error)
-	ProjectAdd(context.Context, *ProjectAddRequest) (*JobResponse, error)
-	ProjectDelete(context.Context, *ProjectDeleteRequest) (*JobResponse, error)
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	StoreCredential(context.Context, *StoreCredentialRequest) (*StoreCredentialResponse, error)
+	ConfigureVaultSecret(context.Context, *ConfigureVaultSecretRequest) (*ConfigureVaultSecretResponse, error)
+	CreateVaultRole(context.Context, *CreateVaultRoleRequest) (*CreateVaultRoleResponse, error)
+	UpdateVaultRole(context.Context, *UpdateVaultRoleRequest) (*UpdateVaultRoleResponse, error)
+	DeleteVaultRole(context.Context, *DeleteVaultRoleRequest) (*DeleteVaultRoleResponse, error)
 	SyncApp(context.Context, *SyncAppRequest) (*SyncAppResponse, error)
 	GetClusterApps(context.Context, *GetClusterAppsRequest) (*GetClusterAppsResponse, error)
 	GetClusterAppLaunches(context.Context, *GetClusterAppLaunchesRequest) (*GetClusterAppLaunchesResponse, error)
 	ConfigureAppSSO(context.Context, *ConfigureAppSSORequest) (*ConfigureAppSSOResponse, error)
 	GetClusterAppConfig(context.Context, *GetClusterAppConfigRequest) (*GetClusterAppConfigResponse, error)
 	GetClusterAppValues(context.Context, *GetClusterAppValuesRequest) (*GetClusterAppValuesResponse, error)
+	GetClusterGlobalValues(context.Context, *GetClusterGlobalValuesRequest) (*GetClusterGlobalValuesResponse, error)
 	InstallApp(context.Context, *InstallAppRequest) (*InstallAppResponse, error)
+	UnInstallApp(context.Context, *UnInstallAppRequest) (*UnInstallAppResponse, error)
+	UpgradeApp(context.Context, *UpgradeAppRequest) (*UpgradeAppResponse, error)
+	UpdateAppValues(context.Context, *UpdateAppValuesRequest) (*UpdateAppValuesResponse, error)
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -238,32 +250,23 @@ type AgentServer interface {
 type UnimplementedAgentServer struct {
 }
 
-func (UnimplementedAgentServer) SubmitJob(context.Context, *JobRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SubmitJob not implemented")
-}
-func (UnimplementedAgentServer) ClusterAdd(context.Context, *ClusterRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClusterAdd not implemented")
-}
-func (UnimplementedAgentServer) ClusterDelete(context.Context, *ClusterRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClusterDelete not implemented")
-}
-func (UnimplementedAgentServer) RepositoryAdd(context.Context, *RepositoryAddRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepositoryAdd not implemented")
-}
-func (UnimplementedAgentServer) RepositoryDelete(context.Context, *RepositoryDeleteRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepositoryDelete not implemented")
-}
-func (UnimplementedAgentServer) ProjectAdd(context.Context, *ProjectAddRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProjectAdd not implemented")
-}
-func (UnimplementedAgentServer) ProjectDelete(context.Context, *ProjectDeleteRequest) (*JobResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProjectDelete not implemented")
-}
 func (UnimplementedAgentServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedAgentServer) StoreCredential(context.Context, *StoreCredentialRequest) (*StoreCredentialResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreCredential not implemented")
+}
+func (UnimplementedAgentServer) ConfigureVaultSecret(context.Context, *ConfigureVaultSecretRequest) (*ConfigureVaultSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfigureVaultSecret not implemented")
+}
+func (UnimplementedAgentServer) CreateVaultRole(context.Context, *CreateVaultRoleRequest) (*CreateVaultRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateVaultRole not implemented")
+}
+func (UnimplementedAgentServer) UpdateVaultRole(context.Context, *UpdateVaultRoleRequest) (*UpdateVaultRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateVaultRole not implemented")
+}
+func (UnimplementedAgentServer) DeleteVaultRole(context.Context, *DeleteVaultRoleRequest) (*DeleteVaultRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteVaultRole not implemented")
 }
 func (UnimplementedAgentServer) SyncApp(context.Context, *SyncAppRequest) (*SyncAppResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncApp not implemented")
@@ -283,8 +286,20 @@ func (UnimplementedAgentServer) GetClusterAppConfig(context.Context, *GetCluster
 func (UnimplementedAgentServer) GetClusterAppValues(context.Context, *GetClusterAppValuesRequest) (*GetClusterAppValuesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClusterAppValues not implemented")
 }
+func (UnimplementedAgentServer) GetClusterGlobalValues(context.Context, *GetClusterGlobalValuesRequest) (*GetClusterGlobalValuesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterGlobalValues not implemented")
+}
 func (UnimplementedAgentServer) InstallApp(context.Context, *InstallAppRequest) (*InstallAppResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InstallApp not implemented")
+}
+func (UnimplementedAgentServer) UnInstallApp(context.Context, *UnInstallAppRequest) (*UnInstallAppResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnInstallApp not implemented")
+}
+func (UnimplementedAgentServer) UpgradeApp(context.Context, *UpgradeAppRequest) (*UpgradeAppResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpgradeApp not implemented")
+}
+func (UnimplementedAgentServer) UpdateAppValues(context.Context, *UpdateAppValuesRequest) (*UpdateAppValuesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAppValues not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
@@ -297,132 +312,6 @@ type UnsafeAgentServer interface {
 
 func RegisterAgentServer(s grpc.ServiceRegistrar, srv AgentServer) {
 	s.RegisterService(&Agent_ServiceDesc, srv)
-}
-
-func _Agent_SubmitJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(JobRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).SubmitJob(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_SubmitJob_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).SubmitJob(ctx, req.(*JobRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_ClusterAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClusterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).ClusterAdd(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_ClusterAdd_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).ClusterAdd(ctx, req.(*ClusterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_ClusterDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClusterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).ClusterDelete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_ClusterDelete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).ClusterDelete(ctx, req.(*ClusterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_RepositoryAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RepositoryAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).RepositoryAdd(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_RepositoryAdd_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).RepositoryAdd(ctx, req.(*RepositoryAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_RepositoryDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RepositoryDeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).RepositoryDelete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_RepositoryDelete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).RepositoryDelete(ctx, req.(*RepositoryDeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_ProjectAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProjectAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).ProjectAdd(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_ProjectAdd_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).ProjectAdd(ctx, req.(*ProjectAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Agent_ProjectDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProjectDeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServer).ProjectDelete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Agent_ProjectDelete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).ProjectDelete(ctx, req.(*ProjectDeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Agent_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -457,6 +346,78 @@ func _Agent_StoreCredential_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentServer).StoreCredential(ctx, req.(*StoreCredentialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_ConfigureVaultSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigureVaultSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).ConfigureVaultSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_ConfigureVaultSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).ConfigureVaultSecret(ctx, req.(*ConfigureVaultSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_CreateVaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVaultRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).CreateVaultRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_CreateVaultRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).CreateVaultRole(ctx, req.(*CreateVaultRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_UpdateVaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateVaultRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).UpdateVaultRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_UpdateVaultRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).UpdateVaultRole(ctx, req.(*UpdateVaultRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_DeleteVaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVaultRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).DeleteVaultRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_DeleteVaultRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).DeleteVaultRole(ctx, req.(*DeleteVaultRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -569,6 +530,24 @@ func _Agent_GetClusterAppValues_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_GetClusterGlobalValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterGlobalValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetClusterGlobalValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_GetClusterGlobalValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetClusterGlobalValues(ctx, req.(*GetClusterGlobalValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agent_InstallApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(InstallAppRequest)
 	if err := dec(in); err != nil {
@@ -587,6 +566,60 @@ func _Agent_InstallApp_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_UnInstallApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnInstallAppRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).UnInstallApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_UnInstallApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).UnInstallApp(ctx, req.(*UnInstallAppRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_UpgradeApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpgradeAppRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).UpgradeApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_UpgradeApp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).UpgradeApp(ctx, req.(*UpgradeAppRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_UpdateAppValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAppValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).UpdateAppValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Agent_UpdateAppValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).UpdateAppValues(ctx, req.(*UpdateAppValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -595,40 +628,28 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AgentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SubmitJob",
-			Handler:    _Agent_SubmitJob_Handler,
-		},
-		{
-			MethodName: "ClusterAdd",
-			Handler:    _Agent_ClusterAdd_Handler,
-		},
-		{
-			MethodName: "ClusterDelete",
-			Handler:    _Agent_ClusterDelete_Handler,
-		},
-		{
-			MethodName: "RepositoryAdd",
-			Handler:    _Agent_RepositoryAdd_Handler,
-		},
-		{
-			MethodName: "RepositoryDelete",
-			Handler:    _Agent_RepositoryDelete_Handler,
-		},
-		{
-			MethodName: "ProjectAdd",
-			Handler:    _Agent_ProjectAdd_Handler,
-		},
-		{
-			MethodName: "ProjectDelete",
-			Handler:    _Agent_ProjectDelete_Handler,
-		},
-		{
 			MethodName: "Ping",
 			Handler:    _Agent_Ping_Handler,
 		},
 		{
 			MethodName: "StoreCredential",
 			Handler:    _Agent_StoreCredential_Handler,
+		},
+		{
+			MethodName: "ConfigureVaultSecret",
+			Handler:    _Agent_ConfigureVaultSecret_Handler,
+		},
+		{
+			MethodName: "CreateVaultRole",
+			Handler:    _Agent_CreateVaultRole_Handler,
+		},
+		{
+			MethodName: "UpdateVaultRole",
+			Handler:    _Agent_UpdateVaultRole_Handler,
+		},
+		{
+			MethodName: "DeleteVaultRole",
+			Handler:    _Agent_DeleteVaultRole_Handler,
 		},
 		{
 			MethodName: "SyncApp",
@@ -655,8 +676,24 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Agent_GetClusterAppValues_Handler,
 		},
 		{
+			MethodName: "GetClusterGlobalValues",
+			Handler:    _Agent_GetClusterGlobalValues_Handler,
+		},
+		{
 			MethodName: "InstallApp",
 			Handler:    _Agent_InstallApp_Handler,
+		},
+		{
+			MethodName: "UnInstallApp",
+			Handler:    _Agent_UnInstallApp_Handler,
+		},
+		{
+			MethodName: "UpgradeApp",
+			Handler:    _Agent_UpgradeApp_Handler,
+		},
+		{
+			MethodName: "UpdateAppValues",
+			Handler:    _Agent_UpdateAppValues_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

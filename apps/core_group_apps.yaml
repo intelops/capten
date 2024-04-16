@@ -2,3 +2,6 @@ Apps:
   - "openebs-cstor"
   - "cert-manager"
   - "traefik"
+  - "vault"
+  - "vault-cred"
+  - "external-secrets"

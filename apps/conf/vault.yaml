@@ -6,6 +6,9 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "capten"
 ReleaseName: "vault"
-Version: "0.0.1"
+Version: "0.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
+APIEndpoint: https://vault.{{.DomainName}}
+OverrideValues:
+  DomainName: "{{.DomainName}}"

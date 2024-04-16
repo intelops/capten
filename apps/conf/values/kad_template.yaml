@@ -1,4 +1,18 @@
+DomainName: {{.DomainName}}
 cert:
   secretName: "kad-agent-cert"
 ingressroute:
   host: "captenagent.{{.DomainName}}"
+vaultCred:
+  address: vault-cred:8080
+resources: 
+  requests:
+    cpu: 100m
+    memory: 140Mi
+  limits:
+    cpu: 200m
+    memory: 1000Mi
+
+
+
+

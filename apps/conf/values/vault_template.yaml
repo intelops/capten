@@ -1,0 +1,38 @@
+injector:
+  resources:
+    limits:
+      memory: 120Mi
+      cpu: 200m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+server:
+  resources:
+    limits:
+      memory: 150Mi
+      cpu: 200m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+      kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+    hosts:
+    - host: vault.{{.DomainName}}
+    extraPaths: 
+    - path: /*
+      pathType: Prefix      
+      backend:
+        service:
+          name: vault
+          port: 
+            number: 8200
+    tls:
+    - hosts:
+      - vault.{{.DomainName}}
+      secretName: cert-vault
+ 

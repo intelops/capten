@@ -24,5 +24,6 @@ func main() {
 		logrus.Errorf("failed to store, %v", err)
 		return
 	}
+
 	logrus.Info("credential are stored")
 }

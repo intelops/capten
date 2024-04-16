@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"html/template"
+
 	"os"
 	"strings"
 	"time"
@@ -28,7 +29,7 @@ const (
 )
 
 type Client struct {
-	settings       *cli.EnvSettings
+	Settings       *cli.EnvSettings
 	defaultTimeout time.Duration
 	captenConfig   config.CaptenConfig
 }
@@ -43,7 +44,7 @@ func NewClient(captenConfig config.CaptenConfig) (*Client, error) {
 	}
 	return &Client{
 		captenConfig:   captenConfig,
-		settings:       settings,
+		Settings:       settings,
 		defaultTimeout: time.Second * 900,
 	}, nil
 }
@@ -55,7 +56,7 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	settings := cli.New()
-	settings.KubeConfig = h.settings.KubeConfig
+	settings.KubeConfig = h.Settings.KubeConfig
 	settings.SetNamespace(appConfig.Namespace)
 	r, err := repo.NewChartRepository(repoEntry, getter.All(settings))
 	if err != nil {
@@ -79,18 +80,20 @@ func (h *Client) Install(ctx context.Context, appConfig *types.AppConfig) (alrea
 	}
 
 	actionConfig := new(action.Configuration)
-	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", logHelmDebug)
+	err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", LogHelmDebug)
 	if err != nil {
 		err = errors.Wrap(err, "failed to setup actionConfig for helm")
 		return
 	}
 
-	alreadyInstalled, err = h.isAppInstalled(actionConfig, appConfig.ReleaseName)
+	alreadyInstalled, err = h.IsAppInstalled(actionConfig, appConfig.ReleaseName)
+
 	if err != nil {
 		return
 	}
 
 	if !alreadyInstalled {
+
 		err = h.installApp(ctx, settings, actionConfig, appConfig)
 		return
 	}
@@ -128,6 +131,7 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 		if err != nil {
 			return errors.Wrap(err, "failed chart install run")
 		}
+		return nil
 	}
 
 	appValuesFile, err := h.prepareAppValues(appConfig)
@@ -147,7 +151,7 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart install run with values")
 	}
 
-	clog.Logger.Infof("release info: %v", releaseInfo)
+	clog.Logger.Debugf("release info: %v", releaseInfo)
 	return nil
 }
 
@@ -171,8 +175,12 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	}
 
 	if len(appConfig.TemplateValues) == 0 {
+		clog.Logger.Infof("[app: %s] Upgrading with no override values", appConfig.Name)
 		_, err = client.Run(appConfig.ReleaseName, chartReq, nil)
-		return errors.Wrap(err, "failed chart upgrade run")
+		if err != nil {
+			return errors.Wrap(err, "failed chart upgrade run")
+		}
+		return nil
 	}
 
 	appValuesFile, err := h.prepareAppValues(appConfig)
@@ -192,11 +200,11 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 		return errors.Wrap(err, "failed chart upgrade run with values")
 	}
 
-	clog.Logger.Debug("release info ", releaseInfo)
+	clog.Logger.Debugf("release info: %v", releaseInfo)
 	return nil
 }
 
-func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
+func (h *Client) IsAppInstalled(actionConfig *action.Configuration, releaseName string) (bool, error) {
 	releaseClient := action.NewList(actionConfig)
 	releases, err := releaseClient.Run()
 	if err != nil {
@@ -205,13 +213,19 @@ func (h *Client) isAppInstalled(actionConfig *action.Configuration, releaseName 
 
 	for _, release := range releases {
 		if strings.EqualFold(release.Name, releaseName) {
-			return true, nil
+
+			if release.Info.Status == "deployed" {
+				return true, nil
+			} else {
+				return false, nil
+			}
+
 		}
 	}
 	return false, nil
 }
 
-func logHelmDebug(format string, v ...interface{}) {
+func LogHelmDebug(format string, v ...interface{}) {
 	clog.Logger.Debug(format, v)
 }
 

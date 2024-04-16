@@ -9,6 +9,27 @@ import (
 type AppList struct {
 	Apps []string `yaml:"Apps"`
 }
+type AzureClusterInfo struct {
+	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
+	CloudService            string   `yaml:"CloudService"`
+	ClusterType             string   `yaml:"ClusterType"`
+	Region                  string   `yaml:"Region"`
+	MasterCount             []string `yaml:"MasterCount"`
+	WorkerCount             []string `yaml:"WorkerCount"`
+	NICs                    []string `yaml:"NICs"`
+	WorkerNics              []string `yaml:"WorkerNics"`
+	InstanceType            string   `yaml:"InstanceType"`
+	PublicIPName            []string `yaml:"PublicIpName"`
+	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
+	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
+	Talosrgname             string   `yaml:"Talosrgname"`
+	Storagergname           string   `yaml:"Storagergname"`
+	Storage_account_name    string   `yaml:"Storage_account_name"`
+	Talos_imagecont_name    string   `yaml:"Talos_imagecont_name"`
+	Talos_cluster_name      string   `yaml:"Talos_cluster_name"`
+	Nats_client_port        int      `yaml:"Nats_client_port"`
+}
 
 type AppConfig struct {
 	Name                string                 `yaml:"Name"`
@@ -28,10 +49,15 @@ type AppConfig struct {
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
 	PrivilegedNamespace bool                   `yaml:"PrivilegedNamespace"`
 	TemplateValues      []byte                 `yaml:"TemplateValues"`
+	PluginName          string                 `yaml:"PluginName"`
+	PluginDescription   string                 `yaml:"PluginDescription"`
+	APIEndpoint         string                 `yaml:"APIEndpoint"`
+	InstallStatus       string                 `yaml:"InstallStatus"`
 }
 
-type ClusterInfo struct {
+type AWSClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`
 	AwsAccessKey            string   `yaml:"AwsAccessKey"`
@@ -82,6 +108,10 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			Icon:                []byte(a.LaunchUIIcon),
 			LaunchURL:           a.LaunchURL,
 			DefualtApp:          true,
+			PluginName:          a.PluginName,
+			PluginDescription:   a.PluginDescription,
+			ApiEndpoint:         a.APIEndpoint,
+			InstallStatus:       a.InstallStatus,
 		},
 		Values: &agentpb.AppValues{
 			OverrideValues: marshaledOverride,

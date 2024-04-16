@@ -343,3 +343,4 @@ func addFileToZip(zipWriter *zip.Writer, fileName, filePath string) error {
 	}
 	return nil
 }
+

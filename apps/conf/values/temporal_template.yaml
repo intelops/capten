@@ -8,38 +8,67 @@ server:
   config:
     persistence:
       default:
-        driver: "cassandra"
-        cassandra:
-          hosts: ["capten-cass-capten-cass-service"]
-          user: "capten-cass-superuser"
-          existingSecret: "capten-cass-superuser"
-
+        driver: "sql"
         sql:
-          user: "capten-cass-superuser"
-          password: "capten-cass-superuser"
+          driver: "postgres"
+          host: postgresql
+          port: 5432
+          database: temporal
+          user: temporal
+          existingSecret: postgresql
 
       visibility:
-        driver: "cassandra"
-        cassandra:
-          hosts: ["capten-cass-capten-cass-service"]
-          user: "capten-cass-superuser"
-          existingSecret: "capten-cass-superuser"
-
+        driver: "sql"
         sql:
-          user: "capten-cass-superuser"
-          password: "capten-cass-superuser"
+          driver: "postgres"
+          host: postgresql
+          port: 5432
+          database: temporal_visibility
+          user: temporal
+          existingSecret: postgresql
+  autoscaling:
+    enabled: false
+  frontend:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 180Mi
 
-  autoscaling:
-    enabled: false
-frontend:
-  autoscaling:
-    enabled: false
-history:
-  autoscaling:
-    enabled: false
-matching:
-  autoscaling:
-    enabled: false
-worker:
-  autoscaling:
-    enabled: false
+  history:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 400m
+        memory: 400Mi
+      limits:
+        cpu: 800m
+        memory: 800Mi  
+      
+
+  matching:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 180Mi
+
+  worker:
+    autoscaling:
+      enabled: false
+    resources:
+      requests:
+        cpu: 200m
+        memory: 100Mi
+      limits:
+        cpu: 400m
+        memory: 180Mi

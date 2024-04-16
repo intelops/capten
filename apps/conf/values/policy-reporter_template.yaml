@@ -10,3 +10,18 @@ target:
     host: http://loki.observability:3100
     path: /loki/api/v1/push
     minimumPriority: target.loki.minimumPriority|warning
+resources:
+  limits:
+    memory: 150Mi
+    cpu: 200m
+  requests:
+    memory: 100Mi
+    cpu: 100m
+kyvernoPlugin:
+  resources:
+    limits:
+      memory: 120Mi
+      cpu: 200m      
+    requests:
+      memory: 100Mi    
+      cpu: 100m

@@ -1,0 +1,19 @@
+actions:
+  create-namespaces:
+    enabled: true
+  install-core-app-group:
+    enabled: true
+  configure-agent-certs:
+    enabled: true
+  configure-secrets:
+    enabled: true
+  configure-cert-issuer:
+    enabled: true
+  configure-cstor-pool:
+    enabled: true
+  install-default-app-group:
+    enabled: true
+  synch-apps:
+    enabled: true
+  store-cluster-credentials:
+    enabled: true

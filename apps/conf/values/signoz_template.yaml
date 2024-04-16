@@ -1,11 +1,18 @@
 frontend:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 120Mi
   ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
       kubernetes.io/force-ssl-redirect: "true"
       kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
-    enabled": true
+    enabled: true
     hosts:
     - host: "signoz.{{.DomainName}}"
       paths:
@@ -17,6 +24,78 @@ frontend:
       - "signoz.{{.DomainName}}"
       secretName: cert-signoz
 otelCollector:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 150Mi
+    limits:
+      cpu: 200m
+      memory: 250Mi
   ingressRoute:
     enabled: true
-    host: "otelcollector.{{.DomainName}}" 
+    host: "otelcollector.{{.DomainName}}"
+otelCollectorMetrics:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 130Mi
+    limits:
+      cpu: 200m
+      memory: 230Mi
+queryService:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 130Mi
+alertmanager:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 130Mi
+k8s-infra:
+  otelAgent:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+      limits:
+        cpu: 200m
+        memory: 700Mi
+  otelDeployment:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 150Mi
+clickhouse:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 300Mi
+    limits:
+      cpu: 300m
+      memory: 700Mi
+  clickhouseOperator:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 130Mi
+  zookeeper:
+    resources: 
+      requests:
+        cpu: 100m
+        memory: 720Mi
+      limits:
+        cpu: 200m
+        memory: 1100Mi
