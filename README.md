@@ -28,7 +28,7 @@ The all-in-one DevSecOps platform facilitates close collaboration to build and m
 
 ## Capten Installation
 
-As of now,we are supporting CLI for cluster creation and destruction for linux os.For supporting in any environment irrespective of os,we have  containerized the process of cluster creation using docker.
+As of now,CLI for cluster creation and destruction for linux os is being supported.For supporting in any environment irrespective of os,containerized the process of cluster creation using docker.
 
 
 #### Setting up the cluster Through Capten CLI:
@@ -48,7 +48,7 @@ Based on your requirement,you can specify the cloud type as either **aws** or **
 
 ##### verification of cluster creation
 
-Verify the cluster creation process by checking whether the kubeconfig is created or not under [config](https://github.com/intelops/capten/tree/main/config) directory.And also you can verify by checking [capten-lb-endpoint.yaml](https://github.com/intelops/capten/blob/main/config/capten-lb-endpoint.yaml) updated with load balancer ip(incase of azure) and hostname(incase of aws) .If the kubeconfig is created,export the kubeconfig and check the status of node by using below command.
+Verify the cluster creation process by checking whether the kubeconfig is created or not under [config](https://github.com/intelops/capten/tree/main/config) directory.And also cluster creation can be verified by checking [capten-lb-endpoint.yaml](https://github.com/intelops/capten/blob/main/config/capten-lb-endpoint.yaml) updated with load balancer ip(incase of azure) and hostname(incase of aws) .If the kubeconfig is created,export the kubeconfig and check the status of node by using below command.
 
 * sample command for exporting kubeconfig
 
@@ -68,16 +68,16 @@ In default,it'll install all the applications related to security,storage,certif
 
 ##### verification of app deployment
 
-you can view the list of applications deployed using the helm command given below
+To view the list of applications deployed using the helm command given below
 
 ```bash
 helm list -A
 ```
 
 ##### Note:
-Capten also provides flexibility to deploy the specific applications as needed.You can install the required application by removing or commenting out  the application name in the [default-groups.yaml](https://github.com/intelops/capten/blob/main/apps/default_group_apps.yaml)
+Capten also provides flexibility to deploy the specific applications as needed.Required application can be installed by removing or commenting out  the application name in the [default-groups.yaml](https://github.com/intelops/capten/blob/main/apps/default_group_apps.yaml)
 
-After setting up the application,you can see the certificates being created in `cert` folder.
+After setting up the application,certificates will be created in `cert` folder.
 
 * For destroying the cluster
 
@@ -100,7 +100,7 @@ For creating the cluster,run the below command
 docker run -v /path/to/aws_config.yaml:/app/config/awsorazure_config.yaml -it ghcr.io/intelops/capten:<latest-image-tag>  create cluster --cloud=aws --type=talos
 ```
 
-In order to verify the cluster creation,you can see the kubeconfig file inside the config folder in the container.
+In order to verify the cluster creation,check the presence of  kubeconfig file inside the config folder in the container.
 
 
 #### Note: 
@@ -112,9 +112,12 @@ Update the domain Name and lbip in dns as specified in the `capten.yaml` and `ca
 
 The DNS entry update allows users to access applications like Grafana and Loki through the specified domain.
 
+
 #### How to verify the successful updation of dns?
 
+
 Consider the domain name as `aws.intelops.com`,once after the updation,use the nslookup command to verify the successful domain updation.
+
 ```bash
 nslookup capten.aws.intelops.apps
 ```
@@ -123,11 +126,11 @@ nslookup capten.aws.intelops.apps
 
 ### How to Access the UI?
 
-1. If you are a new user,[Click here](https://alpha.intelops.app/login) to create a new account by signing up .   
+1. For a new user,[Click here](https://alpha.intelops.app/login) to create a new account by signing up .   
 
-2. If you are already registered  user,just login with your credentials
+2. For an already registered  user,just login with user credentials
 
-3. After registering as a new user,you ll see the popup screen for creating organisation.Create organisation and assign the specific role.
+3. After registering as a new user, popup screen will be displayed for creating organisation.Create organisation and assign the specific role.
 
 ##### Note:
 
@@ -144,7 +147,7 @@ For registering the cluster in UI ,you must have cluster admin role.
 ```bash
 https://captenagent.<domainname>
 ```
-For eg,if you specify domain name as 'aws.eg.com',then cluster agent endpoint will be 
+For eg,if  specific domain nam is provided ,consider as 'aws.eg.com',then cluster agent endpoint will be 
 
 ```bash
 https://captenagent.aws.eg.com
@@ -160,31 +163,29 @@ After registering the cluster ,you can see the installed apps in installed tab .
 
 ![Capten-Installed-Apps](.readme_assets/installed-apps-modified.png)
 
-Additionally,you can also see the applications in the application store tab(CI/CD ,IAAS ,testing framework tools).As of now we are supporting,
+Additionally,there are applications in the application store tab(CI/CD ,IAAS ,testing framework tools).As of now capten has below applications,
 
        * argocd
        * tekton
        * crossplane
        * testkube.
 
-you can also deploy the above applications in the control plane cluster which is needed for Business cluster creation (argocd,crossplane) 
+By default capten supports deploying applications related to observability,security,backup,networking and platform tools.
 
-By default ,we are supporting  to deploy applications related to observability,security,backup,networking and platform tools.
-
-Additionally in the application store,we also have CI/CD tools, IAAS tool and testing framework that can be deployed as per user requirement.
+Additionally in the application store,there are CI/CD tools, IAAS tool and testing framework that can be deployed as per user requirement.
 
 #### Capten Observability
 
-We also have launched UI for applications like grafana,signoz,argocd and tekton.We are supporting SSO for all these appliactions.
+Capten have launched UI for applications like grafana,signoz,argocd and tekton.Capten supports SSO for all these appliactions.
 
-So once after logging in grafana via SSO,you can view certain dashoards.With the help of dashboards,following operations could be performed
+So once after logging in grafana via SSO,certain dashoards will be displayed.With the help of dashboards,following operations could be performed
 
 * monitoring tha applications using logs 
 * monitoring and collecting the metrics of each applications in the cluster like node,cpu usage,memory usage,cluster health, resource utilizations etc.
 
 
 **Note:
-  We have separate dashboards for each application for monitoring purpose 
+  separate dashboards are present for each application for monitoring purpose 
 
 ### DeRegistering the Controlplane cluster
 
@@ -196,7 +197,7 @@ Click the remove button to deregister the controlPlane cluster.
 
 ### Onboard cluster resources:
 ### Git Project:
-1. First to add crossplane plugin, we need to add an empty private repository.
+1. First to add crossplane plugin,  need to add an empty private repository.
 2. In onboarding section, go to **Git** tab and click *Add Git Repo*.
 3. Enter the git repo url and the token and also set the label to crossplane.
 
@@ -208,7 +209,7 @@ Click the remove button to deregister the controlPlane cluster.
 
 ## Create Crossplane provider:
 1. In platform engineering section, select *Setup* under **Crossplane** plugin.
-2. Under providers section, select both the provider you need and 'crossplane' label.
+2. Under providers section, select both the needed provider   and 'crossplane' label.
 3. Under configure section, click sync next to the repo which you need to deploy the plugin.
 4. After the sync, the provider will get deployed and enter *Healthy* state in a few minutes.
 
