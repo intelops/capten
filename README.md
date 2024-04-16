@@ -7,74 +7,98 @@ The open-source platform for creating the cluster,deploying the application and 
 
 <hr>
 
-## CAPTEN
-Capten likely leverages infrastructure as code (IaC) tools, such as Terraform to automate the creation and destruction of Kubernetes clusters.
-A tool to create cluster, set up application in the cluster and destroy cluster.
+## CAPTEN BY INTELOPS
 
-## How Capten works
+Capten streamlines the management of Kubernetes clusters, making it an ideal solution for teams or individuals who require automated cluster provisioning, application deployment, and lifecycle management in their development and testing workflows.
 
-With Capten,cluster can be created of type talos in the cloud aws .
+The all-in-one DevSecOps platform facilitates close collaboration to build and manage cloud-native ecosystems for application and infrastructure modernization, automation, and security.
 
-After cluster is being created,capten supports certain applications to be deployed.So far capten supports some of the applications given below: 
-
-* [Openebs-cstor](https://openebs.io/docs/user-guides/cstor)-Configure cStor storage and use cStor Volumes for running stateful workloads.
-* [Cert-Manager](https://github.com/cert-manager/cert-manager#cert-manager)- adds certificates and certificate issuers as resource types in Kubernetes clusters, and simplifies the process of obtaining, renewing and using those certificates.
-* [traefik](https://traefik.io/traefik/)- a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
-* pre-install
-* [prometheus](https://prometheus.io/)-collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts when specified conditions are observed.
-* [vault](https://www.vaultproject.io/)- Manage secrets and protect sensitive data
-* [vault-cred](https://github.com/intelops/vault-cred)- Automate Vault unsealing,continuous monitoring of ConfigMap to create vault policy and vault role.Stores service based credential,certificate and any generic credential.
-* [external-secrets](https://github.com/external-secrets/external-secrets)-a K8s operator that integrates external secret management systems like AWS Secrets Manager, HashiCorp Vault and many more.The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
-* [k8ssandra-operator](https://docs.k8ssandra.io/components/k8ssandra-operator/)-Kubernetes-based distribution of Apache Cassandra that includes several tools and components that automate and simplify configuring, managing, and operating a Cassandra cluster.
-* [loki](https://grafana.com/oss/loki/)-log aggregation system designed to store and query logs from all your applications and infrastructure.
-* [Kyverno](https://kyverno.io/)- a policy engine designed for Kubernetes
-* k8ssandra-cluster
-* monitoring
-* [kubviz-client and kubviz-agent](https://github.com/intelops/kubviz)-Visualize Kubernetes & DevSecOps Workflows. Tracks changes/events real-time across your entire K8s clusters, git repos, container registries, etc. , analyzing their effects and providing you with the context you need to troubleshoot efficiently.
-* [signoz](https://signoz.io/)- open-source observability tool that helps you monitor your applications and troubleshoot problems.
-* [temporal](https://temporal.io/)- open source programming model that can simplify code, make applications more reliable
-* [kad](https://github.com/kube-tarian/kad)-Extensible open-source framework that Integrates & Scales your DevSecOps and MLOps stacks as you need
-* policy-reporter
-* [kubescape](https://www.armosec.io/kubescape/)- an open-source Kubernetes security platform. It includes risk analysis, security compliance, and misconfiguration scanning.  
-* [falco](https://falco.org/)-cloud native runtime security tool for Linux operating systems. It is designed to detect and alert on abnormal behavior and potential security threats in real-time.
-* [tracetest](https://tracetest.io/)-a trace-based testing tool for building integration and end-to-end tests in minutes using your OpenTelemetry traces
-* [velero](https://velero.io/)- an open source tool to safely backup and restore, perform disaster recovery, and migrate Kubernetes cluster resources and persistent volumes.
-
-Then capten also suuports cluster to be destroyed.
-
-## How to install and run capten
+## How to install and run Capten
 
 #### Prerequisites
-* Kubernetes
-* Cloud Provider Account: CAPTEN supports creating clusters for AWS and Azure. Ensure you have the necessary credentials and permissions.
-* Azure CLI: Required if using Azure cloud.
-* Docker
+
+* Cloud Provider Account- As of now ,capten supports creating cluster in `AWS` and `Azure`.Ensure that you have permissions to create and manage resources.
+
+* Azure CLI (Needed in case of using Azure cloud for cluster setup)
+
+* Docker 
+
+* kubernetes
 
 
-1.Download the latest release .
+#### Capten Installation
 
-2.Extract the capten zip folder which was downloaded.
+As of now,we are supporting CLI for cluster creation and destruction for linux os.For supporting in any environment irrespective of os,we have  containerized the process of cluster creation using docker.
 
-3.Navigate to the extracted capten folder
+
+#### Setting up the cluster Through Capten CLI:
+
+1.Extract the latest release from the capten repo.
+
+2.Confifure the specification need for creating the cluster.Before installation,please do the necessary configuration ,as explained [here](../readme_configuration/_index.en.md)
+
+3.Then use the below commands to create cluster ,setup application and to destroy the cluster.
+
+* For creating the cluster
+
 ```bash
-cd capten
+./capten create cluster --cloud=<cloudtype> --type=talos
 ```
-Then below commands can be used for creating the cluster,setting up the application in the cluster and also for deleting the cluster.
-#### Create Cluster
-```
-./capten create cluster --cloud=aws --type=talos
-```
+Based on your requirement,you can specify the cloud type as either **aws** or **azure**
 
-#### Destroy Cluster
+##### verification of cluster creation
+Verify the cluster creation process by checking whether the kubeconfig is created or not under config directory in capten folder.And also you can verify by checking [capten-lb-endpoint.yaml](https://github.com/intelops/capten/blob/main/config/capten-lb-endpoint.yaml) updated with load balancer ip.If the kubeconfig is created,export the kubeconfig and check the status of node by using below command.
+
+```bash
+kubectl get nodes
 ```
+* For setting up the application in cluster
+
+```bash
+./capten setup apps
+```
+In default,it'll install all the applications related to security,storage,certificate management and much more.
+
+##### Note:
+Capten also provides flexibility to deploy the specific applications as needed.You can install the required application by removing or commenting out  the application name in the [default-groups.yaml](https://github.com/intelops/capten/blob/main/apps/default_group_apps.yaml)
+
+* For destroying the cluster
+
+```bash
 ./capten destroy cluster
 ```
 
-#### Setup Apps
-```
-./capten setup apps
-```
-#### Show Cluster Info
-```
+* For showing the cluster Information
+
+```bash
 ./capten show cluster info
 ```
+
+
+#### Cluster Creation through Docker Container:
+
+For creating the cluster,run the below command
+
+```bash
+docker run -v /path/to/aws_config.yaml:/app/config/awsorazure_config.yaml -it ghcr.io/intelops/capten:<latest-image-tag>  create cluster --cloud=aws --type=talos
+```
+
+In order to verify the cluster creation,you can see the kubeconfig file inside the config folder in the container.
+
+
+#### Note: 
+After installation,need to update the DNS entry for the cluster domain in aws console or on any cloud provider.
+
+Before Updating the dns,please make sure to configure the domain name in the `capten.yaml` as specified [here](../configuration/_index.en.md)
+
+Update the domain Name and lbip in dns as specified in the `capten.yaml` and `capten-lb-endpoint.yaml` which is under `config` directory
+
+The DNS entry update allows users to access applications like Grafana and Loki through the specified domain.
+
+#### How to verify the successful updation of dns?
+
+Consider the domain name as `aws.intelops.com`,once after the updation,use the nslookup command to verify the successful domain updation.
+```bash
+nslookup capten.aws.intelops.apps
+```
+
