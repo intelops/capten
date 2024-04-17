@@ -41,40 +41,39 @@ tar -xvf capten-v1.0.0.tar.gz
 Update cluster installation parameters:
 For AWS cluster, update cluster installation parameters in the `aws_config.yaml` in `config` folder.
 
-| Parameter              | Description                                                                      |
-|------------------------|----------------------------------------------------------------------------------|
-| AwsAccessKey           | Access key for AWS authentication                                                |
-| AwsSecretKey           | Secret key for AWS authentication                                                |
-| AlbName                | Name of the Application Load Balancer (ALB)                                      |
-| PrivateSubnet          | CIDR block for the private subnet(s)                                             |
-| Region                 | AWS region where the resources will be deployed                                  |
-| SecurityGroupName      | Name of the security group that controls inbound and outbound traffic          |
-| VpcCidr                | CIDR block for the Virtual Private Cloud (VPC)                                   |
-| VpcName                | Name of the Virtual Private Cloud (VPC)                                          |
-| InstanceType           | Type of EC2 instance                                                             |
-| NodeMonitoringEnabled  | Flag indicating whether node monitoring is enabled or not (true/false)          |
-| MasterCount            | Number of master nodes                                                           |
-| WorkerCount            | Number of worker nodes                                                           |
-| TraefikHttpPort        | Port number for HTTP traffic handled by Traefik load balancer                   |
-| TraefikHttpsPort       | Port number for HTTPS traffic handled by Traefik load balancer                  |
-| TalosTg                | Name of the target group for Talos instances                                      |
-| TraefikTg80Name        | Name of the target group for port 80 traffic handled by Traefik                  |
-| TraefikTg443Name       | Name of the target group for port 443 traffic handled by Traefik                 |
-| TraefikLbName          | Name of the Elastic Load Balancer (ELB) used by Traefik                           |
-| TerraformBackendConfigs| Configuration settings for Terraform backend (bucket name and DynamoDB table name)| 
-
+| Parameter               | Description                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| AwsAccessKey            | Access key for AWS authentication                                                  |
+| AwsSecretKey            | Secret key for AWS authentication                                                  |
+| AlbName                 | Name of the Application Load Balancer (ALB)                                        |
+| PrivateSubnet           | CIDR block for the private subnet(s)                                               |
+| Region                  | AWS region where the resources will be deployed                                    |
+| SecurityGroupName       | Name of the security group that controls inbound and outbound traffic              |
+| VpcCidr                 | CIDR block for the Virtual Private Cloud (VPC)                                     |
+| VpcName                 | Name of the Virtual Private Cloud (VPC)                                            |
+| InstanceType            | Type of EC2 instance                                                               |
+| NodeMonitoringEnabled   | Flag indicating whether node monitoring is enabled or not (true/false)             |
+| MasterCount             | Number of master nodes                                                             |
+| WorkerCount             | Number of worker nodes                                                             |
+| TraefikHttpPort         | Port number for HTTP traffic handled by Traefik load balancer                      |
+| TraefikHttpsPort        | Port number for HTTPS traffic handled by Traefik load balancer                     |
+| TalosTg                 | Name of the target group for Talos instances                                       |
+| TraefikTg80Name         | Name of the target group for port 80 traffic handled by Traefik                    |
+| TraefikTg443Name        | Name of the target group for port 443 traffic handled by Traefik                   |
+| TraefikLbName           | Name of the Elastic Load Balancer (ELB) used by Traefik                            |
+| TerraformBackendConfigs | Configuration settings for Terraform backend (bucket name and DynamoDB table name) |
 
 For Azure cluster, update cluster installation parameters in the `azure_config.yaml` in `config` folder.
 
 | Parameter            | Description                                                       |
-|----------------------|--------------------------------------------------------------     |
+| -------------------- | ----------------------------------------------------------------- |
 | Region               | The Azure region where resources will be deployed                 |
-| MasterCount          | Number of  master nodes                                      |
-| WorkerCount          | Number of  worker nodes                                      |
+| MasterCount          | Number of master nodes                                            |
+| WorkerCount          | Number of worker nodes                                            |
 | NICs                 | Network Interface Controllers (NICs) for master nodes             |
 | WorkerNics           | Network Interface Controllers (NICs) for worker nodes             |
-| InstanceType         | Type of virtual machine instance used for  nodes             |
-| PublicIpName         | Names of public IP addresses assigned to the  nodes          |
+| InstanceType         | Type of virtual machine instance used for nodes                   |
+| PublicIpName         | Names of public IP addresses assigned to the nodes                |
 | TraefikHttpPort      | Port number for HTTP traffic handled by Traefik load balancer     |
 | TraefikHttpsPort     | Port number for HTTPS traffic handled by Traefik load balancer    |
 | Talosrgname          | Resource group name for the Talos deployment                      |
@@ -84,13 +83,12 @@ For Azure cluster, update cluster installation parameters in the `azure_config.y
 | Talos_cluster_name   | Name of the Talos cluster                                         |
 | Nats_client_port     | Port number for NATS client communication                         |
 
-
 3. Prepare cluster application deployment parameters
 
 Update cluster application deployment parameters in the `capten.yaml` in `config` folder.
 
 | Parameter         | Description                                                                      |
-| ----------------- | ---------------------------------------------------------------------------------|
+| ----------------- | -------------------------------------------------------------------------------- |
 | DomainName        | Name of the domain needed for exposing the application                           |
 | ClusterCAIssuer   | The issuer of the Cluster Certificate Authority (CA) for cluster security        |
 | SocialIntegration | The social platform like teams or slack integrated for alerting purpose          |
@@ -108,9 +106,9 @@ For creating the cluster, execute below command
 
 Note: Cloud type supported are 'aws' and 'azure'
 
-* Cluster Creation through Docker Container:
+- Cluster Creation through Docker Container:
 
-For creating the cluster through docker container (needed in case of using Capten CLI distribution on Windows or MacOS ),run the below command
+For creating the cluster through docker container (needed in case of using Capten CLI distribution on Windows or MacOS ), run the below command
 
 ```bash
 docker run -v /path/to/aws_config.yaml:/app/config/awsorazure_config.yaml -it ghcr.io/intelops/capten:<latest-image-tag>  create cluster --cloud=aws --type=talos
@@ -157,72 +155,57 @@ Cluster destruction command initiates the process of removing all components ass
 
 # CAPTEN UI
 
-### How to Access the UI?
+## How to Access the Capten UI?
 
-1. For a new user, register in the Intelops  UI to create a new account by signing up .
+1. For a new user, sign up on Intelops UI (https://alpha.intelops.app/)
 
-2. For an already registered user,just login with user credentials
+2. For existing user, login with user credentials
 
 ![Inteloops-Login-UI](.readme_assets/itelops-login-ui.png)
 
-3. After registering as a new user, popup screen will be displayed for creating organisation. Create organisation and assign the specific role.
+3. After login to Intelops UI, for new user, popup screen will be displayed for creating organisation. Create organisation and assign the roles, add cluster admin role to register new cluster
 
-Note:
-
-For registering the cluster in UI,cluster admin role is needed.
-
-### Registering Controlplane cluster
+## Registering Controlplane cluster
 
 ![Capten-cluster-Registration](.readme_assets/cluster-register.png)
 
-1. Provide the cluster name and upload the certificates created when apps are deployed.
+1. Provide the cluster name and upload the client certificates created by Capten CLI.
 
-2. Follow this format for providing cluster agent endpoint
+2. Provide the cluster agent endpoint, Domainname configured in capten.yaml to be used for accessing the cluster
 
-```bash
+```
 https://captenagent.<domainname>
 ```
 
-For eg,if specific domain nam is provided ,consider as 'aws.eg.com',then cluster agent endpoint will be
+For example agent endpoint, if 'aws.eg.com' Domainname is configure in capten.yaml,
 
-```bash
+```
 https://captenagent.aws.eg.com
 ```
 
 3. After providing above details, register the cluster.
 
-
 ### Capten Cluster Applications Management
 
-Capten have launched UI for applications like grafana,signoz,argocd and tekton.
+Capten supports Web UI luanch for supportted applications, Web UI launch supported for default applications like grafana, signoz.
+
+Navigate for Capten controlplane cluster by clicking on the Registered cluster.
+Web UI launch applications listed on "Tools" tab
 
 ![Capten-Tools](.readme_assets/tools.png)
 
+Launching the grafana Web UI and access grafana dashboards
+Click on "Prometheus" Icon to launch grafana Web UI. Web UI will be launched with single sign-on and show grafana landing page, from there navigate to view dashboards
 
-So once after logging in grafana via SSO,certain dashoards will be displayed
-
-![Capten-GrafanaLandingPage](.readme_assets/grafanalanding.png)
-
-
-With the help of dashboards,following operations could be performed
-- monitoring tha applications using logs
-- monitoring and collecting the metrics of each applications in the cluster like node usage,cpu usage,memory usage,cluster health, resource utilizations etc.
-
-One of the cluster-overview metrics dashboards is shown below
+One of the cluster-overview metrics dashboards is as shown below
 
 ![Capten-GrafanaDashboard](.readme_assets/grafanadashboard.png)
 
-
-
-\*\*Note:
-separate dashboards are present for each application for monitoring purpose
-
-
 ### DeRegistering the Controlplane cluster
 
-Click the remove button to deregister the controlPlane cluster.
-![DeRegistering-Control-Plane-Cluster](.readme_assets/deregister-modified.png)
+Navigate for Capten controlplane cluster, Click the remove button to deregister the controlPlane cluster, it will delete registration data from Intelops cluster, to delete cluster, Capten CLI will have to be used.
 
+![DeRegistering-Control-Plane-Cluster](.readme_assets/deregister-modified.png)
 
 # Capten Plugin SDK
 
@@ -357,8 +340,8 @@ Deploy Plugin application on Capten cluster from Intelops UI(https://alpha.intel
 
 #1 Login to Intelops UI
 
-#2 Navigate to "Controlplance Cluster" -> Select the cluster -> Select "Application Store"
-=======
+# #2 Navigate to "Controlplance Cluster" -> Select the cluster -> Select "Application Store"
+
 Capten SDK creates resources for plugin applications for plugin-configured capabilities before deploying plugin applications to the Capten cluster.
 
 ![Plugin-Application-Store](.readme_assets/plugin-store-apps.png)
@@ -382,6 +365,7 @@ List of supported capabilities:
 - Vault Store
 - Postgres Store
 ```
+
 #### Capten SDK
 
 - This capability provides MTLS certificate for server and client authentications.
@@ -396,7 +380,6 @@ List of supported capabilities:
 
 - This capability provides postgres DB setup required for the plugin application.
 
-
 ## Plugin Application UI launch
 
 - Plugin application UI can be launched directly from icons shortcut in cluster widget.
@@ -410,41 +393,44 @@ List of supported capabilities:
 
 ![Plugin-Application-UI-Widget](.readme_assets/plugin_app_widget.png)
 
-
 # Capten Crossplane Plugin
 
 ## Onboard cluster resources:
+
 ### Git Project:
+
 1. First to add crossplane plugin, we need to add an empty private repository.
-2. In onboarding section, go to **Git** tab and click *Add Git Repo*.
+2. In onboarding section, go to **Git** tab and click _Add Git Repo_.
 3. Enter the git repo url and the token and also set the label to crossplane.
 
 <img src= "https://github.com/Jeremy4040/infra/assets/88025755/84540a93-fa2b-4078-8d92-427c6c6dd178" width= "700" height= "400"/>
 
-*Add git repository details in the mentioned section*
+_Add git repository details in the mentioned section_
 
 ### Cloud Provider:
-1. Now to add cloud provider, go to **Cloud Providers** and click * Add Cloud Provider*.
+
+1. Now to add cloud provider, go to **Cloud Providers** and click _ Add Cloud Provider_.
 2. Select the required cloud provider and enter the credentials for the same. (The label is set to crossplane)
 
 <img src= "https://github.com/Jeremy4040/infra/assets/88025755/98df42ae-211c-4f18-b51d-4344235e5d4d" width= "700" height= "400"/>
 
-*Add cloud provider details in the mentioned section*
+_Add cloud provider details in the mentioned section_
 
-
-**Note:** The label *crossplane* is used by the crossplane plugin to reference both the repository and provider.
+**Note:** The label _crossplane_ is used by the crossplane plugin to reference both the repository and provider.
 
 ## Create Crossplane provider:
-1. In platform engineering section, select *Setup* under **Crossplane** plugin.
+
+1. In platform engineering section, select _Setup_ under **Crossplane** plugin.
 2. Under providers section, select both the required provider and 'crossplane' label.
 3. Under configure section, click sync next to the repository which is needed to deploy the plugin.
-4. After the sync, the provider will get deployed and enter *Healthy* state in a few minutes.
+4. After the sync, the provider will get deployed and enter _Healthy_ state in a few minutes.
 
 <img src= "https://github.com/Jeremy4040/infra/assets/88025755/2bc713cd-6cf3-4663-ab74-342cbad63d84" width= "800" height= "400"/>
 
-*Once onboarding is done both the git and provider details will be automatically populated in crossplane plugin using crossplane label*
+_Once onboarding is done both the git and provider details will be automatically populated in crossplane plugin using crossplane label_
 
 ## Create Business cluster
+
 1. After the sync is successful, the crossplane objects and its argocd applications are added to the empty repository under the infra directory.
 2. Go to infra/clusters/cluster-configs/cluster-claim.yaml
 3. Uncomment the cluster-claim.yaml file (or add any required changes)
@@ -453,64 +439,68 @@ List of supported capabilities:
 
 <img src= "https://github.com/Jeremy4040/infra/assets/88025755/d653042a-8a45-48ab-8450-f185c2e654d6" width= "700" height= "400"/>
 
-*Make sure to sync all crossplane related apps*
+_Make sure to sync all crossplane related apps_
 
 ## Delete Business cluster
+
 1. To delete the business cluster, remove all applications from the business cluster.
 2. Go to infra/clusters/cluster-configs and remove cluster-claim.yaml
 3. Now prune sync the cluster-config-app application (watching the cluster-claim.yaml).
 4. This will trigger the business cluster deletion
 
 ## Delete Crossplane provider
+
 1. To delete crossplane provider, go to capten UI.
-2. Under platform engineering, select *Setup* under **Crossplane** plugin
+2. Under platform engineering, select _Setup_ under **Crossplane** plugin
 3. Under providers section, select the delete option next to the provider which is to be deleted.
 4. This removes the provider from the cluster
 5. It is also possible to remove the provider from onboarding list by the delete option provided with the cloud provider
 
 <img src= "https://github.com/Jeremy4040/infra/assets/88025755/b075c02d-1653-4a42-9114-54ca82caa63d" width= "800" height= "300"/>
 
-*To delete the crossplane provider, click the delete button next to the provider name*
-
+_To delete the crossplane provider, click the delete button next to the provider name_
 
 # Tekton Flow For Capten
+
 ## Tekton CI/CD Pipeline
+
 1. Login to the capten ui page
-   
 2. Onboarding git project in to capten
 
    ![GitOnboarding](.readme_assets/onboarding-git.png)
    ![NewGitOnboarding](.readme_assets/new-git-onboarding.png)
 
-   * select the `add git repo` from the **git** section
-   * add the git repo url,access token and label for the customer repo (label is tekton) and the tekton ci/cd repo (label is IntelopsCi)
+   - select the `add git repo` from the **git** section
+   - add the git repo url,access token and label for the customer repo (label is tekton) and the tekton ci/cd repo (label is IntelopsCi)
+
 3. Onboarding container registry in to capten
 
-  ![ContainerRegisterOnboarding](.readme_assets/onboarding-container.png)
-  ![NewContainerRegisterOnboarding](.readme_assets/new-container-onboarding.png)  
+![ContainerRegisterOnboarding](.readme_assets/onboarding-container.png)
+![NewContainerRegisterOnboarding](.readme_assets/new-container-onboarding.png)
 
-   * select `add container registry` from **container registry** section
-   * add  the registry url,username,access token and label to which the built image needs to be pushed (labels is "tekton")
+- select `add container registry` from **container registry** section
+- add the registry url,username,access token and label to which the built image needs to be pushed (labels is "tekton")
+
 # Configuring Tekton
-## Configuring Capten Tekton Plugin 
 
-   Go to the *capten-->platform engineering* ,select on the tekton plugin setup and then select the `sync` option under the  **configure** section and this will configure the tekton and the neccessary floders will be created in the customer's repo
+## Configuring Capten Tekton Plugin
 
-   ![TektonPlugin](.readme_assets/tek-plugin.png)
+Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and then select the `sync` option under the **configure** section and this will configure the tekton and the neccessary floders will be created in the customer's repo
 
-   ![TektonPlugin](.readme_assets/tek-plugin-new.png)
+![TektonPlugin](.readme_assets/tek-plugin.png)
 
-   
+![TektonPlugin](.readme_assets/tek-plugin-new.png)
+
 # Pre-requisite For Tekton CI/CD Pipeline Creation
 
-* Use the already created **tekton-pipelines** namespace for the creation of pipeline.
+- Use the already created **tekton-pipelines** namespace for the creation of pipeline.
 
-* Create a Clustersecretstore from the yaml given below.Replace the server with the url which can be obtained from the **kubectl** command given below.
+- Create a Clustersecretstore from the yaml given below.Replace the server with the url which can be obtained from the **kubectl** command given below.
 
   ```bash
   kubectl get ingress -n capten
   ```
-  
+
        apiVersion: external-secrets.io/v1beta1
        kind: SecretStore
        metadata:
@@ -529,14 +519,14 @@ List of supported capabilities:
 
   Here, the **tekton-vault-token** is the secret created in tekton namespace to access the vault
 
-* Git secret
- 
-  Go to *onboarding-->git* under the respective git project  the path of the vault where the credentials of git  stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
+- Git secret
+
+  Go to _onboarding-->git_ under the respective git project the path of the vault where the credentials of git stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
 
   Annotate the external-secret to specify the domains for which Tekton can use the credentials.
 
-  A credential annotation key must begin with tekton.dev/git- or tekton.dev/docker- and its value is the URL of the host for which  Tekton will be using  that credential.
-    eg-tekton.dev/git-0: https://gitlab.com , tekton.dev/git-0: https://github.com , tekton.dev/docker-0: https://gcr.io
+  A credential annotation key must begin with tekton.dev/git- or tekton.dev/docker- and its value is the URL of the host for which Tekton will be using that credential.
+  eg-tekton.dev/git-0: https://gitlab.com , tekton.dev/git-0: https://github.com , tekton.dev/docker-0: https://gcr.io
 
           apiVersion: external-secrets.io/v1beta1
           kind: ExternalSecret
@@ -561,11 +551,10 @@ List of supported capabilities:
               remoteRef:
                 key: <vault path copied from ui>
                 property: userID
-             
 
-* Container registry secret
+- Container registry secret
 
-   Go to *onboarding-->container registry* under the respective container registry, where the path of the vault where the credentials of container registry  stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
+  Go to _onboarding-->container registry_ under the respective container registry, where the path of the vault where the credentials of container registry stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
 
          apiVersion: external-secrets.io/v1beta1
          kind: ExternalSecret
@@ -585,11 +574,9 @@ List of supported capabilities:
                key: <vault path copied from ui>
                property: config.json
 
-   
+- Cosign docker login secret
 
-* Cosign docker login secret
-   
-  Go to *onboarding-->conatainer registry* under the respective container registry  where the path of the vault in which the credentials of container registry  stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
+  Go to _onboarding-->conatainer registry_ under the respective container registry where the path of the vault in which the credentials of container registry stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
 
       apiVersion: external-secrets.io/v1beta1
       kind: ExternalSecret
@@ -617,15 +604,13 @@ List of supported capabilities:
             key: <vault path copied from ui>
             property: username
 
+- Argocd secret
+  Use the below secret yaml and replace the password with the encoded argocd password which can be obtained by using the **kubectl** command and the server url is obtained from the capten ui under _capten-->platform-engineering_ .Copy the repo url from the argocd setup ,encoded it and add it to the server url.Username is admin ,add the encoded username to the yaml given below
 
-* Argocd secret
-   
-  Use the below secret yaml  and replace the password with the encoded argocd password which can be obtained by using the **kubectl** command  and the server url is obtained from the capten ui under *capten-->platform-engineering* .Copy the repo url from the argocd setup ,encoded it and add it to the server url.Username is admin ,add the encoded username to the yaml given below
-  
- ```bash     
-  kubectl get secrets argocd-initial-admin-secret -n argo-cd
-  ```    
-      
+```bash
+ kubectl get secrets argocd-initial-admin-secret -n argo-cd
+```
+
       apiVersion: v1
       data:
         PASSWORD: <replace with encoded argocd secret>
@@ -637,13 +622,13 @@ List of supported capabilities:
         namespace: tekton-pipelines
       type: Opaque
 
-* cosign-keys
+- cosign-keys
 
   Now the cosign keys secret is automatically created in tekton-pipelines namespace.
-  
-* Extra-config secret
 
-  Go to *onboarding-->git* under the respective git project where  the path of the vault in which the credentials of git  stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
+- Extra-config secret
+
+  Go to _onboarding-->git_ under the respective git project where the path of the vault in which the credentials of git stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
 
       apiVersion: external-secrets.io/v1beta1
       kind: ExternalSecret
@@ -667,18 +652,16 @@ List of supported capabilities:
             key: <vault path copied from ui>
             property: userID
 
-
 # Prepare Pipeline Resources For The Tekton Pipeline
 
-Now commit the required pipeline,rbac,triggers and ingress in the customer repo under the directory *cicd-->tekton-pipelines-->templates*.
+Now commit the required pipeline,rbac,triggers and ingress in the customer repo under the directory _cicd-->tekton-pipelines-->templates_.
 once done the argocd will update this changes to the cluster and the pipeline,triggers,rbac and ingress will be created in the controlplane cluster
 
- ![PipelineResource](.readme_assets/infra.png)
+![PipelineResource](.readme_assets/infra.png)
 
 # Triggering Tekton Pipeline
- 
- Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.
+
+Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.
 once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,finally the built image will get deployed in the bussiness cluster.
 
- ![WebhookImage](.readme_assets/webhook-img.png)
-
+![WebhookImage](.readme_assets/webhook-img.png)
