@@ -42,25 +42,26 @@ Update cluster installation parameters:
 For AWS cluster, update cluster installation parameters in the `aws_config.yaml` in `config` folder.
 
 | Parameter              | Description                                                                      |
+|------------------------|----------------------------------------------------------------------------------|
 | AwsAccessKey           | Access key for AWS authentication                                                |
 | AwsSecretKey           | Secret key for AWS authentication                                                |
 | AlbName                | Name of the Application Load Balancer (ALB)                                      |
 | PrivateSubnet          | CIDR block for the private subnet(s)                                             |
 | Region                 | AWS region where the resources will be deployed                                  |
-| SecurityGroupName      | Name of the security group that controls inbound and outbound traffic            |
+| SecurityGroupName      | Name of the security group that controls inbound and outbound traffic          |
 | VpcCidr                | CIDR block for the Virtual Private Cloud (VPC)                                   |
 | VpcName                | Name of the Virtual Private Cloud (VPC)                                          |
 | InstanceType           | Type of EC2 instance                                                             |
-| NodeMonitoringEnabled  | Flag indicating whether node monitoring is enabled or not (truefalse)            |
+| NodeMonitoringEnabled  | Flag indicating whether node monitoring is enabled or not (true/false)          |
 | MasterCount            | Number of master nodes                                                           |
 | WorkerCount            | Number of worker nodes                                                           |
-| TraefikHttpPort        | Port for HTTP traffic handled by Traefik                                         |
-| TraefikHttpsPort       | Port for HTTPS traffic handled by Traefik                                        |
-| TalosTg                | Name of the target group for Talos instances                                     |
+| TraefikHttpPort        | Port number for HTTP traffic handled by Traefik load balancer                   |
+| TraefikHttpsPort       | Port number for HTTPS traffic handled by Traefik load balancer                  |
+| TalosTg                | Name of the target group for Talos instances                                      |
 | TraefikTg80Name        | Name of the target group for port 80 traffic handled by Traefik                  |
 | TraefikTg443Name       | Name of the target group for port 443 traffic handled by Traefik                 |
-| TraefikLbName          | Name of the Elastic Load Balancer (ELB) used by Traefik                          |
-| TerraformBackendConfigs| Configuration settings for Terraform backend(bucket name and DynamoDB table name)| 
+| TraefikLbName          | Name of the Elastic Load Balancer (ELB) used by Traefik                           |
+| TerraformBackendConfigs| Configuration settings for Terraform backend (bucket name and DynamoDB table name)| 
 
 
 For Azure cluster, update cluster installation parameters in the `azure_config.yaml` in `config` folder.
@@ -463,16 +464,28 @@ List of supported capabilities:
 1. Login to the capten ui page
    
 2. Onboarding git project in to capten
-   
+
+   ![GitOnboarding](.readme_assets/onboarding-git.png)
+   ![NewGitOnboarding](.readme_assets/new-git-onboarding.png)
+
    * select the `add git repo` from the **git** section
    * add the git repo url,access token and label for the customer repo (label is tekton) and the tekton ci/cd repo (label is IntelopsCi)
 3. Onboarding container registry in to capten
+
+  ![ContainerRegisterOnboarding](.readme_assets/onboarding-container.png)
+  ![NewContainerRegisterOnboarding](.readme_assets/new-container-onboarding.png)  
 
    * select `add container registry` from **container registry** section
    * add  the registry url,username,access token and label to which the built image needs to be pushed (labels is "tekton")
 # Configuring Tekton
 ## Configuring Capten Tekton Plugin 
+
    Go to the *capten-->platform engineering* ,select on the tekton plugin setup and then select the `sync` option under the  **configure** section and this will configure the tekton and the neccessary floders will be created in the customer's repo
+
+   ![TektonPlugin](.readme_assets/tek-plugin.png)
+
+   ![TektonPlugin](.readme_assets/tek-plugin-new.png)
+
    
 # Pre-requisite For Tekton CI/CD Pipeline Creation
 
@@ -646,8 +659,12 @@ List of supported capabilities:
 Now commit the required pipeline,rbac,triggers and ingress in the customer repo under the directory *cicd-->tekton-pipelines-->templates*.
 once done the argocd will update this changes to the cluster and the pipeline,triggers,rbac and ingress will be created in the controlplane cluster
 
+ ![PipelineResource](.readme_assets/infra.png)
+
 # Triggering Tekton Pipeline
  
  Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.
-once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,finally the built image will get deployed in the bussiness cluster.Sample tekton related yamls will be present under *cicd-->tekton-samples*
+once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,finally the built image will get deployed in the bussiness cluster.
+
+ ![WebhookImage](.readme_assets/webhook-img.png)
 
