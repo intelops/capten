@@ -403,18 +403,19 @@ List of supported capabilities:
 2. In onboarding section, go to **Git** tab and click _Add Git Repo_.
 3. Enter the git repo url and the token and also set the label to crossplane.
 
-<img src= "https://github.com/Jeremy4040/infra/assets/88025755/84540a93-fa2b-4078-8d92-427c6c6dd178" width= "700" height= "400"/>
+![GitRepo](.readme_assets/gitproj.png)
 
-_Add git repository details in the mentioned section_
+=======
+Add git repository details in the mentioned section_
 
 ### Cloud Provider:
 
 1. Now to add cloud provider, go to **Cloud Providers** and click _ Add Cloud Provider_.
 2. Select the required cloud provider and enter the credentials for the same. (The label is set to crossplane)
 
-<img src= "https://github.com/Jeremy4040/infra/assets/88025755/98df42ae-211c-4f18-b51d-4344235e5d4d" width= "700" height= "400"/>
+![AddCloudProvider](.readme_assets/cloudprovider.png)
 
-_Add cloud provider details in the mentioned section_
+Add cloud provider details in the mentioned section_
 
 **Note:** The label _crossplane_ is used by the crossplane plugin to reference both the repository and provider.
 
@@ -425,9 +426,9 @@ _Add cloud provider details in the mentioned section_
 3. Under configure section, click sync next to the repository which is needed to deploy the plugin.
 4. After the sync, the provider will get deployed and enter _Healthy_ state in a few minutes.
 
-<img src= "https://github.com/Jeremy4040/infra/assets/88025755/2bc713cd-6cf3-4663-ab74-342cbad63d84" width= "800" height= "400"/>
+![AddCrossplaneProvider](.readme_assets/provider.png)
 
-_Once onboarding is done both the git and provider details will be automatically populated in crossplane plugin using crossplane label_
+Once onboarding is done both the git and provider details will be automatically populated in crossplane plugin using crossplane label_
 
 ## Create Business cluster
 
@@ -437,9 +438,9 @@ _Once onboarding is done both the git and provider details will be automatically
 4. Go to argocd UI page and sync all crossplane related applications
 5. After the clusterclaim is created, the business cluster creation will get triggered.
 
-<img src= "https://github.com/Jeremy4040/infra/assets/88025755/d653042a-8a45-48ab-8450-f185c2e654d6" width= "700" height= "400"/>
+![BusinessClusterCreation](.readme_assets/bc-create.png)
 
-_Make sure to sync all crossplane related apps_
+Make sure to sync all crossplane related apps_
 
 ## Delete Business cluster
 
@@ -456,9 +457,9 @@ _Make sure to sync all crossplane related apps_
 4. This removes the provider from the cluster
 5. It is also possible to remove the provider from onboarding list by the delete option provided with the cloud provider
 
-<img src= "https://github.com/Jeremy4040/infra/assets/88025755/b075c02d-1653-4a42-9114-54ca82caa63d" width= "800" height= "300"/>
+![DeleteProvider](.readme_assets/deleteprovider.png)
 
-_To delete the crossplane provider, click the delete button next to the provider name_
+To delete the crossplane provider, click the delete button next to the provider name_
 
 # Tekton Flow For Capten
 
