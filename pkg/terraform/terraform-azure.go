@@ -43,10 +43,18 @@ func NewAzure(captenConfig config.CaptenConfig, config types.AzureClusterInfo) (
 	tf.SetStderr(os.Stderr)
 	return &terraform{azureconfig: config, exec: tf, captenConfig: captenConfig}, nil
 }
-
 func (t *terraform) initAzure() error {
-	backendConfigOptionsStr := []string{}
-	//	backendConfigOptionsStr = append(backendConfigOptionsStr)
+	backendConfigOptionsStr := []string{
+		"resource_group_name=" + "captentfstate",
+		"storage_account_name=" + t.azureconfig.Storage_account_name,
+		"container_name=" + "captentfstate",
+		"key=" + "terraform.tfstate",
+		"talosrgname=" + t.azureconfig.Talosrgname,
+		"storagergname=" + t.azureconfig.Storagergname,
+		"talos_imagecont_name=" + t.azureconfig.Talos_imagecont_name,
+		"talos_cluster_name=" + t.azureconfig.Talos_cluster_name,
+	}
+	backendConfigOptionsStr = append(backendConfigOptionsStr)
 
 	initOptions := make([]tfexec.InitOption, 0)
 	for _, backendConfigOption := range backendConfigOptionsStr {
