@@ -41,6 +41,8 @@ container_bridge:
       - secretName: cert-containerbridge
         hosts:
           - "containerbridge.{{.DomainName}}"
+kuberhealthy:
+  enabled: true
 clusterName: "capten-controlplane"
 resources: 
   limits:
