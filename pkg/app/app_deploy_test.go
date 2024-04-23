@@ -4,8 +4,11 @@ import (
 	"capten/pkg/config"
 	"capten/pkg/helm"
 	"capten/pkg/types"
+
+	//"context"
 	"reflect"
 	"testing"
+	//"github.com/pkg/errors"
 )
 
 func TestDeployApps(t *testing.T) {
@@ -19,7 +22,33 @@ func TestDeployApps(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid arguments",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+				globalValues: map[string]interface{}{},
+				groupFile:    "testdata/app_group.yaml",
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid captenConfig",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+				globalValues: map[string]interface{}{},
+				groupFile:    "testdata/app_group.yaml",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Invalid groupFile",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+				globalValues: map[string]interface{}{},
+				groupFile:    "invalid_file.yaml",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -31,18 +60,134 @@ func TestDeployApps(t *testing.T) {
 }
 
 func Test_installAppGroup(t *testing.T) {
-	type args struct {
-		captenConfig config.CaptenConfig
-		hc           *helm.Client
-		appConfigs   []types.AppConfig
-	}
 	tests := []struct {
 		name string
-		args args
+		args struct {
+			captenConfig config.CaptenConfig
+			hc           *helm.Client
+			appConfigs   []types.AppConfig
+		}
 		want bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Empty appConfigs",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{},
+				appConfigs:   []types.AppConfig{},
+			},
+			want: true,
+		},
+		{
+			name: "AppConfig with privileged namespace",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{
+					// PrepareFilePath: func(string, string) string {
+					// 	return "kubeconfig"
+					// },
+				},
+				hc: &helm.Client{},
+				appConfigs: []types.AppConfig{
+					{
+						PrivilegedNamespace: true,
+						Namespace:           "test",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "AppConfig with error on creating namespace",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{
+
+					// PrepareFilePath: func(string, string) string {
+					// 	return "kubeconfig"
+					// },
+				},
+				hc: &helm.Client{},
+				appConfigs: []types.AppConfig{
+					{
+						PrivilegedNamespace: true,
+						Namespace:           "test",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "AppConfig with successful installation",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{
+					// Install: func(context.Context, *types.AppConfig) (bool, error) {
+					// 	return true, nil
+					// },
+				},
+				appConfigs: []types.AppConfig{
+					{
+						Name: "test",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "AppConfig with failed installation",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{
+					// Install: func(context.Context, *types.AppConfig) (bool, error) {
+					// 	return false, errors.New("installation failed")
+					// },
+				},
+				appConfigs: []types.AppConfig{
+					{
+						Name: "test",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "AppConfig with error on writing appConfig",
+			args: struct {
+				captenConfig config.CaptenConfig
+				hc           *helm.Client
+				appConfigs   []types.AppConfig
+			}{
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{},
+				appConfigs: []types.AppConfig{
+					{
+						Name: "test",
+					},
+				},
+			},
+			want: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := installAppGroup(tt.args.captenConfig, tt.args.hc, tt.args.appConfigs); got != tt.want {
@@ -64,8 +209,29 @@ func Test_prepareAppGroupConfigs(t *testing.T) {
 		wantAppConfigs []types.AppConfig
 		wantErr        bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Empty captenConfig, empty globalValues, empty appGroupNameFile",
+			args: args{
+				captenConfig:     config.CaptenConfig{},
+				globalValues:     map[string]interface{}{},
+				appGroupNameFile: "",
+			},
+			wantAppConfigs: []types.AppConfig{},
+			wantErr:        true,
+		},
+		{
+			name: "Empty captenConfig, empty globalValues, non-empty appGroupNameFile",
+			args: args{
+				captenConfig:     config.CaptenConfig{},
+				globalValues:     map[string]interface{}{},
+				appGroupNameFile: "test",
+			},
+			wantAppConfigs: []types.AppConfig{},
+			wantErr:        true,
+		},
+		// Add more test cases here...
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAppConfigs, err := prepareAppGroupConfigs(tt.args.captenConfig, tt.args.globalValues, tt.args.appGroupNameFile)
@@ -79,7 +245,6 @@ func Test_prepareAppGroupConfigs(t *testing.T) {
 		})
 	}
 }
-
 func Test_replaceOverrideTemplateValues(t *testing.T) {
 	type args struct {
 		templateData map[string]interface{}
@@ -118,7 +283,40 @@ func Test_replaceTemplateStringValues(t *testing.T) {
 		wantTransformedStringData string
 		wantErr                   bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid template with single value",
+			args: args{
+				templateStringData: "Hello {{ .Name }}!",
+				values: map[string]interface{}{
+					"Name": "Alice",
+				},
+			},
+			wantTransformedStringData: "Hello Alice!",
+			wantErr:                   false,
+		},
+		{
+			name: "Valid template with multiple values",
+			args: args{
+				templateStringData: "{{ .Name }} is {{ .Age }} years old.",
+				values: map[string]interface{}{
+					"Name": "Bob",
+					"Age":  25,
+				},
+			},
+			wantTransformedStringData: "Bob is 25 years old.",
+			wantErr:                   false,
+		},
+		{
+			name: "Invalid template",
+			args: args{
+				templateStringData: "{{ .Name }} is {{ .Age }} years old.",
+				values: map[string]interface{}{
+					"Name": "Charlie",
+				},
+			},
+			wantTransformedStringData: "",
+			wantErr:                   true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
