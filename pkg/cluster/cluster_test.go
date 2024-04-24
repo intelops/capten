@@ -14,7 +14,24 @@ func TestCreate(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid captenConfig",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// Add valid captenConfig properties here
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid captenConfig",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// Add invalid captenConfig properties here
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -24,7 +41,6 @@ func TestCreate(t *testing.T) {
 		})
 	}
 }
-
 func TestDestroy(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
@@ -34,7 +50,24 @@ func TestDestroy(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Successful destruction of a cluster",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// Add valid captenConfig properties here
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Error handling when trying to destroy a non-existing cluster",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// Add invalid captenConfig properties here
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
