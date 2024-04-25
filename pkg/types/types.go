@@ -79,6 +79,8 @@ type AWSClusterInfo struct {
 	TraefikTg443Name        string   `yaml:"TraefikTg443Name"`
 	TraefikLbName           string   `yaml:"TraefikLbName"`
 	TerraformBackendConfigs []string `yaml:"TerraformBackendConfigs"`
+	Nats_client_port        string   `yaml:"Nats_client_port"`
+	Nats_tg_4222_name       string   `yaml:"Nats_tg_4222_name"`
 }
 
 func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {

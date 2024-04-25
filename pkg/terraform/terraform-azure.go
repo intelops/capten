@@ -52,7 +52,6 @@ func (t *terraform) initAzure() error {
 		"storage_account_name=" + t.azureconfig.Storage_account_name,
 		"talos_imagecont_name=" + t.azureconfig.Talos_imagecont_name,
 		"talos_cluster_name=" + t.azureconfig.Talos_cluster_name,
-		//"nats_client_port=" + t.azureconfig.Nats_client_port,
 	}
 	backendConfigOptionsStr = append(backendConfigOptionsStr)
 
