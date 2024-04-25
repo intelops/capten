@@ -46,10 +46,12 @@ func NewAzure(captenConfig config.CaptenConfig, config types.AzureClusterInfo) (
 
 func (t *terraform) initAzure() error {
 	backendConfigOptionsStr := []string{
-		"resource_group_name=" + "captentfstate",
+		"region=" + t.azureconfig.Region,
+		"talosrgname=" + t.azureconfig.Talosrgname,
+		"storagergname=" + t.azureconfig.Storagergname,
 		"storage_account_name=" + t.azureconfig.Storage_account_name,
-		"container_name=" + "captentfstate",
-		"key=" + "terraform.tfstate",
+		"talos_imagecont_name=" + t.azureconfig.Talos_imagecont_name,
+		"talos_cluster_name=" + t.azureconfig.Talos_cluster_name,
 		//	"talosrgname=" + t.azureconfig.Talosrgname,
 		//	"storagergname=" + t.azureconfig.Storagergname,
 		//	"talos_imagecont_name=" + t.azureconfig.Talos_imagecont_name,
