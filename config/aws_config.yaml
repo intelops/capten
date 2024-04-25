@@ -16,6 +16,8 @@ TalosTg: "talos-tg-9"
 TraefikTg80Name: "talos-tg-80-9"
 TraefikTg443Name: "talos-tg-443-9"
 TraefikLbName: "traefik-lb-9"
+Nats_client_port: "31675"
+Nats_tg_4222_name: "talos-tg-4222-9"
 TerraformBackendConfigs:
   - "bucket=capten-talos-state"
   - "dynamodb_table=intelops-tf-state"
