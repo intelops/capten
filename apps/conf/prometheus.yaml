@@ -9,10 +9,9 @@ ReleaseName: "prometheus"
 Version: "1.0.10"
 CreateNamespace: true
 PrivilegedNamespace: true
-LaunchURL: https://grafana.{{.DomainName}}/login/generic_oauth
+UIEndpoint: https://grafana.{{.DomainName}}/login/generic_oauth
 APIEndpoint: https://prometheus.{{.DomainName}}
-LaunchUIDescription: "Intelops Grafana"
-LaunchUIIcon: "grafana.svg"
+Icon: "grafana.svg"
 LaunchUIValues:
   grafana:
     grafana.ini:

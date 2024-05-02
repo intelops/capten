@@ -92,7 +92,7 @@ func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[s
 			return
 		}
 
-		appConfig.LaunchURL, err = replaceTemplateStringValues(appConfig.LaunchURL, globalValues)
+		appConfig.UIEndpoint, err = replaceTemplateStringValues(appConfig.UIEndpoint, globalValues)
 		if err != nil {
 			err = errors.WithMessagef(err, "failed transform '%s' string value", appName)
 			return
