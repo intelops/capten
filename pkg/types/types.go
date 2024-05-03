@@ -51,9 +51,8 @@ type AppConfig struct {
 	ReleaseName         string                 `yaml:"ReleaseName"`
 	Version             string                 `yaml:"Version"`
 	Description         string                 `yaml:"Description"`
-	LaunchURL           string                 `yaml:"LaunchURL"`
-	LaunchUIDescription string                 `yaml:"LaunchUIDescription"`
-	LaunchUIIcon        string                 `yaml:"LaunchUIIcon"`
+	UIEndpoint          string                 `yaml:"UIEndpoint"`
+	Icon                string                 `yaml:"Icon"`
 	LaunchUIValues      map[string]interface{} `yaml:"LaunchUIValues"`
 	OverrideValues      map[string]interface{} `yaml:"OverrideValues"`
 	CreateNamespace     bool                   `yaml:"CreateNamespace"`
@@ -62,6 +61,7 @@ type AppConfig struct {
 	PluginName          string                 `yaml:"PluginName"`
 	PluginDescription   string                 `yaml:"PluginDescription"`
 	APIEndpoint         string                 `yaml:"APIEndpoint"`
+	UIModuleEndpoint    string                 `yaml:"UIModuleEndpoint"`
 	InstallStatus       string                 `yaml:"InstallStatus"`
 }
 
@@ -89,6 +89,8 @@ type AWSClusterInfo struct {
 	TraefikTg443Name        string   `yaml:"TraefikTg443Name"`
 	TraefikLbName           string   `yaml:"TraefikLbName"`
 	TerraformBackendConfigs []string `yaml:"TerraformBackendConfigs"`
+	Nats_client_port        string   `yaml:"Nats_client_port"`
+	Nats_tg_4222_name       string   `yaml:"Nats_tg_4222_name"`
 }
 
 func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
@@ -115,8 +117,9 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 			Namespace:           a.Namespace,
 			CreateNamespace:     a.CreateNamespace,
 			PrivilegedNamespace: a.PrivilegedNamespace,
-			Icon:                []byte(a.LaunchUIIcon),
-			LaunchURL:           a.LaunchURL,
+			Icon:                []byte(a.Icon),
+			UiEndpoint:          a.UIEndpoint,
+			UiModuleEndpoint:    a.UIModuleEndpoint,
 			DefualtApp:          true,
 			PluginName:          a.PluginName,
 			PluginDescription:   a.PluginDescription,
