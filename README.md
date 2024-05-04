@@ -32,8 +32,8 @@ Capten controlplane cluster creation supported on public cloud providers like AW
 1. Download and Extract Capten package from Capten github repoistory [release page](https://github.com/intelops/capten/releases).
 
 ```bash
-wget https://github.com/intelops/capten/releases/download/v1.0.0/capten-v1.0.0.tar.gz
-tar -xvf capten-v1.0.0.tar.gz
+wget https://github.com/intelops/capten/releases/download/v0.0.54/capten_linux.zip
+unzip capten_linux.zip && cd capten
 ```
 
 2. Preparted the cluster installation parameters
