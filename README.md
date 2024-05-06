@@ -23,17 +23,17 @@ Capten controlplane cluster creation supported on public cloud providers like AW
 
 - Azure CLI (Needed in case of using Azure cloud for cluster setup)
 
-- Docker (Needed in case of using Capten CLI distribution on Windows or MacOS)
+- Docker (Needed in case of using Capten CLI distribution on MacOS)
 
 - kubectl tool to access Capten controlplane cluster
 
 #### Setting up the cluster
 
-1. Download and Extract Capten package from Capten github repoistory [release page](https://github.com/intelops/capten/releases).
+1. Download and Extract the latest Capten package from Capten github repoistory [release page](https://github.com/intelops/capten/releases).
 
 ```bash
-wget https://github.com/intelops/capten/releases/download/v1.0.0/capten-v1.0.0.tar.gz
-tar -xvf capten-v1.0.0.tar.gz
+wget https://github.com/intelops/capten/releases/download/<latest-release>/capten_linux.zip
+unzip capten_linux.zip && cd capten
 ```
 
 2. Preparted the cluster installation parameters
@@ -62,6 +62,9 @@ For AWS cluster, update cluster installation parameters in the `aws_config.yaml`
 | TraefikTg443Name        | Name of the target group for port 443 traffic handled by Traefik                   |
 | TraefikLbName           | Name of the Elastic Load Balancer (ELB) used by Traefik                            |
 | TerraformBackendConfigs | Configuration settings for Terraform backend (bucket name and DynamoDB table name) |
+
+**Note:**
+For a terraform backend,create the bucket and dynamoDB table in aws console.
 
 For Azure cluster, update cluster installation parameters in the `azure_config.yaml` in `config` folder.
 
@@ -145,6 +148,10 @@ helm list -A
 ./capten show cluster info
 ```
 
+#### Update DNS entry 
+
+Add record updating the domain name in `./config/capten.yaml` and LB host in `./config/capten-lb-endpoint.yaml` to  any dns so that applications could be exposed.
+
 #### Destroying the cluster
 
 Cluster destruction command initiates the process of removing all components associated with the cluster, such as virtual machines, instances, nodes, networking configurations, and any other resources provisioned for the cluster. It effectively undoes the setup and configuration of the cluster, deallocating resources and ensuring they are no longer in use. This command can be used when the cluster is no longer needed or to clean up resources in cloud computing, distributed systems, or container orchestration environments.
@@ -169,7 +176,7 @@ Cluster destruction command initiates the process of removing all components ass
 
 ![Capten-cluster-Registration](.readme_assets/cluster-register.png)
 
-1. Provide the cluster name and upload the client certificates created by Capten CLI.
+1. Provide the cluster name and upload the client certificates (./cert/capten-client-auth-certs.zip) created by Capten CLI.
 
 2. Provide the cluster agent endpoint, Domainname configured in capten.yaml to be used for accessing the cluster
 
@@ -496,7 +503,7 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
 
 - Use the already created **tekton-pipelines** namespace for the creation of pipeline.
 
-- Create a Clustersecretstore from the yaml given below.Replace the server with the url which can be obtained from the **kubectl** command given below.
+- * Create a secretstore from the yaml given below.Replace the server with the url which can be obtained from the **kubectl** command given below.
 
   ```bash
   kubectl get ingress -n capten
@@ -516,13 +523,15 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
                tokenSecretRef:
                  name: "tekton-vault-token"
                  key: "token"
-                 namespace: tekton
+                 
 
-  Here, the **tekton-vault-token** is the secret created in tekton namespace to access the vault
+Here, the **tekton-vault-token** is the secret created in tekton namespace to access the vault.Copy-paste the **tekton-vault-token** secret in the required namespace where the tekton pipeline will be present and then create the above secretstore.
 
 - Git secret
 
   Go to _onboarding-->git_ under the respective git project the path of the vault where the credentials of git stored can be viewed.copy the path and add it to the path in the external secret yaml as given below
+
+## Note
 
   Annotate the external-secret to specify the domains for which Tekton can use the credentials.
 
@@ -560,6 +569,8 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
          apiVersion: external-secrets.io/v1beta1
          kind: ExternalSecret
          metadata:
+           annotations:
+             tekton.dev/git-0: "https://github.com"
            name: docker-external
            namespace: tekton-pipelines
          spec:
@@ -582,6 +593,8 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
       apiVersion: external-secrets.io/v1beta1
       kind: ExternalSecret
       metadata:
+        annotations:
+          tekton.dev/git-0: "https://github.com"
         name: cosign-docker-external
         namespace: tekton-pipelines
       spec:
@@ -634,6 +647,8 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
       apiVersion: external-secrets.io/v1beta1
       kind: ExternalSecret
       metadata:
+        annotations:
+          tekton.dev/git-0: "https://github.com"
         name: extraconfig-external
         namespace: tekton-pipelines
       spec:
@@ -655,14 +670,52 @@ Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and
 
 # Prepare Pipeline Resources For The Tekton Pipeline
 
-Now commit the required pipeline,rbac,triggers and ingress in the customer repo under the directory _cicd-->tekton-pipelines-->templates_.
+Now commit the required pipeline,rbac,triggers and ingress in the customer repo under the directory *cicd-->tekton-pipelines-->templates*.Now go to the **argocd ui** and sync the tekton-pipelines application manually. 
 once done the argocd will update this changes to the cluster and the pipeline,triggers,rbac and ingress will be created in the controlplane cluster
 
 ![PipelineResource](.readme_assets/infra.png)
 
 # Triggering Tekton Pipeline
 
-Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.
-once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,finally the built image will get deployed in the bussiness cluster.
+ Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.Also create a new folder **qt_test** in the root directory and place the qt test.yaml file which contains the testcases to test the deployed application inside the floder so that the tekton pipeline can run the testcases when the qt task is triggered   
+once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,the built image is then signed using cosign and finally once the application is deployed in the bussiness cluster the qt task in the pipeline will run the testcase to test the application.
+
 
 ![WebhookImage](.readme_assets/webhook-img.png)
+
+# What is Proact and how to use it?
+
+Proact is CLI/CI Tool for Automating Vulnerability Management for Enhancing Software Supply Chain Security Measures.
+
+After selecting proact from the installed apps, you will be treated with a list of schedules, if there are any. To create a new schedule click on Schedule Scan repo.
+
+![proact create schedule](.readme_assets/proact-create-schedule.png)
+
+Fill all the details for the schedule and config
+
+| Attribute   | Description                           |
+| ----------- | ------------------------------------- |
+| Schedule Name  | Name of the schedule               |
+| Select Container Registry | Select the container registry        |
+| Cron Schedule    | Schedule for the job in crontab expression           |
+| Scan Config        | Config details for the job             |
+
+![proact schedule details](.readme_assets/proact-schedule-details.png)
+proact-schedule-details
+
+<b>sample config</b>
+```json
+[
+    {
+        "docker_image_name": "arunnintelops/qt-test-application:latest", // Docker image name
+        "pyroscope_enabled": "true", // To enable pyroscope
+        "pyroscope_url": "https://pyroscope.awsdemo.optimizor.app", //Url for pyroscope
+        "pyroscope_app_name": "qt.test.application", //Application name in pyroscope
+        "rebuild_image": "false" //Option to enable or disable rebuild image after scanning
+    }
+]
+```
+Afet successful scan you can view the result of the scan.
+
+proact-schedule-results
+![proact schedule results](.readme_assets/proact-schedule-results.jpg)
