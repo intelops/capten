@@ -720,7 +720,7 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
 
 * If all the assertions pass,below logs is shown
 
-![AssertionPass](.readme_assets/assertionpass.png)
+![AssertionPass](.readme_assets/assertionspass.png)
 
 * If the assertion fails,below logs is shown
 
@@ -746,10 +746,9 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
      
   7. The tekton related pipelines and tasks can be viewed in the **tekton-dashboard** by clicking on the details option where the check is running
 
-  ![TektonQTLogs](.readme_assets/tekton-qt-logs.png)
-
   ![DeployQT](.readme_assets/deployqt.png)
 
+  ![TektonQTLogs](.readme_assets/tekton-qt-logs.png)
 
 # What is Proact and how to use it?
 
