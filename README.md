@@ -744,7 +744,7 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
 
   6. Also the success and failure status will be notified back to the git repo in the case of pull_request event.Note for this the branch protection rule needs to be added
      
-  7. The tekton related pipelines and tasks can be viewed in the **tekton-dashboard** by clicking on the details option where the check is running
+  7. The tekton related pipelines and tasks can be viewed in the tekton-dashboard by clicking on the details option where the check is running or by clicking on the tekton icon present under Capten-->Controlplane Cluster in the ui
 
   ![DeployQT](.readme_assets/deployqt.png)
 
