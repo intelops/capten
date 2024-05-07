@@ -675,13 +675,80 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
 
 ![PipelineResource](.readme_assets/infra.png)
 
+# QT in tekton
+
+  1. create a new folder **qt_test** in the root directory
+   
+  2. place the test.yaml file which contains the testcases to test the deployed application inside the folder
+   
+  3. Note that the folder name should be **qt_test** and file name should be **test.yaml**.The sample testcase is given below,
+
+     
+         type: Test
+         spec:
+           id: zSn7HGzRR
+           name: user service
+           trigger:
+             type: http
+             httpRequest:
+               method: GET
+               url: http://user.svc.local/api/UserService
+           specs:
+             - selector: span[tracetest.span.type="http" name="GET api/UserService"]
+               assertions:
+                 - attr:http.request.method = "GET"
+                 - attr:http.route = "api/UserService"
+                 - attr:name = "GET api/UserService"
+                 - attr:tracetest.span.name = "GET api/UserService"
+                 - attr:tracetest.span.type = "http"
+                 - attr:url.path = "/api/UserService"
+                 - attr:url.scheme = "http"
+                 - attr:user_agent.original = "Go-http-client/1.1"
+             - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+               assertions:
+                 - attr:tracetest.span.type = "general"
+                 - attr:tracetest.span.name = "Tracetest trigger"
+
+  4. Also ensure whether the  applicatin which is deployed in the business cluster is exposed
+   
+  5. Then add the url of the application in the test.yaml file
+   
+  6. After the execution of the pipeline we can check the qt task success and failure in the tekton-dashboard
+   
+  7. when the tekton pipeline fails due to quality-trace test case, it may be due to which assertions in the test yaml getting failed or configuration error between the test app and quality-trace. We can check the quality-trace server pod logs and quality-trace otel collector logs for errors and trace ids.If the test fails due to configuration errors, then in the quality-trace server log, it can be viewed as "Trace not found" error
+
+
+* If all the assertions pass,below logs is shown
+
+![AssertionPass](.readme_assets/assertionspass.png)
+
+* If the assertion fails,below logs is shown
+
+![AssertionFail](.readme_assets/assertionfail.png)
+
 # Triggering Tekton Pipeline
 
- Now add the **webhook url** to the tekton ci/cd repo on which the tekton pipeline needs to be executed upon trigger.Also create a new folder **qt_test** in the root directory and place the qt test.yaml file which contains the testcases to test the deployed application inside the floder so that the tekton pipeline can run the testcases when the qt task is triggered   
-once all the setup is done and now when a changes is commited in the tekton ci/cd repo the tekton pipeline will get executed and the image gets built and pushed to the container registry ,the built image is then signed using cosign and finally once the application is deployed in the bussiness cluster the qt task in the pipeline will run the testcase to test the application.
+  1. Now add the **webhook url** to the tekton ci/cd repo and select the **event** on which the tekton pipeline needs to be executed upon trigger.
+   
+  ![WebhookImage](.readme_assets/webhook-img.png)
 
+  2. If needed one can protect their branch using the branch protection rule which will be present under *settings-->branches-->add rule*
 
-![WebhookImage](.readme_assets/webhook-img.png)
+  3. In the add rule select the Require status checks to pass before merging and Require branches to be up to date before merging
+     
+  4. Then in the search box that appers under Require branches to be up to date before merging ,search for tekton-pipelines and add it,now whenever a pull_request is raised the check will run and once the checks is success the **merge** option will be visible
+ 
+  ![TektonStatus](.readme_assets/tekton-status.png)
+
+  5. once all the setup is done and now when a pull_request event is triggered (when a pull_request is raised), the tekton pipeline will get executed and the image gets built and pushed to the container registry ,the built image is then signed using cosign and finally once the application is deployed in the bussiness cluster the qt task in the pipeline will run the testcase to test the application and the success/failure task will get executed depending upon the result of pipeline.similarly the pipeline can trigger for event such as push,tag and release
+
+  6. Also the success and failure status will be notified back to the git repo in the case of pull_request event.Note for this the branch protection rule needs to be added
+     
+  7. The tekton related pipelines and tasks can be viewed in the tekton-dashboard by clicking on the details option where the check is running or by clicking on the tekton icon present under Capten-->Controlplane Cluster in the ui
+
+  ![DeployQT](.readme_assets/deployqt.png)
+
+  ![TektonQTLogs](.readme_assets/tekton-qt-logs.png)
 
 # What is Proact and how to use it?
 
