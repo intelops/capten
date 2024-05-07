@@ -692,7 +692,7 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
              type: http
              httpRequest:
                method: GET
-               url: http://10.244.0.15:80/api/UserService
+               url: http://user.svc.local/api/UserService
            specs:
              - selector: span[tracetest.span.type="http" name="GET api/UserService"]
                assertions:
