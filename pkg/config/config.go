@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"capten/pkg/clog"
+
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -106,6 +108,13 @@ func GetCaptenConfig() (CaptenConfig, error) {
 	if err != nil {
 		return cfg, err
 	}
+	// if captenvalues.ClusterType == "cloud-managed" {
+	// 	// clientset, err := k8s.GetK8SClient(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.KubeConfigFileName))
+	// 	err := k8s.PrintLoadBalancerServices(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.KubeConfigFileName), "traefik")
+	// 	if err != nil {
+	// 		return cfg, err
+	// 	}
+	// }
 	hostvalue, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), &captenhostvalue)
 	if err != nil {
 		return cfg, err
@@ -237,5 +246,69 @@ func UpdateClusterValues(cfg *CaptenConfig, cloudService, clusterType string) er
 	}
 	cfg.CloudService = cloudService
 	cfg.ClusterType = clusterType
+	return nil
+}
+
+func GetCaptenHostConfig() (CaptenClusterHost, error) {
+	cfg := CaptenConfig{}
+	var captenhostvalue CaptenClusterHost
+	err := envconfig.Process("", &cfg)
+	if err != nil {
+		return cfg.CaptenClusterHost, err
+	}
+	cfg.CurrentDirPath, err = os.Getwd()
+	if err != nil {
+		return cfg.CaptenClusterHost, errors.WithMessage(err, "error getting current directory")
+	}
+	err = addCurrentDirToPath(cfg.CurrentDirPath)
+	if err != nil {
+		return cfg.CaptenClusterHost, errors.WithMessage(err, "error adding current directory to env")
+	}
+	hostvalue, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), &captenhostvalue)
+	if err != nil {
+		return cfg.CaptenClusterHost, err
+	}
+
+	if len(hostvalue.(*CaptenClusterHost).LoadBalancerHost) != 0 {
+		cfg.LoadBalancerHost = hostvalue.(*CaptenClusterHost).LoadBalancerHost
+	}
+	return captenhostvalue, err
+
+}
+func UpdateLBEndpointFile(cfg *CaptenConfig, hostname string) error {
+	// Read YAML file contents
+	hostValuesPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName)
+	yamlFile, err := os.ReadFile(hostValuesPath)
+	if err != nil {
+		clog.Logger.Errorf("Failed to read the %v file :%v", hostValuesPath, err)
+		return err
+	}
+
+	// Unmarshal YAML content into LBEndpoint struct
+	var lbEndpoint CaptenClusterHost
+	err = yaml.Unmarshal(yamlFile, &lbEndpoint)
+	if err != nil {
+		clog.Logger.Errorf("Failed to unmarshal :%v", err)
+		return err
+	}
+
+	// Update LoadBalancerHost field
+	lbEndpoint.LoadBalancerHost = hostname
+
+	// Marshal the updated struct back to YAML
+	updatedYAML, err := yaml.Marshal(&lbEndpoint)
+	if err != nil {
+		clog.Logger.Errorf("Failed to update the marshelled yaml file :%v", err)
+		return err
+	}
+
+	// Write the updated YAML content back to the file
+	err = os.WriteFile(hostValuesPath, updatedYAML, 0644)
+	if err != nil {
+		clog.Logger.Errorf("Error while writing file :%v", err)
+		return err
+	}
+
+	fmt.Println("LB Host updated successfully.")
 	return nil
 }

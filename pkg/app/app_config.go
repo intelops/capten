@@ -3,6 +3,7 @@ package app
 import (
 	"capten/pkg/config"
 	"capten/pkg/types"
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -28,7 +29,7 @@ func GetClusterGlobalValues(valuesFilePath string) (map[string]interface{}, erro
 	return values, nil
 }
 
-func GetApps(appListFilePath string) ([]string, error) {
+func GetApps(appListFilePath string, appType string) ([]string, error) {
 	var values types.AppList
 	data, err := os.ReadFile(appListFilePath)
 	if err != nil {
@@ -39,8 +40,30 @@ func GetApps(appListFilePath string) ([]string, error) {
 	if err != nil {
 		return nil, errors.WithMessagef(err, "failed to unmarshal app group file, %s", appListFilePath)
 	}
-	return values.Apps, err
+
+	log.Printf("Loaded values from YAML: %+v\n", values)
+
+	apps, ok := values.Apps[appType]
+	if !ok {
+		return nil, errors.Errorf("type %s not found in YAML file", appType)
+	}
+
+	return apps, nil
 }
+
+// func GetApps(appListFilePath string) ([]string, error) {
+// 	var values types.AppList
+// 	data, err := os.ReadFile(appListFilePath)
+// 	if err != nil {
+// 		return nil, errors.WithMessagef(err, "failed to read app group file, %s", appListFilePath)
+// 	}
+
+// 	err = yaml.Unmarshal(data, &values)
+// 	if err != nil {
+// 		return nil, errors.WithMessagef(err, "failed to unmarshal app group file, %s", appListFilePath)
+// 	}
+// 	return values.Apps, err
+// }
 
 func GetAppConfig(appConfigFilePath string, globalValues map[string]interface{}) (types.AppConfig, error) {
 	var values types.AppConfig

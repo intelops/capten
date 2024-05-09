@@ -37,6 +37,7 @@ var appsCmd = &cobra.Command{
 	Short: "sets up apps cluster for usage",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		captenConfig, err := config.GetCaptenConfig()
 		if err != nil {
 			clog.Logger.Errorf("failed to read capten config, %v", err)
@@ -69,6 +70,15 @@ var appsCmd = &cobra.Command{
 		if err != nil {
 			clog.Logger.Errorf("%v", err)
 			return
+		}
+
+		if captenConfig.ClusterType == "cloud-managed" {
+			captenConfig, err = config.GetCaptenConfig()
+			if err != nil {
+				clog.Logger.Errorf("failed to read capten config, %v", err)
+				return
+			}
+
 		}
 
 		err = execActionIfEnabled(actions.Actions.ConfigureAgentCerts, func() error {

@@ -68,3 +68,30 @@ func CreateNamespaceIfNotExists(kubeconfigPath, namespace string) error {
 	}
 	return nil
 }
+
+func PrintLoadBalancerServices(kubeconfigPath, namespace string) (hostName string, err error) {
+	// Get all services in the namespace
+	var externalIP string
+	clientset, err := GetK8SClient(kubeconfigPath)
+	if err != nil {
+		return "", err
+	}
+
+	services, err := clientset.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	// Iterate through the services and find those of type LoadBalancer
+	for _, service := range services.Items {
+		if service.Spec.Type == corev1.ServiceTypeLoadBalancer {
+			// Get the external IP
+			//externalIP := service.Status.LoadBalancer.Ingress[0].IP
+			externalIP = service.Status.LoadBalancer.Ingress[0].Hostname
+			fmt.Println("External IP", externalIP)
+			// Print the service name and its external IP
+			fmt.Printf("Service: %s, External IP: %v\n", service.Name, externalIP)
+		}
+	}
+	return externalIP, nil
+}
