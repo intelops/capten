@@ -10,12 +10,16 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	random "math/rand"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"capten/pkg/agent/vaultcredpb"
 	"capten/pkg/clog"
+
+	//"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
 	"capten/pkg/types"
@@ -42,8 +46,9 @@ var (
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
-	natsTokenNamespaces  []string = []string{"observability"}
-	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
+	natsTokenNamespaces   []string = []string{"observability"}
+	cosignKeysNamespaces  []string = []string{"kyverno", "tekton-pipelines", "tek"}
+	postgresSecretNameVar          = "postgresSecretName"
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}) error {
@@ -246,50 +251,93 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 	var credential map[string]string
 	switch config.CredentialType {
 	case "cosign":
-		privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
+
+		_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
+			CredentialType: genericCredentailType,
+			CredEntityName: config.CredentialEntity,
+			CredIdentifier: config.CredentialIdentifier,
+		})
 		if err != nil {
-			return fmt.Errorf("cosign key generation failed")
+			if strings.Contains(err.Error(), "secret not found") {
+				privateKeyBytes, publicKeyBytes, err := generateCosignKeyPair()
+				if err != nil {
+					return fmt.Errorf("cosign key generation failed")
+				}
+				credential := map[string]string{
+					"cosign.key": string(privateKeyBytes),
+					"cosign.pub": string(publicKeyBytes),
+				}
+				err = putCredentialInVault(vaultClient, config, credential)
+				if err != nil {
+					return fmt.Errorf("error storing credentials: %v", err)
+				}
+
+				err = configureCosignKeysSecret(captenConfig, vaultClient, config)
+				if err != nil {
+					return err
+				}
+
+			} else {
+
+				return fmt.Errorf("Error while getting credential: %s", err)
+			}
+		} else {
+
+			clog.Logger.Debug("Credential already exists in vault")
 		}
-		credential = map[string]string{
-			"cosign.key": string(privateKeyBytes),
-			"cosign.pub": string(publicKeyBytes),
-		}
-		err = putCredentialInVault(vaultClient, config, credential)
-		if err != nil {
-			return fmt.Errorf("error storing credentials: %v", err)
-		}
-		err = configureCosignKeysSecret(captenConfig, vaultClient, config)
-		if err != nil {
-			return fmt.Errorf("error while configuring cosign key: %v", err)
-		}
+
 		appGlobalValues[cosignKeysSecretNameVar] = config.SecretName
 
 	case "randomkey":
-		val, err := randomTokenGeneration()
+
+		_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
+			CredentialType: genericCredentailType,
+			CredEntityName: config.CredentialEntity,
+			CredIdentifier: config.CredentialIdentifier,
+		})
+
 		if err != nil {
-			return fmt.Errorf("nats Token generation failed, %v", err)
+			if strings.Contains(err.Error(), "secret not found") {
+				val, err := randomTokenGeneration()
+				if err != nil {
+					return fmt.Errorf("Nats Token generation failed, %v", err)
+				}
+				credential = map[string]string{
+					config.TokenAttributeName: val,
+				}
+				err = putCredentialInVault(vaultClient, config, credential)
+
+				if err != nil {
+					return fmt.Errorf("store credentails failed, %s", err)
+
+				}
+				err = configureNatsSecret(captenConfig, vaultClient, config)
+				if err != nil {
+					return err
+				}
+
+			} else {
+
+				return fmt.Errorf("Error while getting credential: %s", err)
+			}
+		} else {
+
+			clog.Logger.Debug("Credential already exists in vault")
 		}
-		credential = map[string]string{
-			config.TokenAttributeName: val,
-		}
-		err = putCredentialInVault(vaultClient, config, credential)
-		if err != nil {
-			return fmt.Errorf("error storing credentials: %v", err)
-		}
+
 		err = configureNatsSecret(captenConfig, vaultClient, config)
 		if err != nil {
 			return fmt.Errorf("error while configuring cosign key: %v", err)
 		}
 		appGlobalValues[natsSecretNameVar] = config.SecretName
+
 	case "password":
-		val, err := randomTokenGeneration()
-		if err != nil {
-			return fmt.Errorf(" Password  generation failed, %v", err)
-		}
+		val := generatePassword()
+
 		credential = map[string]string{
 			"password": val,
 		}
-		err = putCredentialInVault(vaultClient, config, credential)
+		err := putCredentialInVault(vaultClient, config, credential)
 		if err != nil {
 			return fmt.Errorf("error storing credentials: %v", err)
 		}
@@ -363,4 +411,19 @@ func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	}
 
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
+}
+
+func generatePassword() string {
+	// Define the characters to choose from for the password
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// Create a new source for random number generation
+	source := random.NewSource(time.Now().UnixNano())
+	rng := random.New(source)
+
+	password := make([]byte, 11)
+	for i := range password {
+		password[i] = charset[rng.Intn(len(charset))]
+	}
+	return string(password)
 }
