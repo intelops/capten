@@ -21,7 +21,7 @@ talos:
   - "proact-scheduler"
   - "velero"
 
-eks:
+cloud-managed:
   - "pre-install"
   - "prometheus"
   - "k8ssandra-operator"
