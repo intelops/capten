@@ -331,25 +331,18 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		}
 		appGlobalValues[natsSecretNameVar] = config.SecretName
 
-	case "password":
-		val := generatePassword()
-
-		credential = map[string]string{
-			"password": val,
-		}
-		err := putCredentialInVault(vaultClient, config, credential)
+	case "postgres-password", "temporal-password":
+		err := generateAndStorePassword(vaultClient, config)
 		if err != nil {
-			return fmt.Errorf("error storing credentials: %v", err)
-		}
-		secretKeyMapping := map[string]string{
-			config.CredentialType: "usercred",
-		}
-		err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
-		if err != nil {
-			return fmt.Errorf("error while configuring secret: %v", err)
+			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
 
-		appGlobalValues[postgresSecretNameVar] = config.SecretName
+	// err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
+	// if err != nil {
+	// 	return fmt.Errorf("error while configuring secret: %v", err)
+	// }
+	//appGlobalValues[postgresSecretNameVar] = config.SecretName
+
 	default:
 
 		return fmt.Errorf("unknown credential type: %s", config.CredentialType)
@@ -426,4 +419,18 @@ func generatePassword() string {
 		password[i] = charset[rng.Intn(len(charset))]
 	}
 	return string(password)
+}
+
+func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
+	val := generatePassword()
+
+	credential := map[string]string{
+		"password": val,
+	}
+	err := putCredentialInVault(vaultClient, config, credential)
+	if err != nil {
+		return fmt.Errorf("error storing credentials: %v", err)
+	}
+
+	return nil
 }
