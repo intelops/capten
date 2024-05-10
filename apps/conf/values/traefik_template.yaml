@@ -12,7 +12,13 @@ ports:
     nodePort: 32443
 service:
   enabled: "true"
+{{if eq .ClusterType "talos"}}
   type: NodePort
+{{else if eq .ClusterType "cloud-managed"}}
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+{{end}}
 resources: 
   requests:
     cpu: 100m
