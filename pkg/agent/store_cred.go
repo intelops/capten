@@ -12,8 +12,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
 	"capten/pkg/types"
@@ -39,7 +41,9 @@ var (
 
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
-	postgresSecretNameVar   = "postgresSecretName"
+
+	natsTokenNamespaces  []string = []string{"observability"}
+	cosignKeysNamespaces []string = []string{"kyverno", "tekton-pipelines", "tek"}
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}) error {
@@ -196,7 +200,14 @@ func randomTokenGeneration() (string, error) {
 	if err != nil {
 		return "", errors.WithMessage(err, "error while generating random key")
 	}
-	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)[:32]
+
+	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)
+	randomString = strings.ReplaceAll(randomString, "-", "")
+
+	if len(randomString) > 32 {
+		randomString = randomString[:32]
+	}
+
 	return randomString, nil
 }
 

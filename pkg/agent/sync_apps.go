@@ -6,13 +6,21 @@ import (
 	"capten/pkg/app"
 	"capten/pkg/clog"
 	"capten/pkg/config"
+	"capten/pkg/helm"
+	"fmt"
+	"time"
+
 	"capten/pkg/types"
 	"context"
+
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/cli"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -46,12 +54,8 @@ func SyncInstalledAppConfigsOnAgent(captenConfig config.CaptenConfig) error {
 
 		templateValues := app.GetAppValuesTemplate(captenConfig, appConfig.ReleaseName)
 		syncAppData.Values.TemplateValues = templateValues
-		if appConfig.InstallStatus != "Deployed" {
-			syncAppData.Config.InstallStatus = "failed"
-			continue
-		} else {
-			syncAppData.Config.InstallStatus = "Installed"
-		}
+
+		syncAppData.Config.InstallStatus = appConfig.InstallStatus
 
 		res, err := client.SyncApp(context.TODO(), &agentpb.SyncAppRequest{Data: &syncAppData})
 		if err != nil {
@@ -84,15 +88,134 @@ func readInstalledAppConfigs(config config.CaptenConfig) (ret []types.AppConfig,
 		if err != nil {
 			return errors.Wrapf(err, "in file: %s", appConfigFilePath)
 		}
+		hc, err := helm.NewClient(config)
+		if err != nil {
+			return errors.Wrapf(err, "whille connecting to helm client")
+		}
 
 		var appConfig types.AppConfig
+
 		if err := yaml.NewDecoder(bytes.NewBuffer(data)).Decode(&appConfig); err != nil {
 			return errors.Wrapf(err, "in file %s", appConfigFilePath)
 		}
+		settings := cli.New()
+		settings.KubeConfig = hc.Settings.KubeConfig
+		actionConfig := new(action.Configuration)
+		err = actionConfig.Init(settings.RESTClientGetter(), appConfig.Namespace, "", helm.LogHelmDebug)
+		if err != nil {
+			err = errors.Wrap(err, "failed to setup actionConfig for helm")
+
+		}
+		client := action.NewList(actionConfig)
+		client.All = true
+
+		res, err := hc.IsAppInstalled(actionConfig, appConfig.ReleaseName)
+		if err != nil {
+			return errors.Wrap(err, "failed to  get Install Status")
+		}
+
+		if res {
+			appConfig.InstallStatus = "Installed"
+		} else {
+			appConfig.InstallStatus = "Installation failed"
+		}
 
 		ret = append(ret, appConfig)
+
 		return nil
 	})
 
 	return
+}
+
+func DeployApps(captenConfig config.CaptenConfig) error {
+	client, err := GetAgentClient(captenConfig)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.DeployDefaultApps(context.TODO(), &agentpb.DeployDefaultAppsRequest{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func WaitAndTrackDefaultAppsDeploymentStatus(captenConfig config.CaptenConfig) {
+	timeout := time.After(1 * time.Hour)
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-timeout:
+			clog.Logger.Errorf("Default Apps deployment timed out")
+			return
+		case <-ticker.C:
+			completed, status, err := GetDefaultAppsDeploymentStatus(captenConfig)
+			if err != nil {
+				clog.Logger.Errorf("failed to get default apps deployment status, %v", err)
+			} else {
+				clog.Logger.Infof("%s", status)
+				if completed {
+					return
+				}
+			}
+		}
+	}
+}
+
+func GetDefaultAppsDeploymentStatus(captenConfig config.CaptenConfig) (bool, string, error) {
+	var completed bool
+	var defaultAppsDeploymentStatus string
+	client, err := GetAgentClient(captenConfig)
+	if err != nil {
+		return completed, defaultAppsDeploymentStatus, err
+	}
+
+	resp, err := client.GetDefaultAppsStatus(context.TODO(), &agentpb.GetDefaultAppsStatusRequest{})
+	if err != nil {
+		return completed, defaultAppsDeploymentStatus, err
+	}
+
+	deployedApps := []string{}
+	failedApps := []string{}
+	ongoingApps := []string{}
+	for _, appStatus := range resp.DefaultAppsStatus {
+		if appStatus.InstallStatus == "Installed" {
+			deployedApps = append(deployedApps, appStatus.AppName)
+		} else if appStatus.InstallStatus == "Installation Failed" {
+			failedApps = append(failedApps, appStatus.AppName)
+		} else {
+			ongoingApps = append(ongoingApps, appStatus.AppName)
+		}
+	}
+
+	switch resp.DeploymentStatus {
+	case agentpb.DeploymentStatus_ONGOING:
+		if len(failedApps) > 0 {
+			defaultAppsDeploymentStatus = fmt.Sprintf("Deploying applications, %d/%d deployed, %d failed", len(deployedApps), len(resp.DefaultAppsStatus), len(failedApps))
+		} else {
+			defaultAppsDeploymentStatus = fmt.Sprintf("Deploying applications, %d/%d deployed", len(deployedApps), len(resp.DefaultAppsStatus))
+		}
+	case agentpb.DeploymentStatus_SUCCESS, agentpb.DeploymentStatus_FAILED:
+		if len(failedApps) > 0 {
+			defaultAppsDeploymentStatus = fmt.Sprintf("Deployed applications, %d/%d deployed, %d failed", len(deployedApps), len(resp.DefaultAppsStatus), len(failedApps))
+		} else {
+			defaultAppsDeploymentStatus = fmt.Sprintf("Deployed applications, %d/%d deployed", len(deployedApps), len(resp.DefaultAppsStatus))
+		}
+		if len(deployedApps) > 0 {
+			defaultAppsDeploymentStatus = defaultAppsDeploymentStatus + fmt.Sprintf("\nDeployed Apps: %v", deployedApps)
+		}
+		if len(failedApps) > 0 {
+			defaultAppsDeploymentStatus = defaultAppsDeploymentStatus + fmt.Sprintf("\nFailed Apps: %v", failedApps)
+		}
+		if len(ongoingApps) > 0 {
+			defaultAppsDeploymentStatus = defaultAppsDeploymentStatus + fmt.Sprintf("\nOngoing Apps: %v", ongoingApps)
+		}
+		completed = true
+	default:
+		defaultAppsDeploymentStatus = fmt.Sprintf("Deploying applications, %d/%d deployed", len(deployedApps), len(resp.DefaultAppsStatus))
+	}
+	return completed, defaultAppsDeploymentStatus, nil
 }

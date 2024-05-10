@@ -9,8 +9,7 @@ ReleaseName: "signoz"
 Version: "0.0.3"
 CreateNamespace: true
 PrivilegedNamespace: true
-LaunchURL: https://signoz.{{.DomainName}}
-LaunchUIDescription: "Signoz"
-LaunchUIIcon: "signoz.svg"
+UIEndpoint: https://signoz.{{.DomainName}}
+Icon: "signoz.svg"
 OverrideValues:
   DomainName: "{{.DomainName}}"

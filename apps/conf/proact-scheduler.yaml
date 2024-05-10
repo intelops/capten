@@ -6,11 +6,12 @@ RepoName: "proact-scheduler"
 RepoURL: "https://intelops.github.io/proact-scheduler"
 Namespace: "capten"
 ReleaseName: "proact-scheduler"
-Version: "0.1.1"
+Version: "0.1.2"
 CreateNamespace: true
 PrivilegedNamespace: true
 PluginName: proact
 PluginDescription: "ProAct"
 APIEndpoint: https://proact-scheduler.{{.DomainName}}
+UIModuleEndpoint: https://intelops.github.io/capten-plugins/plugins/proact-mfe-0.1.10.tgz
 OverrideValues:
   DomainName: "{{.DomainName}}"
