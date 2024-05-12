@@ -126,7 +126,6 @@ func (h *Client) installApp(ctx context.Context, settings *cli.EnvSettings, acti
 	}
 
 	if len(appConfig.TemplateValues) == 0 {
-		clog.Logger.Infof("[app: %s] Deploying with no override values", appConfig.Name)
 		_, err = client.Run(chartReq, nil)
 		if err != nil {
 			return errors.Wrap(err, "failed chart install run")
@@ -175,7 +174,6 @@ func (h *Client) upgradeApp(ctx context.Context, settings *cli.EnvSettings, acti
 	}
 
 	if len(appConfig.TemplateValues) == 0 {
-		clog.Logger.Infof("[app: %s] Upgrading with no override values", appConfig.Name)
 		_, err = client.Run(appConfig.ReleaseName, chartReq, nil)
 		if err != nil {
 			return errors.Wrap(err, "failed chart upgrade run")
