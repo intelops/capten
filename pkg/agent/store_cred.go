@@ -249,6 +249,7 @@ func StoreCredAppConfig(captenConfig config.CaptenConfig, appGlobalValues map[st
 func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
 
 	var credential map[string]string
+	var secretKeyMapping map[string]string
 	switch config.CredentialType {
 	case "cosign":
 
@@ -331,17 +332,37 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		}
 		appGlobalValues[natsSecretNameVar] = config.SecretName
 
-	case "postgres-password", "temporal-password":
-		err := generateAndStorePassword(vaultClient, config)
+	case "postgres-password":
+		err := generateAndStorePassword(vaultClient, config, config.CredentialType)
 		if err != nil {
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
+		if secretKeyMapping == nil {
+			secretKeyMapping = make(map[string]string)
+		}
 
-	// err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
-	// if err != nil {
-	// 	return fmt.Errorf("error while configuring secret: %v", err)
-	// }
-	//appGlobalValues[postgresSecretNameVar] = config.SecretName
+		secretKeyMapping[config.CredentialType] = config.CredentialType
+
+	case "password":
+		err := generateAndStorePassword(vaultClient, config, config.CredentialType)
+		if err != nil {
+			return fmt.Errorf("error while getting and storing password: %v", err)
+		}
+		if secretKeyMapping == nil {
+			secretKeyMapping = make(map[string]string)
+		}
+
+		secretKeyMapping[config.CredentialType] = config.CredentialType
+
+		// secretKeyMapping = map[string]string{
+		// 	config.CredentialType: config.CredentialType,
+		// 	//"password": con,
+		//}
+		err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
+		if err != nil {
+			return fmt.Errorf("error while configuring secret: %v", err)
+		}
+		appGlobalValues[postgresSecretNameVar] = config.SecretName
 
 	default:
 
@@ -421,11 +442,11 @@ func generatePassword() string {
 	return string(password)
 }
 
-func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
+func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, key string) error {
 	val := generatePassword()
 
 	credential := map[string]string{
-		"password": val,
+		key: val,
 	}
 	err := putCredentialInVault(vaultClient, config, credential)
 	if err != nil {
