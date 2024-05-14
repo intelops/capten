@@ -10,10 +10,12 @@ actions:
   configure-cert-issuer:
     enabled: true
   configure-cstor-pool:
-    enabled: true
+    enabled: false
   install-default-app-group:
     enabled: true
   synch-apps:
     enabled: true
   store-cluster-credentials:
+    enabled: true
+  fetch-loadBalancerHost:
     enabled: true

@@ -8,7 +8,6 @@ import (
 	"capten/pkg/types"
 	"context"
 	"html/template"
-	"time"
 
 	"capten/pkg/clog"
 
@@ -24,6 +23,7 @@ func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interf
 
 	hc, err := helm.NewClient(captenConfig)
 	if err != nil {
+
 		return err
 	}
 
@@ -56,15 +56,6 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 			clog.Logger.Infof("[app: %s] already installed", appConfig.Name)
 		} else {
 			clog.Logger.Infof("[app: %s] installed", appConfig.Name)
-		}
-		if alreadyInstalled && (captenConfig.ClusterType == "cloud-managed") && (appConfig.Name == "traefik") {
-			hostName, err := k8s.PrintLoadBalancerServices(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName), "traefik")
-			if err != nil {
-				clog.Logger.Error("failed to get LoadBalancerService ", err)
-			}
-			config.UpdateLBEndpointFile(&captenConfig, hostName)
-			time.Sleep(3 * time.Minute)
-
 		}
 
 		appConfig.TemplateValues = nil

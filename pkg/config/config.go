@@ -69,6 +69,7 @@ type CaptenConfig struct {
 	SetupAppsConfigFile            string `envconfig:"SETUP_APPS_CONFIG_FILE" default:"setup_apps.yaml"`
 	AzureTerraformTemplateFileName string `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.azure.tmpl"`
 	VaultCredWaitTime              int    `envconfig:"SETUP_APPS_CONFIG_FILE" default:"300"`
+	LBServiceName                  string `envconfig:"LBSERVICE-NAME" default:"traefik"`
 }
 
 type CaptenClusterValues struct {
@@ -108,13 +109,7 @@ func GetCaptenConfig() (CaptenConfig, error) {
 	if err != nil {
 		return cfg, err
 	}
-	// if captenvalues.ClusterType == "cloud-managed" {
-	// 	// clientset, err := k8s.GetK8SClient(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.KubeConfigFileName))
-	// 	err := k8s.PrintLoadBalancerServices(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.KubeConfigFileName), "traefik")
-	// 	if err != nil {
-	// 		return cfg, err
-	// 	}
-	// }
+
 	hostvalue, err := GetCaptenClusterValues(cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), &captenhostvalue)
 	if err != nil {
 		return cfg, err
@@ -294,7 +289,7 @@ func UpdateLBEndpointFile(cfg *CaptenConfig, hostname string) error {
 
 	// Update LoadBalancerHost field
 	lbEndpoint.LoadBalancerHost = hostname
-
+	cfg.LoadBalancerHost = hostname
 	// Marshal the updated struct back to YAML
 	updatedYAML, err := yaml.Marshal(&lbEndpoint)
 	if err != nil {
@@ -309,6 +304,6 @@ func UpdateLBEndpointFile(cfg *CaptenConfig, hostname string) error {
 		return err
 	}
 
-	fmt.Println("LB Host updated successfully.")
+	clog.Logger.Info("LB Host updated successfully")
 	return nil
 }

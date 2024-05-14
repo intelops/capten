@@ -30,6 +30,7 @@ type SetupAppsActions struct {
 	InstallDefaultAppGroup  map[string]interface{} `yaml:"install-default-app-group"`
 	SynchApps               map[string]interface{} `yaml:"synch-apps"`
 	StoreClusterCredentials map[string]interface{} `yaml:"store-cluster-credentials"`
+	FetchLoadBalancerHost   map[string]interface{} `yaml:"fetch-loadBalancerHost"`
 }
 
 var appsCmd = &cobra.Command{
@@ -68,17 +69,33 @@ var appsCmd = &cobra.Command{
 			return app.DeployApps(captenConfig, globalValues, captenConfig.CoreAppGroupsFileName)
 		})
 		if err != nil {
-			clog.Logger.Errorf("%v", err)
+			clog.Logger.Errorf(" Error while deploying apps %v", err)
 			return
 		}
 
-		if captenConfig.ClusterType == "cloud-managed" {
-			captenConfig, err = config.GetCaptenConfig()
+		err = execActionIfEnabled(actions.Actions.FetchLoadBalancerHost, func() error {
+
+			hostName, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName), "traefik", captenConfig.LBServiceName)
 			if err != nil {
-				clog.Logger.Errorf("failed to read capten config, %v", err)
-				return
+				clog.Logger.Error("failed to get LoadBalancerService ", err)
 			}
 
+			err = retry(10, 30*time.Second, func() error {
+				if err := config.UpdateLBEndpointFile(&captenConfig, hostName); err != nil {
+					clog.Logger.Infof("LB is not updated in the capten_lb_endpoint.yaml ")
+					return errors.WithMessage(err, "failed to update LB ")
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+			clog.Logger.Info("LB is updated in the ./config/capten_lb_endpoint.yaml")
+			return nil
+		})
+		if err != nil {
+			clog.Logger.Errorf("%v", err)
+			return
 		}
 
 		err = execActionIfEnabled(actions.Actions.ConfigureAgentCerts, func() error {

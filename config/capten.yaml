@@ -1,6 +1,6 @@
-DomainName: intelops.com
-CloudService: azure
-ClusterType: talos
+DomainName: awsagent.optimizor.app
+CloudService: "aws"
+ClusterType: cloud-managed
 ClusterCAIssuer: ""
 SocialIntegration: teams
 SlackURL: slack.com
