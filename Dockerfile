@@ -1,5 +1,5 @@
 # Build stage
-FROM golang AS builder
+FROM cgr.dev/chainguard/go:latest AS builder
 
 WORKDIR /go/src/app
 
