@@ -11,21 +11,21 @@ server:
         driver: "sql"
         sql:
           driver: "postgres"
-          host: postgresql
+          host: postgresql.platform.svc.cluster.local
           port: 5432
           database: temporal
           user: temporal
-          existingSecret: postgresql
+          existingSecret: "{{ .postgresSecretName }}"
 
       visibility:
         driver: "sql"
         sql:
           driver: "postgres"
-          host: postgresql
+          host: postgresql.platform.svc.cluster.local
           port: 5432
           database: temporal_visibility
           user: temporal
-          existingSecret: postgresql
+          existingSecret: "{{ .postgresSecretName }}"
   autoscaling:
     enabled: false
   frontend:

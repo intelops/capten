@@ -19,3 +19,11 @@ resources:
   limits:
     cpu: 200m
     memory: 150Mi
+clickhouse:
+  enabled: false
+existingClickhouse:
+  host: clickhouse.platform.svc.cluster.local
+  secret:
+    name: "{{ .clickkhouseSecretName }}"
+    usernamekey: "user"
+    passwordkey: "password"

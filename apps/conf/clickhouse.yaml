@@ -1,11 +1,11 @@
-Name: "postgresql"
-ChartName: "tools/postgresql"
+Name: "clickhouse"
+ChartName: "tools/clickhouse"
 Category: "Platform"
 Description: ""
 RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "platform"
-ReleaseName: "postgresql"
-Version: "1.0.0"
+ReleaseName: "clickhouse"
+Version: "1.0.3"
 CreateNamespace: true
 PrivilegedNamespace: true
