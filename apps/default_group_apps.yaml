@@ -1,4 +1,27 @@
 Apps:
+talos:
+  - "pre-install"
+  - "prometheus"
+  - "k8ssandra-operator"
+  - "postgresql"
+  - "loki"
+  - "kyverno"
+  - "k8ssandra-cluster"
+  - "monitoring"
+  - "kubviz-client"
+  - "kubviz-agent"
+  - "signoz"
+  - "temporal"
+  - "kad"
+  - "policy-reporter"
+  - "kubescape"
+  - "falco"
+  - "quality-trace"
+  - "pyroscope"
+  - "proact-scheduler"
+  - "velero"
+
+cloud-managed:
   - "pre-install"
   - "prometheus"
   - "k8ssandra-operator"

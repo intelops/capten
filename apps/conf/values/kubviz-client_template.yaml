@@ -1,6 +1,12 @@
 nats:
   service:
+{{if eq .ClusterType "talos"}}
     type: NodePort
+{{else if eq .ClusterType "cloud-managed"}}
+    type: LoadBalancer
+  serviceAnnotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+{{end}}
   resources: 
     requests:
       cpu: 100m

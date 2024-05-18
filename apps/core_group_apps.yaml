@@ -1,7 +1,16 @@
 Apps:
-  - "openebs-cstor"
-  - "cert-manager"
-  - "traefik"
-  - "vault"
-  - "vault-cred"
-  - "external-secrets"
+  talos:
+   - "openebs-cstor"
+   - "cert-manager"
+   - "traefik"
+   - "vault"
+   - "vault-cred"
+   - "external-secrets"
+
+  cloud-managed:
+   - "cert-manager"
+   - "traefik"
+   - "vault"
+   - "vault-cred"
+   - "external-secrets"
+

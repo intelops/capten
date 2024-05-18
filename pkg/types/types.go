@@ -7,7 +7,8 @@ import (
 )
 
 type AppList struct {
-	Apps []string `yaml:"Apps"`
+	//Apps []string `yaml:"Apps"`
+	Apps map[string][]string `yaml:"Apps"`
 }
 type AzureClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`

@@ -23,6 +23,7 @@ func DeployApps(captenConfig config.CaptenConfig, globalValues map[string]interf
 
 	hc, err := helm.NewClient(captenConfig)
 	if err != nil {
+
 		return err
 	}
 
@@ -71,7 +72,7 @@ func installAppGroup(captenConfig config.CaptenConfig, hc *helm.Client, appConfi
 func prepareAppGroupConfigs(captenConfig config.CaptenConfig, globalValues map[string]interface{},
 	appGroupNameFile string) (appConfigs []types.AppConfig, err error) {
 	var apps []string
-	apps, err = GetApps(captenConfig.PrepareFilePath(captenConfig.AppsDirPath, appGroupNameFile))
+	apps, err = GetApps(captenConfig.PrepareFilePath(captenConfig.AppsDirPath, appGroupNameFile), captenConfig.ClusterType)
 	if err != nil {
 		return
 	}
