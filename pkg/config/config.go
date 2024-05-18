@@ -27,6 +27,7 @@ type CaptenConfig struct {
 	AgentCACertSecretName          string   `envconfig:"AGENT_CA_CERT_SECRET_NAME" default:"kad-agent-ca-cert"`
 	AppsDirPath                    string   `envconfig:"APPS_DIR_PATH" default:"/apps/"`
 	AppsConfigDirPath              string   `envconfig:"APPS_CONFIG_DIR_PATH" default:"/apps/conf/"`
+	AppsCredentialDirPath          string   `envconfig:"APPS_CREDENTIAL_DIR_PATH" default:"credentials/"`
 	AppsValuesDirPath              string   `envconfig:"APPS_VALUES_DIR_PATH" default:"/apps/conf/values/"`
 	AppsTempDirPath                string   `envconfig:"APPS_TEMP_DIR_PATH" default:"/apps/tmp/"`
 	AppValuesTempDirPath           string   `envconfig:"APPS_TEMPVAL_DIR_PATH" default:"/apps/tmp/val/"`

@@ -3,3 +3,7 @@ global:
     auth:
       username: "temporal"
       database: "temporal"
+      existingSecret: "{{ .postgresSecretName }}"
+      secretKeys:
+        adminPasswordKey: "postgres-password"
+        userPasswordKey: "password"

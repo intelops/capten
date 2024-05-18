@@ -1,10 +1,10 @@
 postgresql:
-  host: "postgresql"
+  host: "postgresql.platform.svc.cluster.local"
   port: "5432"
   database: "scsctl"
   username: "postgres"
   existingSecret: 
-    name: "postgresql"
+    name: "{{ .postgresSecretName }}"
     passwordKey: "postgres-password"
 
 temporal:

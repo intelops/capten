@@ -123,3 +123,13 @@ func (a AppConfig) ToSyncAppData() (agentpb.SyncAppData, error) {
 		},
 	}, nil
 }
+
+type CredentialAppConfig struct {
+	Name                 string   `yaml:"name"`
+	SecretName           string   `yaml:"secretName"`
+	Namespaces           []string `yaml:"namespaces"`
+	CredentialEntity     string   `yaml:"credentialEntity"`
+	CredentialIdentifier string   `yaml:"credentialIdentifier"`
+	TokenAttributeName   string   `yaml:"tokenAttributeName"`
+	CredentialType       string   `yaml:"credentialType"`
+}
