@@ -6,7 +6,6 @@ Apps:
    - "vault"
    - "vault-cred"
    - "external-secrets"
-
   cloud-managed:
    - "cert-manager"
    - "traefik"

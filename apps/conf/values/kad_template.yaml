@@ -5,6 +5,13 @@ ingressroute:
   host: "captenagent.{{.DomainName}}"
 vaultCred:
   address: vault-cred:8080
+postgres:
+  host: postgresql.platform.svc.cluster.local
+  port: 5432  
+  userName: captenagt
+  entityName: postgres
+  dbName: capten
+  adminCredIdentifer: postgres-admin
 resources: 
   requests:
     cpu: 100m
@@ -12,6 +19,3 @@ resources:
   limits:
     cpu: 200m
     memory: 1000Mi
-
-
-
