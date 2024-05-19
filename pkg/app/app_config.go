@@ -42,7 +42,6 @@ func GetApps(appListFilePath string, appType string) ([]string, error) {
 		return nil, errors.WithMessagef(err, "failed to unmarshal app group file, %s", appListFilePath)
 	}
 
-	
 	apps, ok := values.Apps[appType]
 	if !ok {
 		return nil, errors.Errorf("type %s not found in YAML file", appType)

@@ -131,6 +131,5 @@ type CredentialAppConfig struct {
 	Namespaces           []string `yaml:"namespaces"`
 	CredentialEntity     string   `yaml:"credentialEntity"`
 	CredentialIdentifier string   `yaml:"credentialIdentifier"`
-	TokenAttributeName   string   `yaml:"tokenAttributeName"`
 	CredentialType       string   `yaml:"credentialType"`
 }
