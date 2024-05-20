@@ -1,8 +1,9 @@
 package agent
 
 import (
-	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/agent/pb/vaultcredpb"
 	"capten/pkg/config"
+	"capten/pkg/types"
 	"reflect"
 	"testing"
 
@@ -365,7 +366,7 @@ func Test_configireCosignKeysSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := configireCosignKeysSecret(tt.args.captenConfig, tt.args.vaultClient); (err != nil) != tt.wantErr {
+			if err := configureCosignKeysSecret(tt.args.captenConfig, tt.args.vaultClient, types.CredentialAppConfig{}); (err != nil) != tt.wantErr {
 				t.Errorf("configireCosignKeysSecret() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -387,7 +388,7 @@ func Test_storeCosignKeys(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := storeCosignKeys(tt.args.captenConfig, tt.args.appGlobalVaules, tt.args.vaultClient); (err != nil) != tt.wantErr {
+			if err := storeCredentials(tt.args.captenConfig, tt.args.appGlobalVaules, tt.args.vaultClient, types.CredentialAppConfig{}); (err != nil) != tt.wantErr {
 				t.Errorf("storeCosignKeys() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -6,44 +6,49 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "capten",
 	Short: "",
 	Long:  `command line tool for building cluster`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-// createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "for creation of resources or cluster",
+var clusterCmd = &cobra.Command{
+	Use:   "cluster",
+	Short: "cluster operations",
 	Long:  ``,
 }
 
-var destroyCmd = &cobra.Command{
-	Use:   "destroy",
-	Short: "destroy created cluster",
-	Long:  ``,
-}
-
-var setupCmd = &cobra.Command{
-	Use:   "setup",
-	Short: "sets up cluster for usage",
-	Long:  ``,
-}
-
-var showCmd = &cobra.Command{
+var clusterShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "show cluster details",
+	Short: "cluster show details",
+	Long:  ``,
+}
+
+var clusterAppsCmd = &cobra.Command{
+	Use:   "apps",
+	Short: "cluster apps operations",
+	Long:  ``,
+}
+
+var pluginCmd = &cobra.Command{
+	Use:   "plugin",
+	Short: "plugin operations",
+	Long:  ``,
+}
+
+var pluginStoreCmd = &cobra.Command{
+	Use:   "store",
+	Short: "plugin store operations",
+	Long:  ``,
+}
+
+var clusterResourcesCmd = &cobra.Command{
+	Use:   "resources",
+	Short: "cluster resources operations",
 	Long:  ``,
 }
 
@@ -75,15 +80,79 @@ func validateClusterFlags(cloudService, clusterType string) (err error) {
 }
 
 func init() {
+	rootCmd.AddCommand(clusterCmd)
+	rootCmd.AddCommand(pluginCmd)
+
+	//cluster optons
+	clusterCmd.AddCommand(clusterShowCmd)
+	clusterCmd.AddCommand(clusterAppsCmd)
+	clusterCmd.AddCommand(clusterResourcesCmd)
+
+	//cluster create options
 	clusterCreateSubCmd.PersistentFlags().String("cloud", "", "cloud service (default: azure)")
 	clusterCreateSubCmd.PersistentFlags().String("type", "", "type of cluster (default: talos)")
+	clusterCmd.AddCommand(clusterCreateSubCmd)
 
-	createCmd.AddCommand(clusterCreateSubCmd)
-	destroyCmd.AddCommand(clusterDestroySubCmd)
-	showCmd.AddCommand(showClusterInfoCmd)
-	setupCmd.AddCommand(appsCmd)
-	rootCmd.AddCommand(createCmd)
-	rootCmd.AddCommand(destroyCmd)
-	rootCmd.AddCommand(setupCmd)
-	rootCmd.AddCommand(showCmd)
+	//cluster destroy options
+	clusterCmd.AddCommand(clusterDestroySubCmd)
+
+	//cluster show options
+	clusterShowCmd.AddCommand(showClusterInfoSubCmd)
+
+	//cluster apps options
+	clusterAppsCmd.AddCommand(appsInstallSubCmd)
+	clusterAppsCmd.AddCommand(appsListSubCmd)
+
+	//cluster resources create options
+	resourceCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	clusterResourcesCmd.AddCommand(resourceCreateSubCmd)
+
+	//cluster resources delete options
+	resourceDeleteSubCmd.PersistentFlags().String("type", "", "type of resource")
+	clusterResourcesCmd.AddCommand(resourceDeleteSubCmd)
+
+	//cluster resources list options
+	resourceListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	clusterResourcesCmd.AddCommand(resourceListSubCmd)
+
+	//cluster resources show options
+	resourceShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	clusterResourcesCmd.AddCommand(resourceShowSubCmd)
+
+	//plugin deploy options
+	pluginDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginDeployCreateSubCmd)
+
+	//plugin undeploy options
+	pluginUnDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginUnDeployCreateSubCmd)
+
+	//plugin list options
+	pluginListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginListSubCmd)
+
+	//plugin show options
+	pluginShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginShowSubCmd)
+
+	//plugin config options
+	pluginConfigSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginConfigSubCmd)
+
+	//plugin store options
+	pluginStoreCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginCmd.AddCommand(pluginStoreCmd)
+
+	//plugin store list options
+	pluginStoreListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreCmd.AddCommand(pluginStoreListSubCmd)
+
+	//plugin store show options
+	pluginStoreShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreCmd.AddCommand(pluginStoreShowSubCmd)
+
+	//plugin store synch options
+	pluginStoreSynchSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreCmd.AddCommand(pluginStoreSynchSubCmd)
+
 }

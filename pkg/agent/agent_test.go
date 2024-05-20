@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"capten/pkg/agent/agentpb"
-	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/agent/pb/agentpb"
+	"capten/pkg/agent/pb/vaultcredpb"
 	"capten/pkg/config"
 	"os"
 
