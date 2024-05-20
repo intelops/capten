@@ -1,7 +1,7 @@
 package types
 
 import (
-	"capten/pkg/agent/agentpb"
+	"capten/pkg/agent/pb/agentpb"
 
 	"gopkg.in/yaml.v2"
 )

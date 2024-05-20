@@ -2,7 +2,7 @@ package agent
 
 import (
 	"bytes"
-	"capten/pkg/agent/agentpb"
+	"capten/pkg/agent/pb/agentpb"
 	"capten/pkg/app"
 	"capten/pkg/clog"
 	"capten/pkg/config"

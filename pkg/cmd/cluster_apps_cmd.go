@@ -33,9 +33,9 @@ type SetupAppsActions struct {
 	FetchLoadBalancerHost   map[string]interface{} `yaml:"fetch-loadBalancerHost"`
 }
 
-var appsCmd = &cobra.Command{
-	Use:   "apps",
-	Short: "sets up apps cluster for usage",
+var appsInstallSubCmd = &cobra.Command{
+	Use:   "install",
+	Short: "install capten stack apps on cluster",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -194,6 +194,15 @@ var appsCmd = &cobra.Command{
 			return
 		}
 
+	},
+}
+
+var appsListSubCmd = &cobra.Command{
+	Use:   "list",
+	Short: "list deployed apps on cluster",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		clog.Logger.Info("Listed apps")
 	},
 }
 

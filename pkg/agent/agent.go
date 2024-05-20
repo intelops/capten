@@ -9,8 +9,10 @@ import (
 
 	"os"
 
-	"capten/pkg/agent/agentpb"
-	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/agent/pb/agentpb"
+	"capten/pkg/agent/pb/clusterpluginspb"
+	"capten/pkg/agent/pb/pluginstorepb"
+	"capten/pkg/agent/pb/vaultcredpb"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/timeout"
 	"github.com/pkg/errors"
@@ -20,6 +22,30 @@ import (
 )
 
 func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
+	conn, err := getAgentClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return agentpb.NewAgentClient(conn), nil
+}
+
+func GetPluginStoreClient(config config.CaptenConfig) (pluginstorepb.PluginStoreClient, error) {
+	conn, err := getAgentClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return pluginstorepb.NewPluginStoreClient(conn), nil
+}
+
+func GetClusterPluginClient(config config.CaptenConfig) (clusterpluginspb.ClusterPluginsClient, error) {
+	conn, err := getAgentClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return clusterpluginspb.NewClusterPluginsClient(conn), nil
+}
+
+func getAgentClient(config config.CaptenConfig) (*grpc.ClientConn, error) {
 	agentEndpoint := config.GetCaptenAgentEndpoint()
 	authorityAgentHost := fmt.Sprintf("%s.%s", config.AgentHostName, config.DomainName)
 
@@ -41,7 +67,7 @@ func GetAgentClient(config config.CaptenConfig) (agentpb.AgentClient, error) {
 			return nil, errors.WithMessagef(err, "failed to connect to capten agent")
 		}
 	}
-	return agentpb.NewAgentClient(conn), nil
+	return conn, nil
 }
 
 func GetVaultClient(config config.CaptenConfig) (vaultcredpb.VaultCredClient, error) {

@@ -128,7 +128,7 @@ func TestGetApps(t *testing.T) {
 	// }
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetApps(tt.args.appListFilePath)
+			got, err := GetApps(tt.args.appListFilePath, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetApps() error = %v, wantErr %v", err, tt.wantErr)
 				return

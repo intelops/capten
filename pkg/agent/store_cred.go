@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"capten/pkg/agent/vaultcredpb"
+	"capten/pkg/agent/pb/vaultcredpb"
 	"capten/pkg/clog"
 
 	//"capten/pkg/clog"
