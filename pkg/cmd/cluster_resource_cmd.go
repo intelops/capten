@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"capten/pkg/agent"
 	"capten/pkg/clog"
+	"capten/pkg/config"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -53,7 +55,15 @@ var resourceListSubCmd = &cobra.Command{
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Resources Listed, %s", resourceType)
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+		err = agent.ListClusterResources(captenConfig, resourceType)
+		if err != nil {
+			clog.Logger.Errorf("failed to list cluster resources, %v", err)
+		}
 	},
 }
 
