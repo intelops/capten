@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"capten/pkg/agent"
 	"capten/pkg/clog"
+	"capten/pkg/config"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -20,12 +22,23 @@ var pluginStoreListSubCmd = &cobra.Command{
 	Short: "plugin store list",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidPluginStoreFlags(cmd)
+		storeType, err := readAndValidPluginStoreFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Plugin store Listed, %s", resourceType)
+
+		captenconfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Error(err)
+			return
+		}
+
+		err = agent.ListPluginStoreApps(captenconfig, storeType)
+		if err != nil {
+			clog.Logger.Errorf("failed to list plugin store apps, %v", err)
+			return
+		}
 	},
 }
 
