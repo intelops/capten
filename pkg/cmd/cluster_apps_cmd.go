@@ -74,8 +74,8 @@ var appsInstallSubCmd = &cobra.Command{
 		}
 
 		err = execActionIfEnabled(actions.Actions.FetchLoadBalancerHost, func() error {
-
-			hostName, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName), "traefik", captenConfig.LBServiceName)
+			hostName, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath,
+				captenConfig.KubeConfigFileName), "traefik", captenConfig.LBServiceName)
 			if err != nil {
 				clog.Logger.Error("failed to get LoadBalancerService ", err)
 			}
@@ -90,7 +90,7 @@ var appsInstallSubCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			clog.Logger.Info("LB is updated in the ./config/capten_lb_endpoint.yaml")
+			clog.Logger.Info("Fetched cluster agent address")
 			return nil
 		})
 		if err != nil {
@@ -202,7 +202,15 @@ var appsListSubCmd = &cobra.Command{
 	Short: "list deployed apps on cluster",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		clog.Logger.Info("Listed apps")
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+		err = agent.ListClusterApplications(captenConfig)
+		if err != nil {
+			clog.Logger.Errorf("failed to fetch applications from capten cluster, %v", err)
+		}
 	},
 }
 
