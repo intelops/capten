@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"capten/pkg/agent"
 	"capten/pkg/clog"
+	"capten/pkg/config"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -48,12 +50,16 @@ var pluginListSubCmd = &cobra.Command{
 	Short: "plugin list",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidDeployPluginFlags(cmd)
+		captenConfig, err := config.GetCaptenConfig()
 		if err != nil {
-			clog.Logger.Error(err)
+			clog.Logger.Errorf("failed to read capten config, %v", err)
 			return
 		}
-		clog.Logger.Infof("Plugin Listed, %s", resourceType)
+		err = agent.ListClusterPlugins(captenConfig)
+		if err != nil {
+			clog.Logger.Errorf("failed to list cluster plugins, %v", err)
+			return
+		}
 	},
 }
 
