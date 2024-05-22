@@ -9,39 +9,95 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func readAndValidDeployPluginFlags(cmd *cobra.Command) (resourceType string, err error) {
-	resourceType, _ = cmd.Flags().GetString("type")
-	if len(resourceType) == 0 {
-		return "", fmt.Errorf("specify the resource type in the command line")
+func readPluginNameFlags(cmd *cobra.Command) (pluginName string, err error) {
+	pluginName, _ = cmd.Flags().GetString("plugin-name")
+	if len(pluginName) == 0 {
+		return "", fmt.Errorf("specify the plugin name in the command line")
 	}
 	return
 }
 
-var pluginDeployCreateSubCmd = &cobra.Command{
+func readAndValidDeployPluginBaseFlags(cmd *cobra.Command) (storeType, pluginName string, err error) {
+	storeType, _ = cmd.Flags().GetString("store-type")
+	if len(storeType) == 0 {
+		return "", "", fmt.Errorf("specify the store type in the command line")
+	}
+
+	if storeType != "local" && storeType != "central" && storeType != "default" {
+		return "", "", fmt.Errorf("invalid store type: %s for list plugin store", storeType)
+	}
+
+	pluginName, _ = cmd.Flags().GetString("plugin-name")
+	if len(pluginName) == 0 {
+		return "", "", fmt.Errorf("specify the plugin name in the command line")
+	}
+	return
+}
+
+func readAndValidDeployPluginFlags(cmd *cobra.Command) (storeType, pluginName, version string, err error) {
+	storeType, pluginName, err = readAndValidDeployPluginBaseFlags(cmd)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	version, _ = cmd.Flags().GetString("version")
+	if len(version) == 0 {
+		return "", "", "", fmt.Errorf("specify the plugin version in the command line")
+	}
+	return
+}
+
+var pluginDeploySubCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "plugin deploy",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidDeployPluginFlags(cmd)
+		storeType, pluginName, version, err := readAndValidDeployPluginFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Plugin Deployed, %s", resourceType)
+
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+
+		err = agent.DeployPlugin(captenConfig, storeType, pluginName, version)
+		if err != nil {
+			clog.Logger.Errorf("failed to trigger deploy plugin, %v", err)
+			return
+		}
+
+		clog.Logger.Infof("Plugin '%s' deploy triggerred", pluginName)
 	},
 }
 
-var pluginUnDeployCreateSubCmd = &cobra.Command{
+var pluginUnDeploySubCmd = &cobra.Command{
 	Use:   "undeploy",
 	Short: "plugin undeploy",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidDeployPluginFlags(cmd)
+		storeType, pluginName, err := readAndValidDeployPluginBaseFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Plugin Undeployed, %s", resourceType)
+
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+
+		err = agent.UnDeployPlugin(captenConfig, storeType, pluginName)
+		if err != nil {
+			clog.Logger.Errorf("failed to trigger undeploy plugin, %v", err)
+			return
+		}
+
+		clog.Logger.Infof("Plugin '%s' un-deploy triggerred", pluginName)
 	},
 }
 
@@ -68,12 +124,17 @@ var pluginShowSubCmd = &cobra.Command{
 	Short: "plugin show",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidDeployPluginFlags(cmd)
+		pluginName, err := readPluginNameFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Plugin showed, %s", resourceType)
+
+		err = agent.ShowClusterPluginData(config.CaptenConfig{}, pluginName)
+		if err != nil {
+			clog.Logger.Errorf("failed to show cluster plugin data, %v", err)
+			return
+		}
 	},
 }
 
@@ -82,11 +143,16 @@ var pluginConfigSubCmd = &cobra.Command{
 	Short: "plugin config",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceType, err := readAndValidDeployPluginFlags(cmd)
+		pluginName, err := readPluginNameFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
-		clog.Logger.Infof("Plugin configured, %s", resourceType)
+
+		err = agent.ConfigureClusterPlugin(config.CaptenConfig{}, pluginName)
+		if err != nil {
+			clog.Logger.Errorf("failed to show cluster plugin data, %v", err)
+			return
+		}
 	},
 }

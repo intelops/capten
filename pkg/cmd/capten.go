@@ -120,23 +120,25 @@ func init() {
 	clusterResourcesCmd.AddCommand(resourceShowSubCmd)
 
 	//plugin deploy options
-	pluginDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
-	pluginCmd.AddCommand(pluginDeployCreateSubCmd)
+	pluginDeploySubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginDeploySubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
+	pluginDeploySubCmd.PersistentFlags().String("version", "", "version of the plugin")
+	pluginCmd.AddCommand(pluginDeploySubCmd)
 
 	//plugin undeploy options
-	pluginUnDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
-	pluginCmd.AddCommand(pluginUnDeployCreateSubCmd)
+	pluginUnDeploySubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginUnDeploySubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
+	pluginCmd.AddCommand(pluginUnDeploySubCmd)
 
 	//plugin list options
-	pluginListSubCmd.PersistentFlags().String("type", "", "type of resource")
 	pluginCmd.AddCommand(pluginListSubCmd)
 
 	//plugin show options
-	pluginShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginShowSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
 	pluginCmd.AddCommand(pluginShowSubCmd)
 
 	//plugin config options
-	pluginConfigSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginConfigSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
 	pluginCmd.AddCommand(pluginConfigSubCmd)
 
 	//plugin store options
