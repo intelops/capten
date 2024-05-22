@@ -102,6 +102,7 @@ func init() {
 	//cluster apps options
 	clusterAppsCmd.AddCommand(appsInstallSubCmd)
 	clusterAppsCmd.AddCommand(appsListSubCmd)
+	clusterAppsCmd.AddCommand(appsShowSubCmd)
 
 	//cluster resources create options
 	resourceCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
