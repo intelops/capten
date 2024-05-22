@@ -119,7 +119,7 @@ func ShowPluginStorePlugin(captenConfig config.CaptenConfig, storeType, pluginNa
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Key", "Value"})
+	table.SetHeader([]string{"Attribute", "Value"})
 	table.Append([]string{"plugin-name", resp.PluginData.PluginName})
 	table.Append([]string{"category", resp.PluginData.Category})
 	table.Append([]string{"versions", strings.Join(resp.PluginData.Versions, ",")})

@@ -51,7 +51,7 @@ func ShowClusterAppData(captenConfig config.CaptenConfig, appName string) error 
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Key", "Value"})
+	table.SetHeader([]string{"Attribute", "Value"})
 	table.Append([]string{"app-name", resp.AppConfig.ReleaseName})
 	table.Append([]string{"version", resp.AppConfig.Version})
 	table.Append([]string{"helr-repo-url", resp.AppConfig.RepoURL})
