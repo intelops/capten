@@ -32,7 +32,37 @@ func ListClusterApplications(captenConfig config.CaptenConfig) error {
 	return nil
 }
 
-func DeployApps(captenConfig config.CaptenConfig) error {
+func ShowClusterAppData(captenConfig config.CaptenConfig, appName string) error {
+	client, err := GetAgentClient(captenConfig)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetClusterAppConfig(context.TODO(), &agentpb.GetClusterAppConfigRequest{
+		ReleaseName: appName,
+	})
+	if err != nil {
+		return err
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Key", "Value"})
+	table.Append([]string{"app-name", resp.AppConfig.ReleaseName})
+	table.Append([]string{"version", resp.AppConfig.Version})
+	table.Append([]string{"helr-repo-url", resp.AppConfig.RepoURL})
+	table.Append([]string{"category", resp.AppConfig.Category})
+	table.Append([]string{"description", resp.AppConfig.Description})
+	table.Append([]string{"namespace", resp.AppConfig.Namespace})
+	table.Append([]string{"ui-module-endpoint", resp.AppConfig.UiModuleEndpoint})
+	table.Append([]string{"ui-endpoint", resp.AppConfig.UiEndpoint})
+	table.Append([]string{"api-endpoint", resp.AppConfig.ApiEndpoint})
+	table.Append([]string{"install-status", resp.AppConfig.InstallStatus})
+
+	table.Render()
+	return err
+}
+
+func DeployDefaultApps(captenConfig config.CaptenConfig) error {
 	client, err := GetAgentClient(captenConfig)
 	if err != nil {
 		return err
