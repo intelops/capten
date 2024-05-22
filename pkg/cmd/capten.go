@@ -140,19 +140,24 @@ func init() {
 	pluginCmd.AddCommand(pluginConfigSubCmd)
 
 	//plugin store options
-	pluginStoreCmd.PersistentFlags().String("type", "", "type of resource")
 	pluginCmd.AddCommand(pluginStoreCmd)
 
 	//plugin store list options
-	pluginStoreListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreListSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
 	pluginStoreCmd.AddCommand(pluginStoreListSubCmd)
 
 	//plugin store show options
-	pluginStoreShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreShowSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginStoreShowSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
 	pluginStoreCmd.AddCommand(pluginStoreShowSubCmd)
 
 	//plugin store synch options
-	pluginStoreSynchSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreSynchSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
 	pluginStoreCmd.AddCommand(pluginStoreSynchSubCmd)
+
+	//plugin store config options
+	pluginStoreConfigSubCmd.PersistentFlags().String("store-type", "", "store type (local)")
+	pluginStoreConfigSubCmd.PersistentFlags().String("git-project-id", "", "git project identifier")
+	pluginStoreCmd.AddCommand(pluginStoreConfigSubCmd)
 
 }
