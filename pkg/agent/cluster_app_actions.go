@@ -23,6 +23,11 @@ func ListClusterApplications(captenConfig config.CaptenConfig) error {
 		return err
 	}
 
+	if len(resp.DefaultAppsStatus) == 0 {
+		clog.Logger.Info("No apps found on cluster")
+		return nil
+	}
+
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Category", "Name", "Version", "Status"})
 	for _, clusterApp := range resp.DefaultAppsStatus {

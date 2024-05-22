@@ -2,6 +2,7 @@ package agent
 
 import (
 	"capten/pkg/agent/pb/pluginstorepb"
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"context"
 	"fmt"
@@ -41,6 +42,11 @@ func ListPluginStoreApps(captenConfig config.CaptenConfig, storeType string) err
 	})
 	if err != nil {
 		return err
+	}
+
+	if len(resp.Plugins) == 0 {
+		clog.Logger.Info("No plugins found on plugin store")
+		return nil
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)

@@ -106,19 +106,47 @@ func init() {
 
 	//cluster resources create options
 	resourceCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("labels", "", "labels of resource (e.g. 'crossplane,tekton')")
+	resourceCreateSubCmd.PersistentFlags().String("registry-url", "", "registry url of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("registry-type", "", "registry type of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("cloud-type", "", "cloud type of cloud provider resource (aws, azure)")
+	resourceCreateSubCmd.PersistentFlags().String("registry-username", "", "registry user name of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("registry-password", "", "registry password of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("access-key", "", "access key of aws cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("secret-key", "", "secret key of aws cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("client-id", "", "client id of azure cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("client-secret", "", "client secret of azure cloud provider resource")
 	clusterResourcesCmd.AddCommand(resourceCreateSubCmd)
+
+	//cluster resources update options
+	resourceUpdateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("id", "", "id of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("labels", "", "labels of resource (e.g. 'crossplane,tekton')")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-url", "", "registry url of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-type", "", "registry type of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("cloud-type", "", "cloud type of cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-username", "", "registry user name of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-password", "", "registry password of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("access-key", "", "access key of aws cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("secret-key", "", "secret key of aws cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("client-id", "", "client id of azure cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("client-secret", "", "client secret of azure cloud provider resource")
+	clusterResourcesCmd.AddCommand(resourceUpdateSubCmd)
 
 	//cluster resources delete options
 	resourceDeleteSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceDeleteSubCmd.PersistentFlags().String("id", "", "id of resource")
 	clusterResourcesCmd.AddCommand(resourceDeleteSubCmd)
 
 	//cluster resources list options
 	resourceListSubCmd.PersistentFlags().String("type", "", "type of resource")
 	clusterResourcesCmd.AddCommand(resourceListSubCmd)
-
-	//cluster resources show options
-	resourceShowSubCmd.PersistentFlags().String("type", "", "type of resource")
-	clusterResourcesCmd.AddCommand(resourceShowSubCmd)
 
 	//plugin deploy options
 	pluginDeploySubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
