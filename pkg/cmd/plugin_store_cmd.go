@@ -10,7 +10,7 @@ import (
 )
 
 func readAndValidatePluginStoreTypeFlags(cmd *cobra.Command) (storeType string, err error) {
-	storeType, _ = cmd.Flags().GetString("type")
+	storeType, _ = cmd.Flags().GetString("store-type")
 	if len(storeType) == 0 {
 		return "", fmt.Errorf("specify the store type in the command line")
 	}
@@ -22,13 +22,9 @@ func readAndValidatePluginStoreTypeFlags(cmd *cobra.Command) (storeType string, 
 }
 
 func readAndValidatePluginStoreShowFlags(cmd *cobra.Command) (storeType, pluginName string, err error) {
-	storeType, _ = cmd.Flags().GetString("type")
-	if len(storeType) == 0 {
-		return "", "", fmt.Errorf("specify the store type in the command line")
-	}
-
-	if storeType != "local" && storeType != "central" && storeType != "default" {
-		return "", "", fmt.Errorf("invalid store type: %s for list plugin store", storeType)
+	storeType, err = readAndValidatePluginStoreTypeFlags(cmd)
+	if err != nil {
+		return "", "", err
 	}
 
 	pluginName, _ = cmd.Flags().GetString("plugin-name")
@@ -42,7 +38,7 @@ func readAndValidatePluginStoreShowFlags(cmd *cobra.Command) (storeType, pluginN
 func readAndValidatePluginStoreConfigFlags(cmd *cobra.Command) (storeType, gitProjectId string, err error) {
 	storeType, _ = cmd.Flags().GetString("type")
 	if len(storeType) == 0 {
-		return "", "", fmt.Errorf("specify the store type in the command line")
+		storeType = "local"
 	}
 
 	if storeType != "local" {
