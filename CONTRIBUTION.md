@@ -91,7 +91,6 @@ CreateNamespace: A boolean value that determines if the namespace should be crea
 
 ```
 
-
 If any values needs to be overrided,you can create a sample `_template.yaml` in `./apps/conf/values`.And pass the override values in this yaml file.
 
 Then add the application name in the `./apps/conf/core_group_apps.yaml` or `./apps/conf/default_group_apps.yaml`
