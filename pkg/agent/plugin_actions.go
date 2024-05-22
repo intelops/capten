@@ -3,6 +3,7 @@ package agent
 import (
 	"capten/pkg/agent/pb/clusterpluginspb"
 	"capten/pkg/agent/pb/pluginstorepb"
+	"capten/pkg/clog"
 	"capten/pkg/config"
 	"context"
 	"fmt"
@@ -20,6 +21,11 @@ func ListClusterPlugins(captenConfig config.CaptenConfig) error {
 	resp, err := client.GetClusterPlugins(context.TODO(), &clusterpluginspb.GetClusterPluginsRequest{})
 	if err != nil {
 		return err
+	}
+
+	if len(resp.Plugins) == 0 {
+		clog.Logger.Info("No plugins found on cluster")
+		return nil
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
