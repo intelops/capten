@@ -17,6 +17,89 @@ func readPluginNameFlags(cmd *cobra.Command) (pluginName string, err error) {
 	return
 }
 
+func readPluginConfigureFlags(cmd *cobra.Command) (pluginName, action string, actionAttributes map[string]string, err error) {
+	pluginName, _ = cmd.Flags().GetString("plugin-name")
+	if len(pluginName) == 0 {
+		return "", "", nil, fmt.Errorf("specify the plugin name in the command line")
+	}
+
+	listActions, _ := cmd.Flags().GetBool("list-actions")
+	if listActions {
+		action = "list-actions"
+	} else {
+		action, _ = cmd.Flags().GetString("action")
+		if len(action) == 0 {
+			return "", "", nil, fmt.Errorf("specify the action in the command line")
+		}
+	}
+
+	switch pluginName {
+	case "crossplane":
+		actionAttributes, err = readCrossplanePluginActionFlags(cmd, action)
+		if err != nil {
+			return "", "", nil, err
+		}
+	case "tekton":
+	case "proact":
+		return "", "", nil, fmt.Errorf("configure actions for plugin is not implemented yet")
+	default:
+		return "", "", nil, fmt.Errorf("no configure actions for plugin supported")
+	}
+	return
+}
+
+func readCrossplanePluginActionFlags(cmd *cobra.Command, action string) (actionAttributes map[string]string, err error) {
+	actionAttributes = map[string]string{}
+	switch action {
+	case "create-crossplane-provider":
+		actionAttributes["crossplane-provider-name"], _ = cmd.Flags().GetString("crossplane-provider-name")
+		if len(actionAttributes["crossplane-provider-name"]) == 0 {
+			return nil, fmt.Errorf("specify the crossplane provider name in the command line")
+		}
+
+		actionAttributes["cloud-type"], _ = cmd.Flags().GetString("cloud-type")
+		if len(actionAttributes["cloud-type"]) == 0 {
+			return nil, fmt.Errorf("specify the cloud type in the command line")
+		}
+
+		actionAttributes["cloud-provider-id"], _ = cmd.Flags().GetString("cloud-provider-id")
+		if len(actionAttributes["cloud-provider-id"]) == 0 {
+			return nil, fmt.Errorf("specify the cloud provider id in the command line")
+		}
+	case "update-crossplane-provider":
+		actionAttributes["crossplane-provider-id"], _ = cmd.Flags().GetString("crossplane-provider-id")
+		if len(actionAttributes["crossplane-provider-id"]) == 0 {
+			return nil, fmt.Errorf("specify the crossplane provider id in the command line")
+		}
+
+		actionAttributes["crossplane-provider-name"], _ = cmd.Flags().GetString("crossplane-provider-name")
+		if len(actionAttributes["crossplane-provider-name"]) == 0 {
+			return nil, fmt.Errorf("specify the crossplane provider name in the command line")
+		}
+
+		actionAttributes["cloud-type"], _ = cmd.Flags().GetString("cloud-type")
+		if len(actionAttributes["cloud-type"]) == 0 {
+			return nil, fmt.Errorf("specify the cloud type in the command line")
+		}
+
+		actionAttributes["cloud-provider-id"], _ = cmd.Flags().GetString("cloud-provider-id")
+		if len(actionAttributes["cloud-provider-id"]) == 0 {
+			return nil, fmt.Errorf("specify the cloud provider id in the command line")
+		}
+	case "delete-crossplane-provider":
+		actionAttributes["crossplane-provider-id"], _ = cmd.Flags().GetString("crossplane-provider-id")
+		if len(actionAttributes["crossplane-provider-id"]) == 0 {
+			return nil, fmt.Errorf("specify the crossplane provider id in the command line")
+		}
+	case "download-kubeconfig":
+		actionAttributes["managed-cluster-id"], _ = cmd.Flags().GetString("managed-cluster-id")
+		if len(actionAttributes["managed-cluster-id"]) == 0 {
+			return nil, fmt.Errorf("specify the managed cluster id in the command line")
+		}
+	}
+	return
+}
+
 func readAndValidDeployPluginBaseFlags(cmd *cobra.Command) (storeType, pluginName string, err error) {
 	storeType, _ = cmd.Flags().GetString("store-type")
 	if len(storeType) == 0 {
@@ -143,13 +226,13 @@ var pluginConfigSubCmd = &cobra.Command{
 	Short: "plugin config",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		pluginName, err := readPluginNameFlags(cmd)
+		pluginName, action, actionAttributes, err := readPluginConfigureFlags(cmd)
 		if err != nil {
 			clog.Logger.Error(err)
 			return
 		}
 
-		err = agent.ConfigureClusterPlugin(config.CaptenConfig{}, pluginName)
+		err = agent.ConfigureClusterPlugin(config.CaptenConfig{}, pluginName, action, actionAttributes)
 		if err != nil {
 			clog.Logger.Errorf("failed to show cluster plugin data, %v", err)
 			return
