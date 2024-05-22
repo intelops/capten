@@ -25,7 +25,7 @@ server:
           port: 5432
           database: temporal_visibility
           user: temporal
-          existingSecret: "{{ .postgresSecretName }}"
+          existingSecret: ""
   autoscaling:
     enabled: false
   frontend:
