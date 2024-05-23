@@ -20,51 +20,49 @@ capten/
 │
 ├── apps/                   
 │   ├── conf/
-│   │   ├── credentials/         # Config files for generating and storing app credentials.
-│   │   ├── values/              # Helm chart values for applications.
-│   ├── icons/                   # Icons for applications.
-│   ├── tmp/                     # Temporary folder created during app deployment with app values.
-│   └── core_group_apps.yaml     # YAML file for core group application configurations.
-│   └── default_group_apps.yaml  # YAML file for default group application configurations.
+│   │   ├── credentials/       
+│   │   ├── values/             
+│   ├── icons/                   
+│   ├── tmp/                     
+│   └── core_group_apps.yaml    
+│   └── default_group_apps.yaml 
 │
-├── cert/                       # Public certificates and assets.
+├── cert/                     
 │
 ├── config/
-│   ├── aws_config.yaml/        # Configuration for AWS cluster.
-│   ├── azure_config.yaml/      # Configuration for Azure cluster.
-│   ├── capten-lb-endpoint.yaml # Capten load balancer endpoint.
-│   └── capten.yaml             # Main Capten configuration file.
-│   └── setup_apps.yaml         # Setup configuration for applications.
+│   ├── aws_config.yaml/       
+│   ├── azure_config.yaml/      
+│   ├── capten-lb-endpoint.yaml
+│   └── capten.yaml             
+│   └── setup_apps.yaml        
 │
-├── cmd/                        # Main entry point for command line commands.
+├── cmd/                      
+├── pkg/                       
+│   ├── agent/                 
+│   │   ├── pb/                
+│   ├── cert/                  
+│   ├── clog/                  
+│   └── cluster/               
+│       ├── k3s/               
+│   ├── cmd/                  
+│   └── config/            
+│   └── helm/                   
+│   ├── k8s/                   
+│   └── terraform/            
+│   └── types/                 
+│   ├── values.aws.tmpl        
+│   └── values.azure.tmpl/     
+│   ├── values.tfvars/          
 │
-├── pkg/                        # Package directory for various components and services.
-│   ├── agent/                  # Code related to the agent component.
-│   │   ├── pb/                 # Protocol buffer files and generated code.
-│   └── app/                    # Application-related code.
-│   ├── cert/                   # Certificate management code.
-│   ├── clog/                   # Custom logging utilities.
-│   └── cluster/                # Cluster management code.
-│       ├── k3s/                # K3s specific configurations and code.
-│   ├── cmd/                    # Command-related code.
-│   └── config/                 # Configuration management code.
-│   └── helm/                   # Helm chart management.
-│   ├── k8s/                    # Kubernetes-specific utilities and configurations.
-│   └── terraform/              # Terraform configurations and modules.
-│   └── types/                  # Common types used across the project.
-│
-├── templates/                  # Template files for various configurations.
-│   ├── values.aws.tmpl         # Template for AWS-specific Helm chart values.
-│   └── values.azure.tmpl/      # Template for Azure-specific Helm chart values.
-│   ├── values.tfvars/          # Template for Terraform variable files.
-│
-├── README.md                   # Project readme file.
-└── .gitignore                  # Git ignore file to exclude specified files and directories from version control.
+├── README.md                   
+└── .gitignore                
 
 ## How to Contribute 
 
 Written in Golang, the CLI code is stored in the folder `./pkg/cmd`. You can add any additional CLI options here .
 For eg if you wish to cluster creation for any cloud,you can also modify the terraform related changes in `./pkg/terraform` 
+
+And also you 
 
 To test your modification,you can just build the CLI artifact with the below command
 
