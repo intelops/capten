@@ -12,10 +12,16 @@ You are more than welcome to open issues in this project to [suggest new feature
 
 Development can be conducted using  GoLang compatible IDE/editor (e.g., Jetbrains GoLand, VSCode).
 
-There are 3 places where you develop new things on Capten: on the CLI and  on the kad and on the Documentation website.
+There are 3 places where you develop new things on Capten: on the Capten CLI ,  on the kad and on the ControlPlane-dataplane.
 
-### Folder Structure 
+For contributing Capten,First you need to understand the folder structure.Kindly refer below to understand he folder structure
 
+This document deals with the detailed description on how to contribute capten
+
+### Directory Structure 
+
+
+```
 capten/
 │
 ├── apps/                   
@@ -27,7 +33,7 @@ capten/
 │   └── core_group_apps.yaml     # YAML file for core group application configurations.
 │   └── default_group_apps.yaml  # YAML file for default group application configurations.
 │
-├── cert/                       # Public certificates and assets.
+├── cert/                        # Public certificates and assets.
 │
 ├── config/
 │   ├── aws_config.yaml/        # Configuration for AWS cluster.
@@ -61,24 +67,178 @@ capten/
 ├── README.md                   # Project readme file.
 └── .gitignore                  # Git ignore file to exclude specified files and directories from version control.
 
+```
+
 ## How to Contribute 
 
 Written in Golang, the CLI code is stored in the folder `./pkg/cmd`. You can add any additional CLI options here .
 For eg if you wish to cluster creation for any cloud,you can also modify the terraform related changes in `./pkg/terraform` 
 
+##### Example Contribution for supporting additional cluster in capten CLI
+
+In the below example,detailed description is provided for supporting azure cluster
+
+1.Add the specifications yaml file in ./config directory.Sample `azureconfig.yaml` is given below
+
+```sh
+Region: "centralindia"
+MasterCount:
+  - "talos-master1"
+  - "talos-master2"
+  - "talos-master3"
+WorkerCount:
+  - "talos-worker1"
+  - "talos-worker2"
+  - "talos-worker3"
+  - "talos-worker4"
+  - "talos-worker5"
+NICs:
+  - "talos-nic-master1"
+  - "talos-nic-master2" 
+  - "talos-nic-master3"
+WorkerNics:
+  - "talos-nic-worker1"
+  - "talos-nic-worker2"
+  - "talos-nic-worker3"
+  - "talos-nic-worker4"
+  - "talos-nic-worker5"
+
+InstanceType: "Standard_D4_v3"
+PublicIpName:
+  - "talos-public-ip-1"
+  - "talos-public-ip-2"
+  - "talos-public-ip-3"
+TraefikHttpPort: 32080
+TraefikHttpsPort: 32443
+Talosrgname: "talosrg5"
+Storagergname: "StoargeRG5"
+Storage_account_name: "talosimagesa5"
+Talos_imagecont_name: "talosimagecont5"
+Talos_cluster_name: "taloscluster5"
+Nats_client_port: 31675
+
+```
+2. Do the CLI modifications in ./pkg/cmd directory.
+
+3. Then Modify the code in ./pkg/cluster directory for providing additional support in any cloud.
+
+```bash
+
+func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) error {
+	clog.Logger.Debugf("%s cluster on %s cloud with %s cluster type", action, captenConfig.CloudService, captenConfig.ClusterType)
+
+	clusterInfo, err := getClusterInfo(captenConfig)
+	if err != nil {
+		return err
+	}
+
+	switch info := clusterInfo.(type) {
+	case types.AWSClusterInfo:
+		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
+		err = generateTemplateVarFile(captenConfig, info, captenConfig.AWSTerraformTemplateFileName)
+		if err != nil {
+			return err
+		}
+
+		tf, err := terraform.NewAws(captenConfig, info)
+		if err != nil {
+			return errors.WithMessage(err, "failed to initialize the terraform")
+		}
+
+		if action == "create" {
+			return tf.Apply()
+		} else if action == "destroy" {
+			return tf.Destroy()
+		}
+	case types.AzureClusterInfo:
+		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
+		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
+		err = generateTemplateVarFile(captenConfig, info, captenConfig.AzureTerraformTemplateFileName)
+		if err != nil {
+			return err
+		}
+
+		tf, err := terraform.NewAzure(captenConfig, info)
+		if err != nil {
+			return errors.WithMessage(err, "failed to initialize the terraform")
+		}
+
+		if action == "create" {
+			return tf.Apply()
+		} else if action == "destroy" {
+			return tf.Destroy()
+		}
+	default:
+		return errors.New("unsupported cloud service")
+	}
+
+	return nil
+}
+
+```
+4.Add any configurations if needed in ./config/config.go
+
+5.Also for supporting additional cluster,you can add struct in ./pkg/types/types.go
+
+For example,
+```bash
+type AzureClusterInfo struct {
+	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
+	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
+	CloudService            string   `yaml:"CloudService"`
+	ClusterType             string   `yaml:"ClusterType"`
+	Region                  string   `yaml:"Region"`
+	MasterCount             []string `yaml:"MasterCount"`
+	WorkerCount             []string `yaml:"WorkerCount"`
+	NICs                    []string `yaml:"NICs"`
+	WorkerNics              []string `yaml:"WorkerNics"`
+	InstanceType            string   `yaml:"InstanceType"`
+	PublicIPName            []string `yaml:"PublicIpName"`
+	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
+	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
+	Talosrgname             string   `yaml:"Talosrgname"`
+	Storagergname           string   `yaml:"Storagergname"`
+	Storage_account_name    string   `yaml:"Storage_account_name"`
+	Talos_imagecont_name    string   `yaml:"Talos_imagecont_name"`
+	Talos_cluster_name      string   `yaml:"Talos_cluster_name"`
+	Nats_client_port        int      `yaml:"Nats_client_port"`
+}
+
+```
+ [release page](https://github.com/intelops/capten/releases).
+
+6. Add the template file in required format ./templates/k3s directory.You can refer sample template file in [./templates/k3s/values.aws.tmpl](https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl)
+
+7. Contribute your terraform code  for additional cloud in[controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane)
+
+8. Then trigger the terraform by adding code in ./pkg/terraform or create a file in ./pkg/terraform directory.You can refer [here](https://github.com/intelops/capten/tree/main/pkg/terraform)
+
+
 To test your modification,you can just build the CLI artifact with the below command
 
 ```sh
+
 make build.release-linux
 cd capten
 ```
 Then with the build binary,you can test your changes
 
-For bringing up any additional apps or tools,you can work on `./apps`.
-For eg,create a yaml file for the tool,with the below specifications
-
+For example for creating cluster with the provided cloud-type,you refer the below command
 
 ```sh
+./capten cluster create --cloud=<coud-type> --type=talos
+```
+
+##### Example Contribution for supporting additional tools in capten CLI
+
+For bringing up any additional apps or tools,you can work on `./apps` directory.
+For eg,create a yaml file for the tool,with the below specifications
+
+Refer [here](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
+
+```sh
+
 Name: "name of the application"
 ChartName: "The path or name of the Helm chart within the repository"
 Category: "Helps to group and identify the application type (e.g., Security)"
@@ -91,12 +251,20 @@ CreateNamespace: A boolean value that determines if the namespace should be crea
 
 ```
 
-If any values needs to be overrided,you can create a sample `_template.yaml` in `./apps/conf/values`.And pass the override values in this yaml file.
+If any values needs to be overrided,you can create a sample `sample_template.yaml` in `./apps/conf/values`.And pass the override values in this yaml file.
+
+You can refer [here](https://github.com/intelops/capten/blob/main/apps/conf/values/falco_template.yaml)
 
 Then add the application name in the `./apps/conf/core_group_apps.yaml` or `./apps/conf/default_group_apps.yaml`
 
+You can test your changes after the cluster creation with the below command
 
-## General Instructions for contributing Code
+```sh
+./capten cluster apps install
+```
+
+
+## General Instructions for contributing Capten
 This project is written in Golang 
 
 To contribute code.
