@@ -16,6 +16,8 @@ There are 3 places where you develop new things on Capten: on the Capten CLI ,  
 
 For contributing Capten,First you need to understand the folder structure.Kindly refer below to understand he folder structure
 
+This document deals with the detailed description on how to contribute capten
+
 ### Directory Structure 
 
 
@@ -76,7 +78,7 @@ For eg if you wish to cluster creation for any cloud,you can also modify the ter
 
 In the below example,detailed description is provided for supporting azure cluster
 
-1.Add the specifications yaml file in ./config directory
+1.Add the specifications yaml file in ./config directory.Sample `azureconfig.yaml` is given below
 
 ```sh
 Region: "centralindia"
@@ -116,9 +118,9 @@ Talos_cluster_name: "taloscluster5"
 Nats_client_port: 31675
 
 ```
-2. Do the CLI modifications in ./pkg/cmd folder.Understand the code in ./cmd folder
+2. Do the CLI modifications in ./pkg/cmd directory.
 
-3. Then Modify the code in ./pkg/cluster folder
+3. Then Modify the code in ./pkg/cluster directory for providing additional support in any cloud.
 
 ```bash
 
@@ -177,7 +179,7 @@ func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) err
 ```
 4.Add any configurations if needed in ./config/config.go
 
-5.Also for supporting additional cluster,you have to add struct in ./pkg/types/types.go
+5.Also for supporting additional cluster,you can add struct in ./pkg/types/types.go
 
 For example,
 ```bash
@@ -253,8 +255,14 @@ You can refer (here)[https://github.com/intelops/capten/blob/main/apps/conf/valu
 
 Then add the application name in the `./apps/conf/core_group_apps.yaml` or `./apps/conf/default_group_apps.yaml`
 
+You can test your changes after the cluster creation with the below command
 
-## General Instructions for contributing Code
+```sh
+./capten cluster apps install
+```
+
+
+## General Instructions for contributing Capten
 This project is written in Golang 
 
 To contribute code.
