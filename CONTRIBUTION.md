@@ -206,11 +206,13 @@ type AzureClusterInfo struct {
 }
 
 ```
-6. Add the template file in required format ./templates/k3s directory.You can refer sample template file in (./templates/k3s/values.aws.tmpl)[https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl]
+ [release page](https://github.com/intelops/capten/releases).
 
-7. Contribute your terraform code  for additional cloud in(controlplane-dataplane repo)[https://github.com/kube-tarian/controlplane-dataplane]
+6. Add the template file in required format ./templates/k3s directory.You can refer sample template file in [./templates/k3s/values.aws.tmpl](https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl)
 
-8. Then trigger the terraform by adding code in ./pkg/terraform or create a file in ./pkg/terraform directory.You can refer in [https://github.com/intelops/capten/tree/main/pkg/terraform]
+7. Contribute your terraform code  for additional cloud in[controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane)
+
+8. Then trigger the terraform by adding code in ./pkg/terraform or create a file in ./pkg/terraform directory.You can refer [here](https://github.com/intelops/capten/tree/main/pkg/terraform)
 
 
 To test your modification,you can just build the CLI artifact with the below command
@@ -222,7 +224,7 @@ cd capten
 ```
 Then with the build binary,you can test your changes
 
-For example for creating cluster with the provided cloud-type,you can see below command
+For example for creating cluster with the provided cloud-type,you refer the below command
 
 ```sh
 ./capten cluster create --cloud=<coud-type> --type=talos
@@ -233,7 +235,7 @@ For example for creating cluster with the provided cloud-type,you can see below 
 For bringing up any additional apps or tools,you can work on `./apps` directory.
 For eg,create a yaml file for the tool,with the below specifications
 
-Refer (here)[https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml]
+Refer [here](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
 
 ```sh
 
@@ -251,7 +253,7 @@ CreateNamespace: A boolean value that determines if the namespace should be crea
 
 If any values needs to be overrided,you can create a sample `sample_template.yaml` in `./apps/conf/values`.And pass the override values in this yaml file.
 
-You can refer (here)[https://github.com/intelops/capten/blob/main/apps/conf/values/falco_template.yaml]
+You can refer [here](https://github.com/intelops/capten/blob/main/apps/conf/values/falco_template.yaml)
 
 Then add the application name in the `./apps/conf/core_group_apps.yaml` or `./apps/conf/default_group_apps.yaml`
 
