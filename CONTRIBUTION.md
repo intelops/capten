@@ -16,9 +16,11 @@ There are 3 places where you develop new things on Capten: on the CLI and  on th
 
 ### Folder Structure 
 
+## Directory Structure
+
+```
 capten/
-│
-├── apps/                   
+├── apps/
 │   ├── conf/
 │   │   ├── credentials/       
 │   │   ├── values/             
@@ -55,7 +57,8 @@ capten/
 │   ├── values.tfvars/          
 │
 ├── README.md                   
-└── .gitignore                
+└── .gitignore
+```
 
 ## How to Contribute 
 
