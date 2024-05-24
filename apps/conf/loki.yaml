@@ -6,7 +6,7 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "loki"
-Version: "0.0.3"
+Version: "0.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:

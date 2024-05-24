@@ -75,6 +75,7 @@ k8s-infra:
       limits:
         cpu: 200m
         memory: 150Mi
+        
 clickhouse:
   enabled: false
 

@@ -1,8 +1,9 @@
 Apps:
   talos:
   - "pre-install"
-  - "prometheus"
   - "postgresql"
+  - "prometheus"
+  - "clickhouse"
   - "loki"
   - "kyverno"
   - "monitoring"
@@ -20,8 +21,8 @@ Apps:
   - "velero"
   cloud-managed:
   - "pre-install"
-  - "prometheus"
   - "postgresql"
+  - "prometheus"
   - "clickhouse"
   - "loki"
   - "kyverno"
