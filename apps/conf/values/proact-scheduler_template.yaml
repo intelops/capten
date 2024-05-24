@@ -5,7 +5,7 @@ postgresql:
   username: "postgres"
   existingSecret: 
     name: "{{ .postgresSecretName }}"
-    passwordKey: "postgres-password"
+    passwordKey: "admin-password"
 
 temporal:
   host: temporal-frontend

@@ -19,7 +19,6 @@ import (
 	"strings"
 	"time"
 
-	//"capten/pkg/clog"
 	"capten/pkg/config"
 	"capten/pkg/k8s"
 	"capten/pkg/types"
@@ -32,6 +31,7 @@ import (
 
 var (
 	genericCredentailType        string = "generic"
+	serviceCredentailType        string = "service-cred"
 	k8sCredEntityName            string = "k8s"
 	captenConfigEntityName       string = "capten-config"
 	globalValuesCredIdentifier   string = "global-values"
@@ -46,14 +46,9 @@ var (
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
-	natsTokenNamespaces     []string = []string{"observability"}
-	cosignKeysNamespaces    []string = []string{"kyverno", "tekton-pipelines", "tek"}
-	postgresSecretNameVar            = "postgresSecretName"
-	clickhouseSecretNameVar          = "clickkhouseSecretName"
-	temporalSecretNameVar            = "temporal-secret"
+	postgresSecretNameVar   = "postgresSecretName"
+	clickhouseSecretNameVar = "clickkhouseSecretName"
 )
-
-//vaultAddress     = "http://vault.%s"
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}) error {
 	vaultClient, err := GetVaultClient(captenConfig)
@@ -73,6 +68,8 @@ func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 	if err != nil {
 		return err
 	}
+
+	log.Println("Cluster Global Values", appGlobalValues)
 
 	return nil
 }
@@ -326,7 +323,11 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		appGlobalValues[natsSecretNameVar] = config.SecretName
 
 	case "clickhouse-password":
-		err := generateAndStoreClickhousePassword(vaultClient, config, "admin")
+
+		dbkey := map[string]string{
+			"username": config.UserName,
+		}
+		err := generateAndStoreDBPassword(vaultClient, config, "password", dbkey)
 		if err != nil {
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
@@ -345,11 +346,13 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		log.Println("Secret Name", appGlobalValues[clickhouseSecretNameVar])
 
 	case "temporal-password":
-		err := generateAndStorePassword(vaultClient, config, "temporal")
+		temporaldbuserkey := map[string]string{
+			"username": config.UserName,
+		}
+		err := generateAndStoreDBPassword(vaultClient, config, "password", temporaldbuserkey)
 		if err != nil {
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
-
 		postgresconfig := types.CredentialAppConfig{
 			Name:                 "postgres-cred",
 			SecretName:           "postgres-admin-secret",
@@ -357,6 +360,15 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			CredentialEntity:     "postgres",
 			CredentialIdentifier: "postgres-admin",
 			CredentialType:       "postgres-password",
+			UserName:             "postgres",
+		}
+
+		posgresdbuserkey := map[string]string{
+			"username": postgresconfig.UserName,
+		}
+		err = generateAndStoreDBPassword(vaultClient, postgresconfig, "admin-password", posgresdbuserkey)
+		if err != nil {
+			log.Println("Errror while gen admin password", err)
 		}
 
 		postgressecretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, postgresconfig.CredentialEntity, postgresconfig.CredentialIdentifier)
@@ -366,36 +378,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			postgressecretPath: "admin-password",
 			tempsecretPath:     "password",
 		}
-		// appGlobalValues[temporalSecretNameVar] = config.SecretName
-
-		// log.Println("Secret Name", appGlobalValues[temporalSecretNameVar])
-
-		// err = k8sclient.CreateOrUpdateSecret(ctx, request.Namespace, vaultTokenSecretName, v1.SecretTypeOpaque, cred, nil)
-		// if err != nil {
-		// 	v.log.Errorf("failed to create cluter vault token secret, %v", err)
-		// 	return &vaultcredpb.ConfigureVaultSecretResponse{Status: vaultcredpb.StatusCode_INTERNRAL_ERROR}, err
-		// }
-
-		//fallthrough
-
-		// case "postgres-password":
-
-		// newSecretKeyMapping := make(map[string]string)
-		// log.Println("Secret Key inside postgres-password case", secretKey)
-		// for key, value := range secretKey {
-		// 	if key == "passoword" {
-		// 		newSecretKeyMapping[key] = value
-		// 	}
-
-		// }
-		// postgresconfig := types.CredentialAppConfig{
-		// 	Name:                 "postgres-cred",
-		// 	SecretName:           "postgres-admin-secret",
-		// 	Namespaces:           []string{"observability", "platform", "capten", "quality-trace"},
-		// 	CredentialEntity:     "postgres",
-		// 	CredentialIdentifier: "postgres-admin",
-		// 	CredentialType:       "postgres-password",
-		// }
 
 		log.Println("Secret Key in postgrespassword", secretKey)
 
@@ -433,11 +415,12 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 		}
 
 		secretPathData := make([]*vaultcredpb.SecretPathRef, 0, len(secretKeyMapping))
+		log.Println("Cred type", config.CredentialType)
 		if config.CredentialType == "postgres-password" {
-			for secretPath, _ := range secretKeyMapping {
-				secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{SecretPath: secretPath, SecretKey: "password"})
+
+			for secretPath, secretkey := range secretKeyMapping {
+				secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{SecretPath: secretPath, SecretKey: secretkey})
 			}
-			log.Println("Inside if clause")
 			log.Println("Secret Path Data", secretPathData)
 		} else {
 			for _, vaultKey := range secretKeyMapping {
@@ -494,10 +477,14 @@ func generatePassword() string {
 	return string(password)
 }
 
-func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, username string) (err error) {
+func configureDBSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string) error {
 
-	_, err = vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
-		CredentialType: genericCredentailType,
+	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
+}
+
+func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, passwordKey string, credential map[string]string) error {
+	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
+		CredentialType: serviceCredentailType,
 		CredEntityName: config.CredentialEntity,
 		CredIdentifier: config.CredentialIdentifier,
 	})
@@ -505,10 +492,10 @@ func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config ty
 	if err != nil {
 		if strings.Contains(err.Error(), "secret not found") {
 			val := generatePassword()
-			credential := map[string]string{
-				"admin-password": generatePassword(),
-				"password":       val,
-			}
+
+			credential[passwordKey] = val
+
+			log.Println("Credential", credential)
 			err := putCredentialInVault(vaultClient, config, credential)
 			if err != nil {
 				return fmt.Errorf("error storing credentials: %v", err)
@@ -520,43 +507,5 @@ func generateAndStorePassword(vaultClient vaultcredpb.VaultCredClient, config ty
 		}
 	}
 
-	log.Println("Stored credentials in vault")
-	return nil
-}
-
-func configureDBSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string) error {
-
-	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping)
-}
-
-func generateAndStoreClickhousePassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, username string) error {
-	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
-		CredentialType: genericCredentailType,
-		CredEntityName: config.CredentialEntity,
-		CredIdentifier: config.CredentialIdentifier,
-	})
-	var val string
-
-	if err != nil {
-		if strings.Contains(err.Error(), "secret not found") {
-			val = generatePassword()
-			credential := map[string]string{
-				"username": username,
-				"password": val,
-			}
-			err := putCredentialInVault(vaultClient, config, credential)
-			if err != nil {
-				return fmt.Errorf("error storing credentials: %v", err)
-			}
-			// Append to the existing map
-
-			return nil
-		} else {
-			log.Printf("Error while getting credential: %s", err)
-			return err
-		}
-	}
-
-	log.Println("Stored credentials in vault")
 	return nil
 }

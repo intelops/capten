@@ -5,5 +5,5 @@ global:
       database: "temporal"
       existingSecret: "{{ .postgresSecretName }}"
       secretKeys:
-        adminPasswordKey: "postgres-password"
+        adminPasswordKey: "admin-password"
         userPasswordKey: "password"

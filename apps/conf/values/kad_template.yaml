@@ -11,7 +11,7 @@ postgres:
   userName: captenagt
   entityName: postgres
   dbName: capten
-  adminCredIdentifer: postgres-admin
+  adminCredIdentifer: postgres-temporal
 resources: 
   requests:
     cpu: 100m
