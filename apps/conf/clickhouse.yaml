@@ -9,3 +9,6 @@ ReleaseName: "clickhouse"
 Version: "1.0.3"
 CreateNamespace: true
 PrivilegedNamespace: true
+OverrideValues:
+  clickkhouseSecretName: "{{.clickkhouseSecretName}}"
+  

@@ -13,3 +13,6 @@ UIEndpoint: https://signoz.{{.DomainName}}
 Icon: "signoz.svg"
 OverrideValues:
   DomainName: "{{.DomainName}}"
+  clickkhouseSecretName: "{{.clickkhouseSecretName}}"
+
+

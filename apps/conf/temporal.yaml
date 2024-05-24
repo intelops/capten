@@ -9,3 +9,5 @@ ReleaseName: "temporal"
 Version: "0.1.8"
 CreateNamespace: true
 PrivilegedNamespace: true
+OverrideValues:
+  postgresSecretName: "{{.postgresSecretName}}"

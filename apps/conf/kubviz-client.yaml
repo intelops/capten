@@ -11,3 +11,4 @@ CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:
   natsTokenSecretName: "{{.natsTokenSecretName}}"
+  clickkhouseSecretName: "{{.clickkhouseSecretName}}"
