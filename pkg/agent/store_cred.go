@@ -265,7 +265,7 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 					"cosign.key": string(privateKeyBytes),
 					"cosign.pub": string(publicKeyBytes),
 				}
-				err = putCredentialInVault(vaultClient, config, credential)
+				err = putCredentialInVault(vaultClient, config, credential, genericCredentailType)
 				if err != nil {
 					return fmt.Errorf("error storing credentials: %v", err)
 				}
@@ -302,7 +302,7 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 				credential = map[string]string{
 					"token": val,
 				}
-				err = putCredentialInVault(vaultClient, config, credential)
+				err = putCredentialInVault(vaultClient, config, credential, genericCredentailType)
 				if err != nil {
 					return fmt.Errorf("store credentails failed, %s", err)
 				}
@@ -395,9 +395,9 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 	return nil
 }
 
-func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, credential map[string]string) error {
+func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, credential map[string]string, credentialType string) error {
 	_, err := vaultClient.PutCredential(context.Background(), &vaultcredpb.PutCredentialRequest{
-		CredentialType: genericCredentailType,
+		CredentialType: credentialType,
 		CredEntityName: config.CredentialEntity,
 		CredIdentifier: config.CredentialIdentifier,
 		Credential:     credential,
@@ -496,7 +496,7 @@ func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config 
 			credential[passwordKey] = val
 
 			log.Println("Credential", credential)
-			err := putCredentialInVault(vaultClient, config, credential)
+			err := putCredentialInVault(vaultClient, config, credential, serviceCredentailType)
 			if err != nil {
 				return fmt.Errorf("error storing credentials: %v", err)
 			}
