@@ -6,7 +6,7 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "platform"
 ReleaseName: "clickhouse"
-Version: "1.0.3"
+Version: "1.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:

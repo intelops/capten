@@ -30,3 +30,4 @@ LaunchUIValues:
         root_url: https://grafana.{{.DomainName}}/
 OverrideValues:
   DomainName: "{{.DomainName}}"
+  postgresSecretName: "{{.postgresSecretName}}"
