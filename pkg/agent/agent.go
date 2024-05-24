@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"capten/pkg/agent/pb/agentpb"
+	"capten/pkg/agent/pb/captenpluginspb"
 	"capten/pkg/agent/pb/clusterpluginspb"
 	"capten/pkg/agent/pb/pluginstorepb"
 	"capten/pkg/agent/pb/vaultcredpb"
@@ -43,6 +44,14 @@ func GetClusterPluginClient(config config.CaptenConfig) (clusterpluginspb.Cluste
 		return nil, err
 	}
 	return clusterpluginspb.NewClusterPluginsClient(conn), nil
+}
+
+func GetCaptenPluginClient(config config.CaptenConfig) (captenpluginspb.CaptenPluginsClient, error) {
+	conn, err := getAgentClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return captenpluginspb.NewCaptenPluginsClient(conn), nil
 }
 
 func getAgentClient(config config.CaptenConfig) (*grpc.ClientConn, error) {

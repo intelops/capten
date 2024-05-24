@@ -102,57 +102,99 @@ func init() {
 	//cluster apps options
 	clusterAppsCmd.AddCommand(appsInstallSubCmd)
 	clusterAppsCmd.AddCommand(appsListSubCmd)
+	clusterAppsCmd.AddCommand(appsShowSubCmd)
 
 	//cluster resources create options
 	resourceCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("labels", "", "labels of resource (e.g. 'crossplane,tekton')")
+	resourceCreateSubCmd.PersistentFlags().String("registry-url", "", "registry url of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("registry-type", "", "registry type of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("cloud-type", "", "cloud type of cloud provider resource (aws, azure)")
+	resourceCreateSubCmd.PersistentFlags().String("registry-username", "", "registry user name of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("registry-password", "", "registry password of container registry resource")
+	resourceCreateSubCmd.PersistentFlags().String("access-key", "", "access key of aws cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("secret-key", "", "secret key of aws cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("client-id", "", "client id of azure cloud provider resource")
+	resourceCreateSubCmd.PersistentFlags().String("client-secret", "", "client secret of azure cloud provider resource")
 	clusterResourcesCmd.AddCommand(resourceCreateSubCmd)
+
+	//cluster resources update options
+	resourceUpdateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("id", "", "id of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
+	resourceUpdateSubCmd.PersistentFlags().String("labels", "", "labels of resource (e.g. 'crossplane,tekton')")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-url", "", "registry url of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-type", "", "registry type of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("cloud-type", "", "cloud type of cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-username", "", "registry user name of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("registry-password", "", "registry password of container registry resource")
+	resourceUpdateSubCmd.PersistentFlags().String("access-key", "", "access key of aws cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("secret-key", "", "secret key of aws cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("client-id", "", "client id of azure cloud provider resource")
+	resourceUpdateSubCmd.PersistentFlags().String("client-secret", "", "client secret of azure cloud provider resource")
+	clusterResourcesCmd.AddCommand(resourceUpdateSubCmd)
 
 	//cluster resources delete options
 	resourceDeleteSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceDeleteSubCmd.PersistentFlags().String("id", "", "id of resource")
 	clusterResourcesCmd.AddCommand(resourceDeleteSubCmd)
 
 	//cluster resources list options
 	resourceListSubCmd.PersistentFlags().String("type", "", "type of resource")
 	clusterResourcesCmd.AddCommand(resourceListSubCmd)
 
-	//cluster resources show options
-	resourceShowSubCmd.PersistentFlags().String("type", "", "type of resource")
-	clusterResourcesCmd.AddCommand(resourceShowSubCmd)
-
 	//plugin deploy options
-	pluginDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
-	pluginCmd.AddCommand(pluginDeployCreateSubCmd)
+	pluginDeploySubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginDeploySubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
+	pluginDeploySubCmd.PersistentFlags().String("version", "", "version of the plugin")
+	pluginCmd.AddCommand(pluginDeploySubCmd)
 
 	//plugin undeploy options
-	pluginUnDeployCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
-	pluginCmd.AddCommand(pluginUnDeployCreateSubCmd)
+	pluginUnDeploySubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginUnDeploySubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
+	pluginCmd.AddCommand(pluginUnDeploySubCmd)
 
 	//plugin list options
-	pluginListSubCmd.PersistentFlags().String("type", "", "type of resource")
 	pluginCmd.AddCommand(pluginListSubCmd)
 
 	//plugin show options
-	pluginShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginShowSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
 	pluginCmd.AddCommand(pluginShowSubCmd)
 
 	//plugin config options
-	pluginConfigSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginConfigSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
+	pluginConfigSubCmd.PersistentFlags().Bool("list-actions", true, "list of actions supported by the plugin")
+	pluginConfigSubCmd.PersistentFlags().String("action", "", "action of the plugin")
+	pluginConfigSubCmd.PersistentFlags().String("cloud-provider-id", "", "cloud provider identifier")
+	pluginConfigSubCmd.PersistentFlags().String("crossplane-provider-id", "", "crossplane provider identifier")
+	pluginConfigSubCmd.PersistentFlags().String("crossplane-provider-name", "", "crossplane provider name")
+	pluginConfigSubCmd.PersistentFlags().String("cloud-type", "", "cloud type (aws, azure)")
+	pluginConfigSubCmd.PersistentFlags().String("managed-cluster-id", "", "managed cluster identifier")
 	pluginCmd.AddCommand(pluginConfigSubCmd)
 
 	//plugin store options
-	pluginStoreCmd.PersistentFlags().String("type", "", "type of resource")
 	pluginCmd.AddCommand(pluginStoreCmd)
 
 	//plugin store list options
-	pluginStoreListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreListSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
 	pluginStoreCmd.AddCommand(pluginStoreListSubCmd)
 
 	//plugin store show options
-	pluginStoreShowSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreShowSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
+	pluginStoreShowSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
 	pluginStoreCmd.AddCommand(pluginStoreShowSubCmd)
 
 	//plugin store synch options
-	pluginStoreSynchSubCmd.PersistentFlags().String("type", "", "type of resource")
+	pluginStoreSynchSubCmd.PersistentFlags().String("store-type", "", "store type (local, central, default)")
 	pluginStoreCmd.AddCommand(pluginStoreSynchSubCmd)
 
+	//plugin store config options
+	pluginStoreConfigSubCmd.PersistentFlags().String("store-type", "", "store type (local)")
+	pluginStoreConfigSubCmd.PersistentFlags().String("git-project-id", "", "git project identifier")
+	pluginStoreCmd.AddCommand(pluginStoreConfigSubCmd)
 }
