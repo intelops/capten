@@ -12,8 +12,6 @@ You are more than welcome to open issues in this project to [suggest new feature
 
 Development can be conducted using  GoLang compatible IDE/editor (e.g., Jetbrains GoLand, VSCode).
 
-There are 3 places where you develop new things on Capten: on the Capten CLI ,  on the kad and on the ControlPlane-dataplane.
-
 For contributing Capten,First you need to understand the folder structure.Kindly refer below to understand he folder structure
 
 This document deals with the detailed description on how to contribute capten
@@ -69,153 +67,98 @@ capten/
 
 ```
 
-## How to Contribute 
+## How to Contribute Capten
 
-Written in Golang, the CLI code is stored in the folder `./pkg/cmd`. You can add any additional CLI options here .
-For eg if you wish to cluster creation for any cloud,you can also modify the terraform related changes in `./pkg/terraform` 
+You can generally contribute capten in 4 ways,that is given below:
 
-##### Example Contribution for supporting additional cluster in capten CLI
+1. Managing cluster creation
 
-In the below example,detailed description is provided for supporting azure cluster
+2. Supporting additional tools to be deployed in control plane cluster
 
-1.Add the specifications yaml file in ./config directory.Sample `azureconfig.yaml` is given below
+3. Enhancing CLI
 
-```sh
-Region: "centralindia"
-MasterCount:
-  - "talos-master1"
-  - "talos-master2"
-  - "talos-master3"
-WorkerCount:
-  - "talos-worker1"
-  - "talos-worker2"
-  - "talos-worker3"
-  - "talos-worker4"
-  - "talos-worker5"
-NICs:
-  - "talos-nic-master1"
-  - "talos-nic-master2" 
-  - "talos-nic-master3"
-WorkerNics:
-  - "talos-nic-worker1"
-  - "talos-nic-worker2"
-  - "talos-nic-worker3"
-  - "talos-nic-worker4"
-  - "talos-nic-worker5"
+4. Additional Plugin Support
 
-InstanceType: "Standard_D4_v3"
-PublicIpName:
-  - "talos-public-ip-1"
-  - "talos-public-ip-2"
-  - "talos-public-ip-3"
-TraefikHttpPort: 32080
-TraefikHttpsPort: 32443
-Talosrgname: "talosrg5"
-Storagergname: "StoargeRG5"
-Storage_account_name: "talosimagesa5"
-Talos_imagecont_name: "talosimagecont5"
-Talos_cluster_name: "taloscluster5"
-Nats_client_port: 31675
 
-```
-2. Do the CLI modifications in ./pkg/cmd directory.
+## Managing cluster creation
 
-3. Then Modify the code in ./pkg/cluster directory for providing additional support in any cloud.
+For supporting capten with any additional cluster or to enhance additional support to the existing cluster,you can follow the below steps:
+
+1. Add the cloud configurations yaml file in `./config` directory.you can refer [here](https://github.com/intelops/capten/blob/main/config/aws_config.yaml) 
+
+2. Modify the below function for supporting the specified cloud service.You can check this function [here](https://github.com/intelops/capten/blob/main/pkg/cmd/capten.go) 
 
 ```bash
+func validateClusterFlags(cloudService, clusterType string) (err error) {
 
-func createOrDestroyCluster(captenConfig config.CaptenConfig, action string) error {
-	clog.Logger.Debugf("%s cluster on %s cloud with %s cluster type", action, captenConfig.CloudService, captenConfig.ClusterType)
-
-	clusterInfo, err := getClusterInfo(captenConfig)
-	if err != nil {
-		return err
+	if cloudService != "aws" && cloudService != "azure" {
+		err = fmt.Errorf("cloud service '%s' is not supported, supported cloud serivces: aws", cloudService)
+		return
 	}
 
-	switch info := clusterInfo.(type) {
-	case types.AWSClusterInfo:
-		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
-		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
-		err = generateTemplateVarFile(captenConfig, info, captenConfig.AWSTerraformTemplateFileName)
-		if err != nil {
-			return err
-		}
-
-		tf, err := terraform.NewAws(captenConfig, info)
-		if err != nil {
-			return errors.WithMessage(err, "failed to initialize the terraform")
-		}
-
-		if action == "create" {
-			return tf.Apply()
-		} else if action == "destroy" {
-			return tf.Destroy()
-		}
-	case types.AzureClusterInfo:
-		info.ConfigFolderPath = captenConfig.PrepareDirPath(captenConfig.ConfigDirPath)
-		info.TerraformModulesDirPath = captenConfig.PrepareDirPath(captenConfig.TerraformModulesDirPath)
-		err = generateTemplateVarFile(captenConfig, info, captenConfig.AzureTerraformTemplateFileName)
-		if err != nil {
-			return err
-		}
-
-		tf, err := terraform.NewAzure(captenConfig, info)
-		if err != nil {
-			return errors.WithMessage(err, "failed to initialize the terraform")
-		}
-
-		if action == "create" {
-			return tf.Apply()
-		} else if action == "destroy" {
-			return tf.Destroy()
-		}
-	default:
-		return errors.New("unsupported cloud service")
+	if clusterType != "talos" {
+		err = fmt.Errorf("cluster type '%s' is not supported, supported types: talos", clusterType)
+		return
 	}
-
-	return nil
+	return
 }
-
 ```
-4.Add any configurations if needed in ./config/config.go
+3. Add any configurations if needed in ./config/config.go
 
-5.Also for supporting additional cluster,you can add struct in ./pkg/types/types.go
+4. Also for supporting additional cluster,you can add structure in ./pkg/types/types.go 
 
-For example,
+For example,awsclusterInfo struct is given below
+
 ```bash
-type AzureClusterInfo struct {
+type AWSClusterInfo struct {
 	ConfigFolderPath        string   `yaml:"ConfigFolderPath"`
 	TerraformModulesDirPath string   `yaml:"TerraformModulesDirPath"`
 	CloudService            string   `yaml:"CloudService"`
 	ClusterType             string   `yaml:"ClusterType"`
+	AwsAccessKey            string   `yaml:"AwsAccessKey"`
+	AwsSecretKey            string   `yaml:"AwsSecretKey"`
+	AlbName                 string   `yaml:"AlbName"`
+	PrivateSubnet           string   `yaml:"PrivateSubnet"`
 	Region                  string   `yaml:"Region"`
-	MasterCount             []string `yaml:"MasterCount"`
-	WorkerCount             []string `yaml:"WorkerCount"`
-	NICs                    []string `yaml:"NICs"`
-	WorkerNics              []string `yaml:"WorkerNics"`
+	SecurityGroupName       string   `yaml:"SecurityGroupName"`
+	VpcCidr                 string   `yaml:"VpcCidr"`
+	VpcName                 string   `yaml:"VpcName"`
 	InstanceType            string   `yaml:"InstanceType"`
-	PublicIPName            []string `yaml:"PublicIpName"`
-	TraefikHttpPort         int      `yaml:"TraefikHttpPort"`
-	TraefikHttpsPort        int      `yaml:"TraefikHttpsPort"`
-	Talosrgname             string   `yaml:"Talosrgname"`
-	Storagergname           string   `yaml:"Storagergname"`
-	Storage_account_name    string   `yaml:"Storage_account_name"`
-	Talos_imagecont_name    string   `yaml:"Talos_imagecont_name"`
-	Talos_cluster_name      string   `yaml:"Talos_cluster_name"`
-	Nats_client_port        int      `yaml:"Nats_client_port"`
+	NodeMonitoringEnabled   string   `yaml:"NodeMonitoringEnabled"`
+	MasterCount             string   `yaml:"MasterCount"`
+	WorkerCount             string   `yaml:"WorkerCount"`
+	TraefikHttpPort         string   `yaml:"TraefikHttpPort"`
+	TraefikHttpsPort        string   `yaml:"TraefikHttpsPort"`
+	TalosTg                 string   `yaml:"TalosTg"`
+	TraefikTg80Name         string   `yaml:"TraefikTg80Name"`
+	TraefikTg443Name        string   `yaml:"TraefikTg443Name"`
+	TraefikLbName           string   `yaml:"TraefikLbName"`
+	TerraformBackendConfigs []string `yaml:"TerraformBackendConfigs"`
+	Nats_client_port        string   `yaml:"Nats_client_port"`
+	Nats_tg_4222_name       string   `yaml:"Nats_tg_4222_name"`
 }
 
 ```
- [release page](https://github.com/intelops/capten/releases).
+5. For supporting additional cloud,kindly go through and understand the code in `./pkg/cluster`. Refer the below code and modify the code accordingly for supporting additional cloud
 
-6. Add the template file in required format ./templates/k3s directory.You can refer sample template file in [./templates/k3s/values.aws.tmpl](https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl)
+(https://github.com/intelops/capten/blob/main/pkg/cluster/cluster.go)
+(https://github.com/intelops/capten/blob/main/pkg/cluster/k3s/k3s.go)
 
-7. Contribute your terraform code  for additional cloud in[controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane)
 
-8. Then trigger the terraform by adding code in ./pkg/terraform or create a file in ./pkg/terraform directory.You can refer [here](https://github.com/intelops/capten/tree/main/pkg/terraform)
+6. Add the template file in required format in `./templates/k3s` directory.You can refer sample template file in [./templates/k3s/values.aws.tmpl](https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl)
 
+7. Contribute your terraform code  for supporting additional cloud in[controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane). 
+
+8. Terraform is packaged in the Capten Artifact.So for triggering the terraform  create a separate file in `./pkg/terraform` directory and add the code logic for supporting additional cloud by using terrform  go package `github.com/hashicorp/terraform-exec/tfexec`.
+
+For reference,you can understand the code in `./pkg/terraform/terraform-aws.go` [here](https://github.com/intelops/capten/blob/main/pkg/terraform/terraform-aws.go) 
+
+
+### How to test the changes:
 
 To test your modification,you can just build the CLI artifact with the below command
+
+First Navigate to the Capten directory and run the below command
 
 ```sh
 
@@ -230,12 +173,12 @@ For example for creating cluster with the provided cloud-type,you refer the belo
 ./capten cluster create --cloud=<coud-type> --type=talos
 ```
 
-##### Example Contribution for supporting additional tools in capten CLI
+## Supporting additional tools to be deployed in control plane cluster
 
-For bringing up any additional apps or tools,you can work on `./apps` directory.
-For eg,create a yaml file for the tool,with the below specifications
+For bringing up any additional apps or tools in control plane cluster,you can work on `./apps` directory.
 
-Refer [here](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
+1. create a yaml file `./apps/conf` for the additional tool,with the below specifications
+
 
 ```sh
 
@@ -247,24 +190,245 @@ RepoURL: "The URL of the Helm repository from which the chart will be fetched"
 Namespace: The Kubernetes namespace in which the Helm release will be deployed. 
 ReleaseName: "The name given to this Helm release, uniquely identifying the release within the namespace"
 Version: " Specifies the version of the Helm chart to use"
-CreateNamespace: A boolean value that determines if the namespace should be created if it doesn't exist
+CreateNamespace: "A boolean value that determines if the namespace should be created if it doesn't exist"
+OverrideValues: (Optional)"The OverrideValues section is used to specify configuration values that can be dynamically replaced at runtime or during the deployment of an application"
 
 ```
 
-If any values needs to be overrided,you can create a sample `sample_template.yaml` in `./apps/conf/values`.And pass the override values in this yaml file.
+Refer the [sample applicatiom](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
+
+2. For Passing the values in the application ,create a `_template.yaml` file in `./apps/conf/values`
 
 You can refer [here](https://github.com/intelops/capten/blob/main/apps/conf/values/falco_template.yaml)
 
-Then add the application name in the `./apps/conf/core_group_apps.yaml` or `./apps/conf/default_group_apps.yaml`
 
-You can test your changes after the cluster creation with the below command
+3. Then add the application name in the  `./apps/conf/default_group_apps.yaml`.Capten Supports two varieties of cluster Type 
+  
+     1. Cloud Managed-If the user has predefined inbuilt cluster like eks or aks
+	 2. Talos- Capten supports cluster creation of cluster type talos
+
+  So based on the cluster type,add the applications in `./apps/conf/default_group_apps.yaml`
+
+4. If any app credentials needs to be stored in vault or any external secret that needs to be created with the credentials in the vault or any override values such as secret-name that needs to be passed dynamically (similar to [kubviz-client](https://github.com/intelops/capten/blob/main/apps/conf/kubviz-client.yaml]) )to the application, you can refer the code in `./pkg/agent/store_cred.go` .
+
+For storing any application based credentials,create a yaml file in `./apps/conf/credentials`.
+
+```sh
+name: This field specifies a human-readable name for the credential configuration.
+
+secretName: This field indicates the name of the Kubernetes secret where the credentials will be stored.
+
+namespaces: This field lists the Kubernetes namespaces where the secret will be available. 
+
+credentialEntity: This field denotes the entity that the credential is associated with. 
+
+credentialIdentifier: This field specifies the identifier used to access the credential within the secret. 
+
+credentialType: This field describes the type of credential being used.
+
+```
+For sample reference,[ClickHere](https://github.com/intelops/capten/blob/main/apps/conf/credentials/nats-cred.yaml)
+
+5. For contributing any changes related to app deployment,Go through and understand the code in `./pkg/app` and `./pkg/helm`
+
+### How to test
+
+1. Build the binary with your code changes,with the below command
+
+```sh
+make build
+```
+
+2. Run the below command,your application will be deployed
 
 ```sh
 ./capten cluster apps install
 ```
 
+### CLI enhancemenet
 
-## General Instructions for contributing Capten
+For enhancing CLI,you can refer and understand the code in `./pkg/cmd` 
+
+Adding CLI for cluster onboarding git project is shown in the below code snippet.
+
+```sh
+var clusterCmd = &cobra.Command{
+	Use:   "cluster",
+	Short: "cluster operations",
+	Long:  ``,
+}
+```
+
+```sh
+var clusterResourcesCmd = &cobra.Command{
+	Use:   "resources",
+	Short: "cluster resources operations",
+	Long:  ``,
+}
+```
+
+```sh
+
+func init() {
+		rootCmd.AddCommand(clusterCmd)
+	clusterCmd.AddCommand(clusterResourcesCmd)
+	resourceCreateSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
+	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+
+	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
+	resourceCreateSubCmd.PersistentFlags().String("labels", "", "labels of resource (e.g. 'crossplane,tekton')")
+
+
+}
+```
+Additional CLI commands can be added in `./pkg/cmd/capten.go`.[Click here](https://github.com/intelops/capten/blob/main/pkg/cmd/capten.go)
+
+
+```sh
+
+var resourceCreateSubCmd = &cobra.Command{
+	Use:   "create",
+	Short: "cluster resource create",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		resourceType, attributes, err := readAndValidCreateResourceFlags(cmd)
+		if err != nil {
+			clog.Logger.Error(err)
+			return
+		}
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+
+		err = agent.AddClusterResource(captenConfig, resourceType, attributes)
+		if err != nil {
+			clog.Logger.Errorf("failed to create cluster resource, %v", err)
+		}
+	},
+}
+```
+The CLI commands are executed in a separate file,you can refer in `./pkg/cmd/cluster_resource_cmd.go`.
+[ClickHere](https://github.com/intelops/capten/blob/main/pkg/cmd/cluster_resource_cmd.go) to understand the code.
+
+
+In the above mentioned ways,you can contribute for Capten CLI enhancement.
+
+### How to test
+
+1. Build the binary with your code changes,with the below command
+
+```sh
+make build
+```
+
+2. Run your CLI command. In the above example,running below CLI command will onboard the git project successfully
+
+```sh
+./capten1 cluster resources create --resource-type="git-project" --access-token="abcd" --user-id="xxx" --labels="tekton" --git-project-url="sample-repo-url"
+
+```
+
+## Additional Plugin Support
+
+For supporting additional plugin,you can contribute in this repo [ClickHere](https://github.com/intelops/capten-plugins)
+
+1. Add Plugin Application name
+
+Add the plugin application name in `plugin-store/plugin-list.yaml` file
+
+```
+plugins:
+  - argo-cd
+  - crossplane
+  - tekton
+```
+
+
+2. Add Plugin Application Configuration
+
+Create a folder with plugin name `plugin-store/<plugin-name>`, and add plugin metadata files
+
+- Add plugin application configuration in `plugin-store/<plugin-name>/plugin-config.yaml` file
+- Add plugin application Icon file in `plugin-store/<plugin-name>/icon.svg`
+
+| Attribute   | Description                           |
+| ----------- | ------------------------------------- |
+| pluginName  | Plugin application name               |
+| description | Plugin application description        |
+| category    | Plugin application category           |
+| icon        | Plugin application icon               |
+| versions    | Plugin application supported versions |
+
+
+```
+pluginName: "argo-cd"
+description: "GitOps continuous delivery tool for Kubernetes"
+category: "CI/CD"
+icon: "icon.svg"
+versions:
+  - "v1.0.2"
+  - "v1.0.5"
+```
+
+you can refer [here](https://github.com/intelops/capten-plugins/blob/main/plugin-store/argo-cd/plugin.yaml)
+
+3. Add Plugin Application Version Deployment Configuration
+
+For each supported version, create version folder `plugin-store/<plugin-name>/<version>` and add plugin version deployment metadata files
+
+- add plugin application version deployment configuration in `plugin-store/<plugin-name>/<version>/plugin-config.yaml` file
+- add plugin application version values file in `plugin-store/<plugin-name>/<version>/values.yaml` file
+
+\*\* plugin application version deployment configuration attributes \*\*
+| Attribute | Description |
+| ------------------- | ---------------------------------------- |
+| chartName | Plugin application chart name |
+| chartRepo | Plugin application chart repo |
+| version | Plugin application version |
+| defaultNamespace | Plugin application default namespace |
+| privilegedNamespace | Plugin application privileged namespace |
+| valuesFile | Plugin application values file |
+| apiEndpoint | Plugin application API endpoint |
+| uiEndpoint | Plugin application ui endpoint |
+| capabilities | Plugin application required capabilities |
+
+
+
+Table below shows an example of plugin application version deployment configuration
+
+| Capabilities                | Description                                                      |
+| --------------------------- | ---------------------------------------------------------------- |
+| deploy-controlplane-cluster | Capability to deploy plugin application on control plane cluster |
+| deploy-bussiness-cluster    | Capability to deploy plugin application on business cluster      |
+| capten-sdk                  | Capability to access Capten cluster SDK                          |
+| ui-sso-oauth                | Capability to enable Single SignOn for plugin application UI     |
+| postgress-store             | Capability to access Capten cluster storage service              |
+| vault-store                 | Capability to access Capten cluster vault service                |
+
+```
+deployment:
+  controlplaneCluster:
+    chartName: "argo-cd"
+    chartRepo: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    version: "v1.0.2"
+    defaultNamespace: "argo-cd"
+    privilegedNamespace: false
+    valuesFile: "values.yaml"
+apiEndpoint: https://argo.{{.DomainName}}
+uiEndpoint: https://argo.{{.DomainName}}
+capabilities:
+  - deploy-controlplane-cluster
+  - capten-sdk
+  - ui-sso-oauth
+```
+
+You can have sample reference of argocd plugin [here](https://github.com/intelops/capten-plugins/tree/main/plugin-store/argo-cd)
+
+## General Instructions 
 This project is written in Golang 
 
 To contribute code.
@@ -280,4 +444,3 @@ To contribute code.
 6. Commit changes *([Please refer the commit message conventions](https://www.conventionalcommits.org/en/v1.0.0/))*
 7. Push commits.
 8. Open pull request.
-
