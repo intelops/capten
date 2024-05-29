@@ -5,6 +5,7 @@ import (
 	"capten/pkg/clog"
 	"capten/pkg/config"
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -99,7 +100,7 @@ func readAndValidResourceDataFlags(cmd *cobra.Command, resourceType string) (att
 		for key, value := range cloudAttributes {
 			attributes[key] = value
 		}
-
+		log.Printf(" Cloud attributes %v \n", cloudAttributes)
 	case "container-registry":
 		registryUrl, _ := cmd.Flags().GetString("registry-url")
 		if len(registryUrl) == 0 {

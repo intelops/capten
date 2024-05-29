@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"log"
 
 	random "math/rand"
 	"os"
@@ -329,12 +330,12 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
 
-		secretKeyMapping := map[string]string{
-			"username": "username",
-			"password": "password",
+		secretKeyMapping := map[string][]string{
+			"username": {"username"},
+			"password": {"password"},
 		}
 
-		err = configureDBSecret(captenConfig, vaultClient, config, secretKeyMapping)
+		err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, serviceCredentailType)
 		if err != nil {
 			return fmt.Errorf("error while configuring secret: %v", err)
 		}
@@ -349,9 +350,10 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
 		postgresconfig := types.CredentialAppConfig{
-			Name:                 "postgres-cred",
-			SecretName:           "postgres-admin-secret",
-			Namespaces:           []string{"observability", "platform", "capten", "quality-trace"},
+			Name:       "postgres-cred",
+			SecretName: "postgres-admin-secret",
+			Namespaces: []string{"observability", "platform", "capten", "quality-trace"}, //	"platform", "capten", "quality-trace"
+
 			CredentialEntity:     "postgres",
 			CredentialIdentifier: "postgres-admin",
 			CredentialType:       "postgres-password",
@@ -361,7 +363,7 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		posgresdbuserkey := map[string]string{
 			"username": postgresconfig.UserName,
 		}
-		err = generateAndStoreDBPassword(vaultClient, postgresconfig, "admin-password", posgresdbuserkey)
+		err = generateAndStoreDBPassword(vaultClient, postgresconfig, "password", posgresdbuserkey)
 		if err != nil {
 			return fmt.Errorf("error while generating and storing secret in vault: %v", err)
 
@@ -370,16 +372,37 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		postgressecretPath := fmt.Sprintf("%s/%s/%s", serviceCredentailType, postgresconfig.CredentialEntity, postgresconfig.CredentialIdentifier)
 
 		tempsecretPath := fmt.Sprintf("%s/%s/%s", serviceCredentailType, config.CredentialEntity, config.CredentialIdentifier)
-		secretKey := map[string]string{
-			postgressecretPath: "admin-password",
-			tempsecretPath:     "password",
+		// secretKey := map[string]string{
+		// 	postgressecretPath: "password",
+		// 	tempsecretPath:     "password",
+		// }
+
+		// secretPropertiesMapping := map[string]string{
+		// 	"password": "admin-password",
+		// 	// "": "admin-password",
+		// }
+
+		secretKey := map[string][]string{
+			postgressecretPath: {"password"},
+			tempsecretPath:     {"password"},
 		}
 
-		err = configureDBSecret(captenConfig, vaultClient, postgresconfig, secretKey)
+		secretPropertiesMapping := map[string][]string{
+			"password": {"admin-password", "password"},
+		}
+
+		log.Println("sec key mapping", secretKey)
+
+		// secretPropertiesMapping := map[string][]string{
+		// 	"admin-password": {"password"},
+		// 	"password":       {"password"},
+		// }
+
+		err = configureSecret(captenConfig, vaultClient, postgresconfig, secretKey, secretPropertiesMapping, serviceCredentailType)
 		if err != nil {
 			return err
 		}
-		appGlobalValues[postgresSecretNameVar] = postgresconfig.SecretName
+		appGlobalValues[postgresSecretNameVar] = postgresconfig.CredentialEntity
 
 	default:
 		return fmt.Errorf("unknown credential type: %s", config.CredentialType)
@@ -398,58 +421,33 @@ func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.
 	return err
 }
 
-func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string, credentialType string) error {
-	secretPath := fmt.Sprintf("%s/%s/%s", credentialType, config.CredentialEntity, config.CredentialIdentifier)
-	for _, namespace := range config.Namespaces {
-		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
-		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, namespace, nil)
-		if err != nil {
-			return err
-		}
-
-		secretPathData := make([]*vaultcredpb.SecretPathRef, 0, len(secretKeyMapping))
-		if config.CredentialType == "postgres-password" {
-
-			for secretPath, secretkey := range secretKeyMapping {
-				secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{SecretPath: secretPath, SecretKey: secretkey})
-			}
-		} else {
-			for _, vaultKey := range secretKeyMapping {
-				secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{SecretPath: secretPath, SecretKey: vaultKey})
-			}
-		}
-
-		_, err = vaultClient.ConfigureVaultSecret(context.Background(), &vaultcredpb.ConfigureVaultSecretRequest{
-			SecretName:     config.SecretName,
-			Namespace:      namespace,
-			SecretPathData: secretPathData,
-
-			DomainName: "capten.svc.cluster.local:8200",
-		})
-
-		if err != nil {
-			return fmt.Errorf("failed to configure secret in vault, %v", err)
-		}
-	}
-	return nil
-}
-
 func configureCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
+	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
 
-	secretKeyMapping := map[string]string{
-		"cosign.key": "cosign.key",
-		"cosign.pub": "cosign.pub",
+	// secretKeyMapping := map[string][]string{
+	// 	"cosign.key": "cosign.key",
+	// 	"cosign.pub": "cosign.pub",
+	// }
+	secretKeyMapping := map[string][]string{
+		secretPath:   {"cosign.key"},
+		"cosign.pub": {"cosign.pub"},
 	}
-	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, genericCredentailType)
+	log.Println("sec key mapping", secretKeyMapping)
+
+	//return nil
+	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
 func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
 
 	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
-	secretKeyMapping := map[string]string{
-		secretPath: "token",
+	secretKeyMapping := map[string][]string{
+		secretPath: {"token"},
 	}
-	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, genericCredentailType)
+	//log.Println("sec key mapping", secretKeyMapping)
+	//return nil
+
+	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
 func generatePassword() string {
@@ -465,10 +463,10 @@ func generatePassword() string {
 	return string(password)
 }
 
-func configureDBSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string) error {
+// func configureDBSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string) error {
 
-	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, serviceCredentailType)
-}
+// 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, serviceCredentailType)
+// }
 
 func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, passwordKey string, credential map[string]string) error {
 	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
@@ -493,5 +491,105 @@ func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config 
 		}
 	}
 
+	return nil
+}
+
+func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretPathMapping map[string][]string, propertyMapping map[string][]string, credentialType string) error {
+	secretPath := fmt.Sprintf("%s/%s/%s", credentialType, config.CredentialEntity, config.CredentialIdentifier)
+
+	for _, namespace := range config.Namespaces {
+		kubeconfigPath := captenConfig.PrepareFilePath(captenConfig.ConfigDirPath, captenConfig.KubeConfigFileName)
+		err := k8s.CreateNamespaceIfNotExist(kubeconfigPath, namespace, nil)
+		if err != nil {
+			return err
+		}
+
+		// If propertyMapping is nil, use secretPathMapping for properties
+		if propertyMapping == nil {
+			propertyMapping = make(map[string][]string)
+			for k, v := range secretPathMapping {
+				propertyMapping[k] = v
+			}
+		}
+
+		// Initialize secretPathData
+		secretPathData := make([]*vaultcredpb.SecretPathRef, 0)
+
+		// Track the index of properties used for each secretPath
+		propertyIndex := make(map[string]int)
+		if config.CredentialType == "postgres-password" {
+			for secretpath, properties := range secretPathMapping {
+				for _, property := range properties {
+					// Default secretKey to property
+					secretKey := property
+
+					// Check if property exists in propertyMapping and apply transformation
+					if props, exists := propertyMapping[property]; exists && len(props) > 0 {
+						// Get the current index for this property
+						idx := propertyIndex[property]
+
+						// Check if index is within the range of properties
+						if idx < len(props) {
+							secretKey = props[idx]
+						}
+
+						// Update the index for the next usage
+						propertyIndex[property]++
+					}
+
+					// Append the secretPathData with the transformed secretKey and property
+					secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{
+						SecretPath: secretpath,
+						SecretKey:  secretKey,
+						Property:   property,
+					})
+					//			log.Println("SecretKey", secretKey)
+				}
+			}
+			//	log.Println("Secret Path Data", secretPathData)
+		} else {
+			for _, properties := range secretPathMapping {
+				for _, property := range properties {
+					// Default secretKey to property
+					secretKey := property
+
+					// Check if property exists in propertyMapping and apply transformation
+					if props, exists := propertyMapping[property]; exists && len(props) > 0 {
+						// Get the current index for this property
+						idx := propertyIndex[property]
+
+						// Check if index is within the range of properties
+						if idx < len(props) {
+							secretKey = props[idx]
+						}
+
+						// Update the index for the next usage
+						propertyIndex[property]++
+					}
+
+					// Append the secretPathData with the transformed secretKey and property
+					secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{
+						SecretPath: secretPath,
+						SecretKey:  secretKey,
+						Property:   property,
+					})
+				}
+			}
+		}
+
+		// Create the request with the populated secretPathData
+		request := &vaultcredpb.ConfigureVaultSecretRequest{
+			SecretName:     config.CredentialEntity,
+			Namespace:      namespace,
+			SecretPathData: secretPathData,
+			DomainName:     "capten.svc.cluster.local:8200",
+		}
+		log.Println("Vault req", request)
+		// Call ConfigureVaultSecret on the vault client
+		_, err = vaultClient.ConfigureVaultSecret(context.Background(), request)
+		if err != nil {
+			return fmt.Errorf("failed to configure vault secret: %v", err)
+		}
+	}
 	return nil
 }

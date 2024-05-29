@@ -6,6 +6,7 @@ import (
 	"capten/pkg/config"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -115,6 +116,7 @@ func AddClusterResource(captenConfig config.CaptenConfig, resourceType string, a
 	}
 
 	if err != nil {
+		log.Println("Error while getting resource", err)
 		return err
 	}
 
@@ -180,8 +182,8 @@ func prepareCloudAttributes(attributes map[string]string) (map[string]string, er
 		cloudAttributes["clientId"] = attributes["client-id"]
 		cloudAttributes["clientSecret"] = attributes["client-secret"]
 	case "aws":
-		cloudAttributes["access-key"] = attributes["accessKey"]
-		cloudAttributes["secret-key"] = attributes["secretKey"]
+		cloudAttributes["access-key"] = attributes["access-key"]
+		cloudAttributes["secret-key"] = attributes["secret-key"]
 	default:
 		return nil, fmt.Errorf("invalid cloud type: %s", attributes["cloud-type"])
 	}
