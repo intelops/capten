@@ -84,7 +84,7 @@ You can generally contribute capten in 4 ways,that is given below:
 
 For supporting capten with any additional cluster or to enhance additional support to the existing cluster,you can follow the below steps:
 
-1. Add the cloud configurations yaml file in `./config` directory.you can refer [here](https://github.com/intelops/capten/blob/main/config/aws_config.yaml) 
+1. Add the cloud configurations yaml file in `./config` directory.you can refer [aws_config.yaml](https://github.com/intelops/capten/blob/main/config/aws_config.yaml) 
 
 2. Modify the below function for supporting the specified cloud service.You can check this function [here](https://github.com/intelops/capten/blob/main/pkg/cmd/capten.go) 
 
@@ -139,7 +139,9 @@ type AWSClusterInfo struct {
 }
 
 ```
-5. For supporting additional cloud,kindly go through and understand the code in `./pkg/cluster`. Refer the below code and modify the code accordingly for supporting additional cloud
+5. For supporting additional cloud,kindly go through and understand the code in `./pkg/cluster`. 
+
+Refer the below code snippets and modify the code accordingly for supporting additional cloud
 
 (https://github.com/intelops/capten/blob/main/pkg/cluster/cluster.go)
 (https://github.com/intelops/capten/blob/main/pkg/cluster/k3s/k3s.go)
@@ -147,11 +149,11 @@ type AWSClusterInfo struct {
 
 6. Add the template file in required format in `./templates/k3s` directory.You can refer sample template file in [./templates/k3s/values.aws.tmpl](https://github.com/intelops/capten/blob/main/templates/k3s/values.aws.tmpl)
 
-7. Contribute your terraform code  for supporting additional cloud in[controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane). 
+7. Contribute your terraform code  for supporting additional cloud in [controlplane-dataplane repo](https://github.com/kube-tarian/controlplane-dataplane). 
 
 8. Terraform is packaged in the Capten Artifact.So for triggering the terraform  create a separate file in `./pkg/terraform` directory and add the code logic for supporting additional cloud by using terrform  go package `github.com/hashicorp/terraform-exec/tfexec`.
 
-For reference,you can understand the code in `./pkg/terraform/terraform-aws.go` [here](https://github.com/intelops/capten/blob/main/pkg/terraform/terraform-aws.go) 
+For reference,you can understand the code in [./pkg/terraform/terraform-aws.go](https://github.com/intelops/capten/blob/main/pkg/terraform/terraform-aws.go) 
 
 
 ### How to test the changes:
@@ -195,7 +197,7 @@ OverrideValues: (Optional)"The OverrideValues section is used to specify configu
 
 ```
 
-Refer the [sample applicatiom](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
+Refer the [sample application](https://github.com/intelops/capten/blob/main/apps/conf/falco.yaml)
 
 2. For Passing the values in the application ,create a `_template.yaml` file in `./apps/conf/values`
 
@@ -211,7 +213,7 @@ You can refer [here](https://github.com/intelops/capten/blob/main/apps/conf/valu
 
 4. If any app credentials needs to be stored in vault or any external secret that needs to be created with the credentials in the vault or any override values such as secret-name that needs to be passed dynamically (similar to [kubviz-client](https://github.com/intelops/capten/blob/main/apps/conf/kubviz-client.yaml]) )to the application, you can refer the code in `./pkg/agent/store_cred.go` .
 
-For storing any application based credentials,create a yaml file in `./apps/conf/credentials`.
+For storing any application based credentials,create a yaml file in `./apps/conf/credentials`
 
 ```sh
 name: This field specifies a human-readable name for the credential configuration.
@@ -283,11 +285,10 @@ func init() {
 
 }
 ```
-Additional CLI commands can be added in `./pkg/cmd/capten.go`.[Click here](https://github.com/intelops/capten/blob/main/pkg/cmd/capten.go)
+Additional CLI commands can be added in [./pkg/cmd/capten.go](https://github.com/intelops/capten/blob/main/pkg/cmd/capten.go)
 
 
 ```sh
-
 var resourceCreateSubCmd = &cobra.Command{
 	Use:   "create",
 	Short: "cluster resource create",
@@ -311,8 +312,7 @@ var resourceCreateSubCmd = &cobra.Command{
 	},
 }
 ```
-The CLI commands are executed in a separate file,you can refer in `./pkg/cmd/cluster_resource_cmd.go`.
-[ClickHere](https://github.com/intelops/capten/blob/main/pkg/cmd/cluster_resource_cmd.go) to understand the code.
+The CLI commands are executed in a separate file,you can refer in [./pkg/cmd/cluster_resource_cmd.go](https://github.com/intelops/capten/blob/main/pkg/cmd/cluster_resource_cmd.go) to understand the code.
 
 
 In the above mentioned ways,you can contribute for Capten CLI enhancement.
