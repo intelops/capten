@@ -105,7 +105,7 @@ func init() {
 	clusterAppsCmd.AddCommand(appsShowSubCmd)
 
 	//cluster resources create options
-	resourceCreateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceCreateSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
 	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
 	resourceCreateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
 	resourceCreateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
@@ -122,7 +122,7 @@ func init() {
 	clusterResourcesCmd.AddCommand(resourceCreateSubCmd)
 
 	//cluster resources update options
-	resourceUpdateSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
 	resourceUpdateSubCmd.PersistentFlags().String("id", "", "id of resource")
 	resourceUpdateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
 	resourceUpdateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
@@ -140,12 +140,12 @@ func init() {
 	clusterResourcesCmd.AddCommand(resourceUpdateSubCmd)
 
 	//cluster resources delete options
-	resourceDeleteSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceDeleteSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
 	resourceDeleteSubCmd.PersistentFlags().String("id", "", "id of resource")
 	clusterResourcesCmd.AddCommand(resourceDeleteSubCmd)
 
 	//cluster resources list options
-	resourceListSubCmd.PersistentFlags().String("type", "", "type of resource")
+	resourceListSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
 	clusterResourcesCmd.AddCommand(resourceListSubCmd)
 
 	//plugin deploy options

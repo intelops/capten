@@ -6,7 +6,7 @@ RepoName: "kad"
 RepoURL: "https://kube-tarian.github.io/kad"
 Namespace: "capten"
 ReleaseName: "kad"
-Version: "1.0.1"
+Version: "1.0.4"
 CreateNamespace: true
 PrivilegedNamespace: true
 APIEndpoint: https://captenagent.{{.DomainName}}
