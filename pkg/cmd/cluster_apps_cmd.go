@@ -18,7 +18,7 @@ import (
 )
 
 func readAppsNameFlags(cmd *cobra.Command) (appsName string, err error) {
-	appsName, err = cmd.Flags().GetString("name")
+	appsName, err = cmd.Flags().GetString("app-name")
 	if len(appsName) == 0 {
 		return "", fmt.Errorf("specify the name of the apps in the command line %v", err)
 	}

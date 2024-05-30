@@ -102,10 +102,11 @@ func init() {
 	//cluster apps options
 	clusterAppsCmd.AddCommand(appsInstallSubCmd)
 	clusterAppsCmd.AddCommand(appsListSubCmd)
+	appsShowSubCmd.PersistentFlags().String("app-name", "", "name of app")
 	clusterAppsCmd.AddCommand(appsShowSubCmd)
 
 	//cluster resources create options
-	resourceCreateSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
+	resourceCreateSubCmd.PersistentFlags().String("resource-type", "", "type of resource ('git-project', 'container-registry', 'cloud-provider')")
 	resourceCreateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
 	resourceCreateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
 	resourceCreateSubCmd.PersistentFlags().String("user-id", "", "user id of git project resource")
@@ -122,7 +123,7 @@ func init() {
 	clusterResourcesCmd.AddCommand(resourceCreateSubCmd)
 
 	//cluster resources update options
-	resourceUpdateSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
+	resourceUpdateSubCmd.PersistentFlags().String("resource-type", "", "type of resource ('git-project', 'container-registry', 'cloud-provider')")
 	resourceUpdateSubCmd.PersistentFlags().String("id", "", "id of resource")
 	resourceUpdateSubCmd.PersistentFlags().String("git-project-url", "", "url of git project resource")
 	resourceUpdateSubCmd.PersistentFlags().String("access-token", "", "access token of git project resource")
@@ -140,12 +141,12 @@ func init() {
 	clusterResourcesCmd.AddCommand(resourceUpdateSubCmd)
 
 	//cluster resources delete options
-	resourceDeleteSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
+	resourceDeleteSubCmd.PersistentFlags().String("resource-type", "", "type of resource ('git-project', 'container-registry', 'cloud-provider')")
 	resourceDeleteSubCmd.PersistentFlags().String("id", "", "id of resource")
 	clusterResourcesCmd.AddCommand(resourceDeleteSubCmd)
 
 	//cluster resources list options
-	resourceListSubCmd.PersistentFlags().String("resource-type", "", "type of resource")
+	resourceListSubCmd.PersistentFlags().String("resource-type", "", "type of resource ('git-project', 'container-registry', 'cloud-provider')")
 	clusterResourcesCmd.AddCommand(resourceListSubCmd)
 
 	//plugin deploy options
