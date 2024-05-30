@@ -21,7 +21,7 @@ func readAndValidatePluginStoreTypeFlags(cmd *cobra.Command) (storeType string, 
 	return
 }
 
-func readAndValidatePluginStoreShowFlags(cmd *cobra.Command) (storeType, pluginName string, err error) {
+func readAndValidatePluginStoreShowFlags(cmd *cobra.Command) (pluginName, storeType string, err error) {
 	storeType, err = readAndValidatePluginStoreTypeFlags(cmd)
 	if err != nil {
 		return "", "", err
