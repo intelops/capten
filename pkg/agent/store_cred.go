@@ -402,7 +402,7 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		if err != nil {
 			return err
 		}
-		appGlobalValues[postgresSecretNameVar] = postgresconfig.CredentialEntity
+		appGlobalValues[postgresSecretNameVar] = postgresconfig.SecretName
 
 	default:
 		return fmt.Errorf("unknown credential type: %s", config.CredentialType)
@@ -422,18 +422,18 @@ func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.
 }
 
 func configureCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
-	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
+//	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
 
 	// secretKeyMapping := map[string][]string{
 	// 	"cosign.key": "cosign.key",
 	// 	"cosign.pub": "cosign.pub",
 	// }
 	secretKeyMapping := map[string][]string{
-		secretPath:   {"cosign.key"},
+		"cosign.key": {"cosign.key"},
 		"cosign.pub": {"cosign.pub"},
 	}
-	log.Println("sec key mapping", secretKeyMapping)
-
+	//	log.Println("sec key mapping", secretKeyMapping)
+    
 	//return nil
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
@@ -579,7 +579,7 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 
 		// Create the request with the populated secretPathData
 		request := &vaultcredpb.ConfigureVaultSecretRequest{
-			SecretName:     config.CredentialEntity,
+			SecretName:     config.SecretName,
 			Namespace:      namespace,
 			SecretPathData: secretPathData,
 			DomainName:     "capten.svc.cluster.local:8200",
