@@ -31,3 +31,4 @@ LaunchUIValues:
 OverrideValues:
   DomainName: "{{.DomainName}}"
   postgresSecretName: "{{.postgresSecretName}}"
+  clickkhouseSecretName: "{{.clickkhouseSecretName}}"

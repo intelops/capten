@@ -49,6 +49,12 @@ grafana:
       mountPath: /etc/secrets/postgresql
       secretName: "{{ .postgresSecretName }}"
       readOnly: true
+  Clickhouse:
+    enabled: true
+    existingSecret:
+      name: "{{ .clickkhouseSecretName }}" 
+      usernamekey: "username"
+      passwordkey: "password"   
 prometheus:
   ingress:
     annotations:

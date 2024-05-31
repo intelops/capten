@@ -12,7 +12,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"log"
+
 
 	random "math/rand"
 	"os"
@@ -372,15 +372,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		postgressecretPath := fmt.Sprintf("%s/%s/%s", serviceCredentailType, postgresconfig.CredentialEntity, postgresconfig.CredentialIdentifier)
 
 		tempsecretPath := fmt.Sprintf("%s/%s/%s", serviceCredentailType, config.CredentialEntity, config.CredentialIdentifier)
-		// secretKey := map[string]string{
-		// 	postgressecretPath: "password",
-		// 	tempsecretPath:     "password",
-		// }
-
-		// secretPropertiesMapping := map[string]string{
-		// 	"password": "admin-password",
-		// 	// "": "admin-password",
-		// }
 
 		secretKey := map[string][]string{
 			postgressecretPath: {"password"},
@@ -391,13 +382,7 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			"password": {"admin-password", "password"},
 		}
 
-		log.Println("sec key mapping", secretKey)
-
-		// secretPropertiesMapping := map[string][]string{
-		// 	"admin-password": {"password"},
-		// 	"password":       {"password"},
-		// }
-
+	
 		err = configureSecret(captenConfig, vaultClient, postgresconfig, secretKey, secretPropertiesMapping, serviceCredentailType)
 		if err != nil {
 			return err
@@ -422,19 +407,13 @@ func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.
 }
 
 func configureCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
-//	secretPath := fmt.Sprintf("%s/%s/%s", genericCredentailType, config.CredentialEntity, config.CredentialIdentifier)
 
-	// secretKeyMapping := map[string][]string{
-	// 	"cosign.key": "cosign.key",
-	// 	"cosign.pub": "cosign.pub",
-	// }
+
 	secretKeyMapping := map[string][]string{
 		"cosign.key": {"cosign.key"},
 		"cosign.pub": {"cosign.pub"},
 	}
-	//	log.Println("sec key mapping", secretKeyMapping)
-    
-	//return nil
+	
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
@@ -444,8 +423,7 @@ func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	secretKeyMapping := map[string][]string{
 		secretPath: {"token"},
 	}
-	//log.Println("sec key mapping", secretKeyMapping)
-	//return nil
+	
 
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
@@ -463,10 +441,7 @@ func generatePassword() string {
 	return string(password)
 }
 
-// func configureDBSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, secretKeyMapping map[string]string) error {
 
-// 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, serviceCredentailType)
-// }
 
 func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, passwordKey string, credential map[string]string) error {
 	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
@@ -504,7 +479,6 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			return err
 		}
 
-		// If propertyMapping is nil, use secretPathMapping for properties
 		if propertyMapping == nil {
 			propertyMapping = make(map[string][]string)
 			for k, v := range secretPathMapping {
@@ -512,62 +486,46 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			}
 		}
 
-		// Initialize secretPathData
 		secretPathData := make([]*vaultcredpb.SecretPathRef, 0)
 
-		// Track the index of properties used for each secretPath
 		propertyIndex := make(map[string]int)
 		if config.CredentialType == "postgres-password" {
 			for secretpath, properties := range secretPathMapping {
 				for _, property := range properties {
-					// Default secretKey to property
 					secretKey := property
 
-					// Check if property exists in propertyMapping and apply transformation
 					if props, exists := propertyMapping[property]; exists && len(props) > 0 {
-						// Get the current index for this property
 						idx := propertyIndex[property]
 
-						// Check if index is within the range of properties
 						if idx < len(props) {
 							secretKey = props[idx]
 						}
 
-						// Update the index for the next usage
 						propertyIndex[property]++
 					}
 
-					// Append the secretPathData with the transformed secretKey and property
 					secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{
 						SecretPath: secretpath,
 						SecretKey:  secretKey,
 						Property:   property,
 					})
-					//			log.Println("SecretKey", secretKey)
 				}
 			}
-			//	log.Println("Secret Path Data", secretPathData)
 		} else {
 			for _, properties := range secretPathMapping {
 				for _, property := range properties {
-					// Default secretKey to property
 					secretKey := property
 
-					// Check if property exists in propertyMapping and apply transformation
 					if props, exists := propertyMapping[property]; exists && len(props) > 0 {
-						// Get the current index for this property
 						idx := propertyIndex[property]
 
-						// Check if index is within the range of properties
 						if idx < len(props) {
 							secretKey = props[idx]
 						}
 
-						// Update the index for the next usage
 						propertyIndex[property]++
 					}
 
-					// Append the secretPathData with the transformed secretKey and property
 					secretPathData = append(secretPathData, &vaultcredpb.SecretPathRef{
 						SecretPath: secretPath,
 						SecretKey:  secretKey,
@@ -577,15 +535,13 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			}
 		}
 
-		// Create the request with the populated secretPathData
 		request := &vaultcredpb.ConfigureVaultSecretRequest{
 			SecretName:     config.SecretName,
 			Namespace:      namespace,
 			SecretPathData: secretPathData,
 			DomainName:     "capten.svc.cluster.local:8200",
 		}
-		log.Println("Vault req", request)
-		// Call ConfigureVaultSecret on the vault client
+		
 		_, err = vaultClient.ConfigureVaultSecret(context.Background(), request)
 		if err != nil {
 			return fmt.Errorf("failed to configure vault secret: %v", err)
