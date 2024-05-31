@@ -112,7 +112,8 @@ func ShowPluginStorePlugin(captenConfig config.CaptenConfig, storeType, pluginNa
 	}
 
 	resp, err := client.GetPluginData(context.TODO(), &pluginstorepb.GetPluginDataRequest{
-		StoreType: storeTypeEnum,
+		StoreType:  storeTypeEnum,
+		PluginName: pluginName,
 	})
 	if err != nil {
 		return err
