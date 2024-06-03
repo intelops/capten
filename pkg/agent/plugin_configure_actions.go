@@ -31,14 +31,16 @@ func configureCrossplanePlugin(captenConfig config.CaptenConfig, action string,
 	switch action {
 	case "list-actions":
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Action"})
-		table.Append([]string{"show-crossplane-project"})
-		table.Append([]string{"synch-crossplane-project"})
-		table.Append([]string{"create-crossplane-provider"})
-		table.Append([]string{"update-crossplane-provider"})
-		table.Append([]string{"delete-crossplane-provider"})
-		table.Append([]string{"list-managed-clusters"})
-		table.Append([]string{"download-kubeconfig"})
+		table.SetHeader([]string{"Action", "Attributes"})
+		table.SetRowLine(true)
+
+		table.Append([]string{"show-crossplane-project", ""})
+		table.Append([]string{"synch-crossplane-project", ""})
+		table.Append([]string{"create-crossplane-provider", "crossplane-provider-name, cloud-type, cloud-provider-id"})
+		table.Append([]string{"update-crossplane-provider", "crossplane-provider-id, crossplane-provider-name, cloud-type, cloud-provider-id"})
+		table.Append([]string{"delete-crossplane-provider", "crossplane-provider-id"})
+		table.Append([]string{"list-managed-clusters", ""})
+		table.Append([]string{"download-kubeconfig", "managed-cluster-id"})
 		table.SetAutoMergeCells(true)
 		table.Render()
 	case "show-crossplane-project":
@@ -65,9 +67,11 @@ func configureTektonPlugin(captenConfig config.CaptenConfig, action string) erro
 	switch action {
 	case "list-actions":
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Action"})
-		table.Append([]string{"show-tekton-project"})
-		table.Append([]string{"synch-tekton-project"})
+		table.SetHeader([]string{"Action", "Attributes"})
+		table.SetRowLine(true)
+
+		table.Append([]string{"show-tekton-project", ""})
+		table.Append([]string{"synch-tekton-project", ""})
 		table.SetAutoMergeCells(true)
 		table.Render()
 	case "show-tekton-project":
