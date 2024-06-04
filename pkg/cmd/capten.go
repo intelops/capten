@@ -169,7 +169,7 @@ func init() {
 
 	//plugin config options
 	pluginConfigSubCmd.PersistentFlags().String("plugin-name", "", "name of the plugin")
-	pluginConfigSubCmd.PersistentFlags().Bool("list-actions", true, "list of actions supported by the plugin")
+	pluginConfigSubCmd.PersistentFlags().Bool("list-actions", false, "list of actions supported by the plugin")
 	pluginConfigSubCmd.PersistentFlags().String("action", "", "action of the plugin")
 	pluginConfigSubCmd.PersistentFlags().String("cloud-provider-id", "", "cloud provider identifier")
 	pluginConfigSubCmd.PersistentFlags().String("crossplane-provider-id", "", "crossplane provider identifier")
@@ -195,6 +195,7 @@ func init() {
 	pluginStoreCmd.AddCommand(pluginStoreSynchSubCmd)
 
 	//plugin store config options
+
 	pluginStoreConfigSubCmd.PersistentFlags().String("store-type", "", "store type (local)")
 	pluginStoreConfigSubCmd.PersistentFlags().String("git-project-id", "", "git project identifier")
 	pluginStoreCmd.AddCommand(pluginStoreConfigSubCmd)

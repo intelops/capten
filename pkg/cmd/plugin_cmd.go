@@ -213,7 +213,13 @@ var pluginShowSubCmd = &cobra.Command{
 			return
 		}
 
-		err = agent.ShowClusterPluginData(config.CaptenConfig{}, pluginName)
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+
+		err = agent.ShowClusterPluginData(captenConfig, pluginName)
 		if err != nil {
 			clog.Logger.Errorf("failed to show cluster plugin data, %v", err)
 			return
@@ -232,7 +238,13 @@ var pluginConfigSubCmd = &cobra.Command{
 			return
 		}
 
-		err = agent.ConfigureClusterPlugin(config.CaptenConfig{}, pluginName, action, actionAttributes)
+		captenConfig, err := config.GetCaptenConfig()
+		if err != nil {
+			clog.Logger.Errorf("failed to read capten config, %v", err)
+			return
+		}
+
+		err = agent.ConfigureClusterPlugin(captenConfig, pluginName, action, actionAttributes)
 		if err != nil {
 			clog.Logger.Errorf("failed to show cluster plugin data, %v", err)
 			return
