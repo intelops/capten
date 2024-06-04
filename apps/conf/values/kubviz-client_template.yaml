@@ -31,5 +31,5 @@ existingClickhouse:
   host: clickhouse.platform.svc.cluster.local
   secret:
     name: "{{ .clickkhouseSecretName }}"
-    usernamekey: "user"
+    usernamekey: "username"
     passwordkey: "password"

@@ -36,20 +36,25 @@ grafana:
         allowUiUpdates: true
     datasources:
       enabled: true
-  postgresql:
-    enabled: true
   database: 
+    enabled: true
     type: postgres
-    host: prometheus-postgresql:5432
+    host: postgresql.platform.svc.cluster.local:5432
     name: postgres
     ssl_mode: disable
     user: postgres
-    password: $__file{/etc/secrets/postgresql/postgres-password}
+    password: $__file{/etc/secrets/postgresql/admin-password}
     secretMount:
       name: postgresql-mount
       mountPath: /etc/secrets/postgresql
-      secretName: prometheus-postgresql
+      secretName: "{{ .postgresSecretName }}"
       readOnly: true
+  Clickhouse:
+    enabled: true
+    existingSecret:
+      name: "{{ .clickkhouseSecretName }}" 
+      usernamekey: "username"
+      passwordkey: "password"   
 prometheus:
   ingress:
     annotations:

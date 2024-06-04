@@ -6,10 +6,13 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "signoz"
-Version: "0.0.3"
+Version: "0.0.5"
 CreateNamespace: true
 PrivilegedNamespace: true
 UIEndpoint: https://signoz.{{.DomainName}}
 Icon: "signoz.svg"
 OverrideValues:
   DomainName: "{{.DomainName}}"
+  clickkhouseSecretName: "{{.clickkhouseSecretName}}"
+
+

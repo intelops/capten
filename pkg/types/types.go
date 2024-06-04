@@ -132,4 +132,5 @@ type CredentialAppConfig struct {
 	CredentialEntity     string   `yaml:"credentialEntity"`
 	CredentialIdentifier string   `yaml:"credentialIdentifier"`
 	CredentialType       string   `yaml:"credentialType"`
+	UserName             string   `yaml:"userName"`
 }
