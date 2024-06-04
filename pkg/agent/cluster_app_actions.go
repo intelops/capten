@@ -18,20 +18,20 @@ func ListClusterApplications(captenConfig config.CaptenConfig) error {
 		return err
 	}
 
-	resp, err := client.GetDefaultAppsStatus(context.TODO(), &agentpb.GetDefaultAppsStatusRequest{})
+	resp, err := client.GetClusterApps(context.TODO(), &agentpb.GetClusterAppsRequest{})
 	if err != nil {
 		return err
 	}
 
-	if len(resp.DefaultAppsStatus) == 0 {
+	if len(resp.AppData) == 0 {
 		clog.Logger.Info("No apps found on cluster")
 		return nil
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Category", "Name", "Version", "Status"})
-	for _, clusterApp := range resp.DefaultAppsStatus {
-		table.Append([]string{clusterApp.Category, clusterApp.AppName, clusterApp.Version, clusterApp.InstallStatus})
+	for _, clusterApp := range resp.AppData {
+		table.Append([]string{clusterApp.Config.Category, clusterApp.Config.AppName, clusterApp.Config.Version, clusterApp.Config.InstallStatus})
 	}
 	table.Render()
 	return nil
