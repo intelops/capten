@@ -5,7 +5,6 @@ import (
 	"capten/pkg/clog"
 	"capten/pkg/config"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
