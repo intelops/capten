@@ -52,11 +52,6 @@ func readCrossplanePluginActionFlags(cmd *cobra.Command, action string) (actionA
 	actionAttributes = map[string]string{}
 	switch action {
 	case "create-crossplane-provider":
-		actionAttributes["crossplane-provider-name"], _ = cmd.Flags().GetString("crossplane-provider-name")
-		if len(actionAttributes["crossplane-provider-name"]) == 0 {
-			return nil, fmt.Errorf("specify the crossplane provider name in the command line")
-		}
-
 		actionAttributes["cloud-type"], _ = cmd.Flags().GetString("cloud-type")
 		if len(actionAttributes["cloud-type"]) == 0 {
 			return nil, fmt.Errorf("specify the cloud type in the command line")
@@ -70,11 +65,6 @@ func readCrossplanePluginActionFlags(cmd *cobra.Command, action string) (actionA
 		actionAttributes["crossplane-provider-id"], _ = cmd.Flags().GetString("crossplane-provider-id")
 		if len(actionAttributes["crossplane-provider-id"]) == 0 {
 			return nil, fmt.Errorf("specify the crossplane provider id in the command line")
-		}
-
-		actionAttributes["crossplane-provider-name"], _ = cmd.Flags().GetString("crossplane-provider-name")
-		if len(actionAttributes["crossplane-provider-name"]) == 0 {
-			return nil, fmt.Errorf("specify the crossplane provider name in the command line")
 		}
 
 		actionAttributes["cloud-type"], _ = cmd.Flags().GetString("cloud-type")
