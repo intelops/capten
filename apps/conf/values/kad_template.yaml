@@ -12,6 +12,8 @@ postgres:
   entityName: postgres
   dbName: capten
   adminCredIdentifer: postgres-admin
+agent:
+  clusterIssuerReference: "capten-issuer"
 resources: 
   requests:
     cpu: 100m
