@@ -31,7 +31,7 @@ func ListClusterApplications(captenConfig config.CaptenConfig) error {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Category", "Name", "Version", "Status"})
 	for _, clusterApp := range resp.AppData {
-		table.Append([]string{clusterApp.Config.Category, clusterApp.Config.AppName, clusterApp.Config.Version, clusterApp.Config.InstallStatus})
+		table.Append([]string{clusterApp.Config.Category, clusterApp.Config.ReleaseName, clusterApp.Config.Version, clusterApp.Config.InstallStatus})
 	}
 	table.Render()
 	return nil

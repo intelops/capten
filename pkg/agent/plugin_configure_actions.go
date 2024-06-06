@@ -36,9 +36,10 @@ func configureCrossplanePlugin(captenConfig config.CaptenConfig, action string,
 
 		table.Append([]string{"show-crossplane-project", ""})
 		table.Append([]string{"synch-crossplane-project", ""})
-		table.Append([]string{"create-crossplane-provider", "crossplane-provider-name, cloud-type, cloud-provider-id"})
-		table.Append([]string{"update-crossplane-provider", "crossplane-provider-id, crossplane-provider-name, cloud-type, cloud-provider-id"})
+		table.Append([]string{"create-crossplane-provider", "cloud-type, cloud-provider-id"})
+		table.Append([]string{"update-crossplane-provider", "crossplane-provider-id, cloud-type, cloud-provider-id"})
 		table.Append([]string{"delete-crossplane-provider", "crossplane-provider-id"})
+		table.Append([]string{"list-crossplane-providers", ""})
 		table.Append([]string{"list-managed-clusters", ""})
 		table.Append([]string{"download-kubeconfig", "managed-cluster-id"})
 		table.SetAutoMergeCells(true)
@@ -53,6 +54,8 @@ func configureCrossplanePlugin(captenConfig config.CaptenConfig, action string,
 		return updateCrossplaneProvider(captenConfig, actionAttributes)
 	case "delete-crossplane-provider":
 		return deleteCrossplaneProvider(captenConfig, actionAttributes)
+	case "list-crossplane-providers":
+		return listCrossplaneProviders(captenConfig)
 	case "list-managed-clusters":
 		return listManagedClusters(captenConfig)
 	case "download-kubeconfig":
@@ -124,7 +127,6 @@ func createCrossplaneProvider(captenConfig config.CaptenConfig, attributes map[s
 	}
 
 	_, err = client.AddCrossplanProvider(context.TODO(), &captenpluginspb.AddCrossplanProviderRequest{
-		ProviderName:    attributes["crossplane-provider-name"],
 		CloudType:       attributes["cloud-type"],
 		CloudProviderId: attributes["cloud-provider-id"],
 	})
@@ -143,7 +145,6 @@ func updateCrossplaneProvider(captenConfig config.CaptenConfig, attributes map[s
 
 	_, err = client.UpdateCrossplanProvider(context.TODO(), &captenpluginspb.UpdateCrossplanProviderRequest{
 		Id:              attributes["crossplane-provider-id"],
-		ProviderName:    attributes["crossplane-provider-name"],
 		CloudType:       attributes["cloud-type"],
 		CloudProviderId: attributes["cloud-provider-id"],
 	})
@@ -165,6 +166,31 @@ func deleteCrossplaneProvider(captenConfig config.CaptenConfig, attributes map[s
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func listCrossplaneProviders(captenConfig config.CaptenConfig) error {
+	client, err := GetCaptenPluginClient(captenConfig)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetCrossplanProviders(context.TODO(), &captenpluginspb.GetCrossplanProvidersRequest{})
+	if err != nil {
+		return err
+	}
+
+	if len(resp.Providers) == 0 {
+		clog.Logger.Info("No crossplane providers added to cluster")
+		return nil
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"ID", "Cloud Type", "Cloud Provider ID", "Status"})
+	for _, provider := range resp.Providers {
+		table.Append([]string{provider.Id, provider.CloudType, provider.CloudProviderId, provider.Status})
+	}
+	table.Render()
 	return nil
 }
 
@@ -213,7 +239,6 @@ func downloadKubeconfig(captenConfig config.CaptenConfig, attributes map[string]
 	}
 
 	clog.Logger.Infof("kubeconfig downloaded to ./%s", fileName)
-	fmt.Println(resp.Kubeconfig)
 	return nil
 }
 
