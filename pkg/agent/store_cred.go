@@ -12,7 +12,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-
+	"log"
 
 	random "math/rand"
 	"os"
@@ -47,8 +47,10 @@ var (
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
-	postgresSecretNameVar   = "postgresSecretName"
+	postgresSecretNameVar = "postgresSecretName"
+	//secretNameVar         = "secretName"
 	clickhouseSecretNameVar = "clickkhouseSecretName"
+	qtSecretNameVar         = "qtSecretName"
 )
 
 func StoreCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}) error {
@@ -340,6 +342,29 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while configuring secret: %v", err)
 		}
 		appGlobalValues[clickhouseSecretNameVar] = config.SecretName
+		log.Println("Clickhouse secretName ", appGlobalValues[clickhouseSecretNameVar])
+
+	case "qt-password":
+
+		dbkey := map[string]string{
+			"username": config.UserName,
+		}
+		err := generateAndStoreDBPassword(vaultClient, config, "password", dbkey)
+		if err != nil {
+			return fmt.Errorf("error while getting and storing password: %v", err)
+		}
+
+		secretKeyMapping := map[string][]string{
+			"username": {"username"},
+			"password": {"password"},
+		}
+
+		err = configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, serviceCredentailType)
+		if err != nil {
+			return fmt.Errorf("error while configuring secret: %v", err)
+		}
+		appGlobalValues[qtSecretNameVar] = config.SecretName
+		log.Println("Secret Name", appGlobalValues[qtSecretNameVar])
 
 	case "temporal-password":
 		temporaldbuserkey := map[string]string{
@@ -382,7 +407,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			"password": {"admin-password", "password"},
 		}
 
-	
 		err = configureSecret(captenConfig, vaultClient, postgresconfig, secretKey, secretPropertiesMapping, serviceCredentailType)
 		if err != nil {
 			return err
@@ -408,12 +432,11 @@ func putCredentialInVault(vaultClient vaultcredpb.VaultCredClient, config types.
 
 func configureCosignKeysSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
 
-
 	secretKeyMapping := map[string][]string{
 		"cosign.key": {"cosign.key"},
 		"cosign.pub": {"cosign.pub"},
 	}
-	
+
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
@@ -423,7 +446,6 @@ func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	secretKeyMapping := map[string][]string{
 		secretPath: {"token"},
 	}
-	
 
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
@@ -440,8 +462,6 @@ func generatePassword() string {
 	}
 	return string(password)
 }
-
-
 
 func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, passwordKey string, credential map[string]string) error {
 	_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
@@ -541,7 +561,7 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			SecretPathData: secretPathData,
 			DomainName:     "capten.svc.cluster.local:8200",
 		}
-		
+
 		_, err = vaultClient.ConfigureVaultSecret(context.Background(), request)
 		if err != nil {
 			return fmt.Errorf("failed to configure vault secret: %v", err)
