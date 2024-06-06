@@ -12,7 +12,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"log"
 
 	random "math/rand"
 	"os"
@@ -341,7 +340,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while configuring secret: %v", err)
 		}
 		appGlobalValues[clickhouseSecretNameVar] = config.SecretName
-		log.Println("Clickhouse secretName ", appGlobalValues[clickhouseSecretNameVar])
 
 	case "qt-password":
 
@@ -363,7 +361,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 			return fmt.Errorf("error while configuring secret: %v", err)
 		}
 		appGlobalValues[qtSecretNameVar] = config.SecretName
-		log.Println("Secret Name", appGlobalValues[qtSecretNameVar])
 
 	case "temporal-password":
 		temporaldbuserkey := map[string]string{
