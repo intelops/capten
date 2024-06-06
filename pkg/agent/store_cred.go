@@ -47,8 +47,7 @@ var (
 	natsSecretNameVar       = "natsTokenSecretName"
 	cosignKeysSecretNameVar = "cosignKeysSecretName"
 
-	postgresSecretNameVar = "postgresSecretName"
-	//secretNameVar         = "secretName"
+	postgresSecretNameVar   = "postgresSecretName"
 	clickhouseSecretNameVar = "clickkhouseSecretName"
 	qtSecretNameVar         = "qtSecretName"
 )
