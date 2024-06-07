@@ -32,3 +32,16 @@ otelCollector:
         endpoint: quality-trace.quality-trace.svc.cluster.local:4317
       otlp/signoz:
         endpoint: signoz-otel-collector.observability.svc.cluster.local:4317
+postgresql:
+  enabled: false
+externalPostgresql:
+  host: postgresql.platform.svc.cluster.local
+  existingSecret:
+    name: "{{ .postgresSecretName }}"
+    passwordKey: admin-password
+  qualitytrace:
+    database: "tracetest"
+    username: "tracetest"
+    existingSecret:
+      name: "{{ .qtSecretName }}"
+      passwordKey: password

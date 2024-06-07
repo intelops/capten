@@ -42,7 +42,7 @@ container_bridge:
         hosts:
           - "containerbridge.{{.DomainName}}"
 kuberhealthy:
-  enabled: true
+  enabled: false
 clusterName: "capten-controlplane"
 resources: 
   limits:

@@ -6,7 +6,7 @@ RepoName: "tools"
 RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
 Namespace: "observability"
 ReleaseName: "monitoring"
-Version: "0.1.18"
+Version: "0.1.21"
 CreateNamespace: true
 PrivilegedNamespace: true
 OverrideValues:

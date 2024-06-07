@@ -6,8 +6,10 @@ RepoName: "quality-trace"
 RepoURL: "https://intelops.github.io/quality-trace"
 Namespace: "quality-trace"
 ReleaseName: "quality-trace"
-Version: "1.0.2"
+Version: "1.0.5"
 CreateNamespace: true
 APIEndpoint: https://quality-trace.{{.DomainName}}
 OverrideValues:
   DomainName: "{{.DomainName}}"
+  qtSecretName: "{{ .qtSecretName }}"
+  postgresSecretName: "{{ .postgresSecretName }}"
