@@ -182,8 +182,8 @@ func prepareCloudAttributes(attributes map[string]string) (map[string]string, er
 		cloudAttributes["clientId"] = attributes["client-id"]
 		cloudAttributes["clientSecret"] = attributes["client-secret"]
 	case "aws":
-		cloudAttributes["access-key"] = attributes["access-key"]
-		cloudAttributes["secret-key"] = attributes["secret-key"]
+		cloudAttributes["accessKey"] = attributes["access-key"]
+		cloudAttributes["secretKey"] = attributes["secret-key"]
 	default:
 		return nil, fmt.Errorf("invalid cloud type: %s", attributes["cloud-type"])
 	}
