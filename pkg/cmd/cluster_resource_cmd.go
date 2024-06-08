@@ -36,8 +36,8 @@ func readCloudTypeAttributesFlags(cmd *cobra.Command, cloudType string) (attribu
 			return nil, fmt.Errorf("specify the secret key in the command line")
 		}
 
-		attributes["access-key"] = accessKey
-		attributes["secret-key"] = secretKey
+		attributes["accessKey"] = accessKey
+		attributes["secretKey"] = secretKey
 
 	case "azure":
 		clientId, _ := cmd.Flags().GetString("client-id")
@@ -50,8 +50,8 @@ func readCloudTypeAttributesFlags(cmd *cobra.Command, cloudType string) (attribu
 			return nil, fmt.Errorf("specify the client secret in the command line")
 		}
 
-		attributes["client-id"] = clientId
-		attributes["client-secret"] = clientSecret
+		attributes["clientId"] = clientId
+		attributes["clientSecret"] = clientSecret
 	default:
 		return nil, fmt.Errorf("invalid cloud type: %s", cloudType)
 	}
