@@ -232,8 +232,8 @@ func downloadKubeconfig(captenConfig config.CaptenConfig, attributes map[string]
 		return err
 	}
 
-	fileName := "kubeconfig-" + attributes["cluster-id"] + ".yaml"
-	err = os.WriteFile("kubeconfig-"+attributes["cluster-id"]+".yaml", []byte(resp.Kubeconfig), 0644)
+	fileName := "kubeconfig-" + attributes["managed-cluster-id"] + ".yaml"
+	err = os.WriteFile(fileName, []byte(resp.Kubeconfig), 0644)
 	if err != nil {
 		return err
 	}
