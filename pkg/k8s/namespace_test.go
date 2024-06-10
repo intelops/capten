@@ -53,13 +53,6 @@ func TestCreateNamespaceIfNotExist(t *testing.T) {
 		})
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := CreateNamespaceIfNotExist(tt.args.kubeconfigPath, tt.args.namespaceName, tt.args.label); (err != nil) != tt.wantErr {
-				t.Errorf("CreateNamespaceIfNotExist() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
 }
 
 func TestCreateorUpdateNamespaceWithLabel(t *testing.T) {
@@ -87,13 +80,6 @@ func TestCreateorUpdateNamespaceWithLabel(t *testing.T) {
 			args:    args{kubeconfigPath: "../config/kubeconfig", namespaceName: "test"},
 			wantErr: true,
 		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := CreateorUpdateNamespaceWithLabel(tt.args.kubeconfigPath, tt.args.namespaceName); (err != nil) != tt.wantErr {
-				t.Errorf("CreateorUpdateNamespaceWithLabel() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
 	}
 
 	for _, tt := range tests {
@@ -142,14 +128,6 @@ func Test_namespaceExists(t *testing.T) {
 			}
 		})
 	}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	want    bool
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := namespaceExists(tt.args.clientset, tt.args.name)

@@ -38,7 +38,6 @@ func NewAzure(captenConfig config.CaptenConfig, config types.AzureClusterInfo) (
 	}
 
 	tf.SetLogger(clog.Logger)
-	//set the output files, defaulted to terminal
 	tf.SetStdout(os.Stdout)
 	tf.SetStderr(os.Stderr)
 	return &terraform{azureconfig: config, exec: tf, captenConfig: captenConfig}, nil

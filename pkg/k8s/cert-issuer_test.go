@@ -21,10 +21,6 @@ func TestCreateOrUpdateClusterIssuer(t *testing.T) {
 					CaptenClusterValues: config.CaptenClusterValues{
 						DomainName: "aws.intelops.com",
 					},
-					// Domain: "test.com",
-					// ACME: config.ACME{
-					// 	Email: "test@test.com",
-					// },
 				},
 			},
 			wantErr: false,
@@ -45,7 +41,6 @@ func TestCreateOrUpdateClusterIssuer(t *testing.T) {
 			args: args{
 				captenConfig: config.CaptenConfig{
 					CaptenClusterValues: config.CaptenClusterValues{},
-					//Domain: "test.com",
 				},
 			},
 			wantErr: true,

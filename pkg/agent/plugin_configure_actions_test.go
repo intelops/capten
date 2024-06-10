@@ -47,7 +47,7 @@ func TestConfigureCrossplanePlugin(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		err := ConfigureCrossplanePlugin(captenConfig, test.action, test.actionAttributes)
+		err := configureCrossplanePlugin(captenConfig, test.action, test.actionAttributes)
 		if err != nil && err.Error() != test.expectedError.Error() {
 			t.Errorf("For action %v: Expected error: %v, got: %v", test.action, test.expectedError, err)
 		}

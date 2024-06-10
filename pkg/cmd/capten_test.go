@@ -10,6 +10,10 @@ func Test_readAndValidClusterFlags(t *testing.T) {
 	type args struct {
 		cmd *cobra.Command
 	}
+
+	cloudService := "aws"
+	clusterType := "k3s"
+
 	tests := []struct {
 		name             string
 		args             args
@@ -17,8 +21,36 @@ func Test_readAndValidClusterFlags(t *testing.T) {
 		wantClusterType  string
 		wantErr          bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid Cluster Flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("cloud-service", cloudService, "cloud service")
+					cmd.Flags().String("cluster-type", clusterType, "cluster type")
+					return cmd
+				}(),
+			},
+			wantCloudService: cloudService,
+			wantClusterType:  clusterType,
+			wantErr:          false,
+		},
+		{
+			name: "Invalid Cluster Flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("cloud-service", "", "cloud service")
+					cmd.Flags().String("cluster-type", "", "cluster type")
+					return cmd
+				}(),
+			},
+			wantCloudService: "",
+			wantClusterType:  "",
+			wantErr:          true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotCloudService, gotClusterType, err := readAndValidClusterFlags(tt.args.cmd)
@@ -41,13 +73,38 @@ func Test_validateClusterFlags(t *testing.T) {
 		cloudService string
 		clusterType  string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "supported cloud service and cluster type",
+			args: args{
+				cloudService: "aws",
+				clusterType:  "talos",
+			},
+			wantErr: false,
+		},
+		{
+			name: "unsupported cloud service",
+			args: args{
+				cloudService: "not-supported",
+				clusterType:  "talos",
+			},
+			wantErr: true,
+		},
+		{
+			name: "unsupported cluster type",
+			args: args{
+				cloudService: "aws",
+				clusterType:  "not-supported",
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validateClusterFlags(tt.args.cloudService, tt.args.clusterType); (err != nil) != tt.wantErr {
