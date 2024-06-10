@@ -8,3 +8,5 @@ Namespace: "traefik"
 ReleaseName: "traefik"
 Version: "1.0.3"
 CreateNamespace: true
+OverrideValues:
+  ClusterType: "{{.ClusterType}}"

@@ -1,14 +1,14 @@
-Name: "quality-trace"
-ChartName: "quality-trace/quality-trace"
+Name: "qualitytrace"
+ChartName: "qualitytrace/qualitytrace"
 Category: "Observability"
 Description: ""
-RepoName: "quality-trace"
-RepoURL: "https://intelops.github.io/quality-trace"
+RepoName: "qualitytrace"
+RepoURL: "https://intelops.github.io/qualitytrace"
 Namespace: "quality-trace"
-ReleaseName: "quality-trace"
+ReleaseName: "qualitytrace"
 Version: "1.0.5"
 CreateNamespace: true
-APIEndpoint: https://quality-trace.{{.DomainName}}
+APIEndpoint: https://qualitytrace.{{.DomainName}}
 OverrideValues:
   DomainName: "{{.DomainName}}"
   qtSecretName: "{{ .qtSecretName }}"
