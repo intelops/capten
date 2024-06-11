@@ -6,7 +6,7 @@ RepoName: "qualitytrace"
 RepoURL: "https://intelops.github.io/qualitytrace"
 Namespace: "quality-trace"
 ReleaseName: "qualitytrace"
-Version: "1.0.5"
+Version: "1.0.0"
 CreateNamespace: true
 APIEndpoint: https://qualitytrace.{{.DomainName}}
 OverrideValues:

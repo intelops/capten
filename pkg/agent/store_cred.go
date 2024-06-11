@@ -7,11 +7,15 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/rand"
+	rand "crypto/rand"
+
+	random "math/rand"
+
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"time"
 
 	"os"
 	"path/filepath"
@@ -21,7 +25,6 @@ import (
 	"capten/pkg/k8s"
 	"capten/pkg/types"
 
-	"github.com/pkg/errors"
 	"github.com/secure-systems-lab/go-securesystemslib/encrypted"
 	"github.com/sigstore/sigstore/pkg/cryptoutils"
 	"gopkg.in/yaml.v2"
@@ -197,22 +200,22 @@ func generateCosignKeyPair() ([]byte, []byte, error) {
 	return privBytes, pubBytes, nil
 }
 
-func randomTokenGeneration() (string, error) {
-	randomBytes := make([]byte, 32)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return "", errors.WithMessage(err, "error while generating random key")
-	}
+// func randomTokenGeneration() (string, error) {
+// 	randomBytes := make([]byte, 32)
+// 	_, err := rand.Read(randomBytes)
+// 	if err != nil {
+// 		return "", errors.WithMessage(err, "error while generating random key")
+// 	}
 
-	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)
-	randomString = strings.ReplaceAll(randomString, "-", "")
+// 	randomString := base64.RawURLEncoding.EncodeToString(randomBytes)
+// 	randomString = strings.ReplaceAll(randomString, "-", "")
 
-	if len(randomString) > 32 {
-		randomString = randomString[:32]
-	}
+// 	if len(randomString) > 32 {
+// 		randomString = randomString[:32]
+// 	}
 
-	return randomString, nil
-}
+// 	return randomString, nil
+// }
 
 func StoreCredAppConfig(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}, vaultClient vaultcredpb.VaultCredClient) error {
 	var credConfigs types.CredentialAppConfig
@@ -243,7 +246,6 @@ func StoreCredAppConfig(captenConfig config.CaptenConfig, appGlobalValues map[st
 
 func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[string]interface{}, vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig) error {
 	var credential map[string]string
-
 	switch config.CredentialType {
 	case "cosign":
 		_, err := vaultClient.GetCredential(context.Background(), &vaultcredpb.GetCredentialRequest{
@@ -327,7 +329,6 @@ func storeCredentials(captenConfig config.CaptenConfig, appGlobalValues map[stri
 		if err != nil {
 			return fmt.Errorf("error while getting and storing password: %v", err)
 		}
-
 		secretKeyMapping := map[string][]string{
 			"username": {"username"},
 			"password": {"password"},
@@ -444,20 +445,20 @@ func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
-// func generatePassword() string {
-// 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+func generatePassword() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// 	source := random.NewSource(time.Now().UnixNano())
-// 	rng := random.New(source)
+	source := random.NewSource(time.Now().UnixNano())
+	rng := random.New(source)
 
-// 	password := make([]byte, 11)
-// 	for i := range password {
-// 		password[i] = charset[rng.Intn(len(charset))]
-// 	}
-// 	return string(password)
-// }
+	password := make([]byte, 11)
+	for i := range password {
+		password[i] = charset[rng.Intn(len(charset))]
+	}
+	return string(password)
+}
 
-func generateToken() (string, error) {
+func randomTokenGeneration() (string, error) {
 	// Generate 32 random bytes
 	randomBytes := make([]byte, 32)
 	if _, err := rand.Read(randomBytes); err != nil {
@@ -495,10 +496,7 @@ func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config 
 
 	if err != nil {
 		if strings.Contains(err.Error(), "secret not found") {
-			val, err := generateToken()
-			if err != nil {
-				return fmt.Errorf("error while generating token: %v", err)
-			}
+			val := generatePassword()
 
 			credential[passwordKey] = val
 
@@ -587,7 +585,6 @@ func configureSecret(captenConfig config.CaptenConfig, vaultClient vaultcredpb.V
 			SecretPathData: secretPathData,
 			DomainName:     "capten.svc.cluster.local:8200",
 		}
-
 		_, err = vaultClient.ConfigureVaultSecret(context.Background(), request)
 		if err != nil {
 			return fmt.Errorf("failed to configure vault secret: %v", err)
