@@ -5,10 +5,8 @@ import (
 	"capten/pkg/helm"
 	"capten/pkg/types"
 
-	//"context"
 	"reflect"
 	"testing"
-	//"github.com/pkg/errors"
 )
 
 func TestDeployApps(t *testing.T) {
@@ -89,12 +87,8 @@ func Test_installAppGroup(t *testing.T) {
 				hc           *helm.Client
 				appConfigs   []types.AppConfig
 			}{
-				captenConfig: config.CaptenConfig{
-					// PrepareFilePath: func(string, string) string {
-					// 	return "kubeconfig"
-					// },
-				},
-				hc: &helm.Client{},
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{},
 				appConfigs: []types.AppConfig{
 					{
 						PrivilegedNamespace: true,
@@ -111,13 +105,8 @@ func Test_installAppGroup(t *testing.T) {
 				hc           *helm.Client
 				appConfigs   []types.AppConfig
 			}{
-				captenConfig: config.CaptenConfig{
-
-					// PrepareFilePath: func(string, string) string {
-					// 	return "kubeconfig"
-					// },
-				},
-				hc: &helm.Client{},
+				captenConfig: config.CaptenConfig{},
+				hc:           &helm.Client{},
 				appConfigs: []types.AppConfig{
 					{
 						PrivilegedNamespace: true,
@@ -135,11 +124,7 @@ func Test_installAppGroup(t *testing.T) {
 				appConfigs   []types.AppConfig
 			}{
 				captenConfig: config.CaptenConfig{},
-				hc:           &helm.Client{
-					// Install: func(context.Context, *types.AppConfig) (bool, error) {
-					// 	return true, nil
-					// },
-				},
+				hc:           &helm.Client{},
 				appConfigs: []types.AppConfig{
 					{
 						Name: "test",
@@ -156,11 +141,7 @@ func Test_installAppGroup(t *testing.T) {
 				appConfigs   []types.AppConfig
 			}{
 				captenConfig: config.CaptenConfig{},
-				hc:           &helm.Client{
-					// Install: func(context.Context, *types.AppConfig) (bool, error) {
-					// 	return false, errors.New("installation failed")
-					// },
-				},
+				hc:           &helm.Client{},
 				appConfigs: []types.AppConfig{
 					{
 						Name: "test",
@@ -229,7 +210,6 @@ func Test_prepareAppGroupConfigs(t *testing.T) {
 			wantAppConfigs: []types.AppConfig{},
 			wantErr:        true,
 		},
-		// Add more test cases here...
 	}
 
 	for _, tt := range tests {
@@ -246,18 +226,78 @@ func Test_prepareAppGroupConfigs(t *testing.T) {
 	}
 }
 func Test_replaceOverrideTemplateValues(t *testing.T) {
+
 	type args struct {
 		templateData map[string]interface{}
 		values       map[string]interface{}
 	}
+
 	tests := []struct {
 		name                string
 		args                args
 		wantTransformedData map[string]interface{}
 		wantErr             bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "valid template with single value",
+			args: args{
+				templateData: map[string]interface{}{
+					"name": "{{ .Name }}",
+					"age":  10,
+				},
+				values: map[string]interface{}{
+					"Name": "Alice",
+				},
+			},
+			wantTransformedData: map[string]interface{}{
+				"name": "Alice",
+				"age":  10,
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid template with multiple values",
+			args: args{
+				templateData: map[string]interface{}{
+					"name": "{{ .Name }}",
+					"age":  "{{ .Age }}",
+				},
+				values: map[string]interface{}{
+					"Name": "Bob",
+					"Age":  20,
+				},
+			},
+			wantTransformedData: map[string]interface{}{
+				"name": "Bob",
+				"age":  20,
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid template",
+			args: args{
+				templateData: map[string]interface{}{
+					"name": "{{ .Name }}",
+					"age":  10,
+				},
+				values: map[string]interface{}{
+					"Name": "Charlie",
+				},
+			},
+			wantTransformedData: nil,
+			wantErr:             true,
+		},
+		{
+			name: "template data is empty",
+			args: args{
+				templateData: map[string]interface{}{},
+				values:       map[string]interface{}{},
+			},
+			wantTransformedData: map[string]interface{}{},
+			wantErr:             false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotTransformedData, err := replaceOverrideTemplateValues(tt.args.templateData, tt.args.values)

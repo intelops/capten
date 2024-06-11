@@ -9,13 +9,36 @@ func TestListClusterApplications(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "",
+					PoolClusterName:      "",
+					PoolClusterNamespace: "",
+				},
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := ListClusterApplications(tt.args.captenConfig); (err != nil) != tt.wantErr {
@@ -30,13 +53,50 @@ func TestShowClusterAppData(t *testing.T) {
 		captenConfig config.CaptenConfig
 		appName      string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config and app name",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+				appName: "some-app",
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "",
+					PoolClusterName:      "",
+					PoolClusterNamespace: "",
+				},
+				appName: "some-app",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Empty app name",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+				appName: "",
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := ShowClusterAppData(tt.args.captenConfig, tt.args.appName); (err != nil) != tt.wantErr {
@@ -50,13 +110,44 @@ func TestDeployDefaultApps(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "",
+					PoolClusterName:      "",
+					PoolClusterNamespace: "",
+				},
+			},
+			wantErr: true,
+		},
 	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := DeployDefaultApps(tt.args.captenConfig); (err != nil) != tt.wantErr {
+				t.Errorf("DeployDefaultApps() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := DeployDefaultApps(tt.args.captenConfig); (err != nil) != tt.wantErr {
@@ -70,12 +161,39 @@ func TestWaitAndTrackDefaultAppsDeploymentStatus(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "",
+					PoolClusterName:      "",
+					PoolClusterNamespace: "",
+				},
+			},
+		},
 	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			WaitAndTrackDefaultAppsDeploymentStatus(tt.args.captenConfig)
+		})
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			WaitAndTrackDefaultAppsDeploymentStatus(tt.args.captenConfig)
@@ -87,6 +205,7 @@ func TestGetDefaultAppsDeploymentStatus(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -94,8 +213,30 @@ func TestGetDefaultAppsDeploymentStatus(t *testing.T) {
 		want1   string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+			want:    true,
+			want1:   "status",
+			wantErr: false,
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+			},
+			want:    false,
+			want1:   "",
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1, err := GetDefaultAppsDeploymentStatus(tt.args.captenConfig)

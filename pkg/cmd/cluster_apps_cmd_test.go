@@ -231,13 +231,7 @@ func Test_execActionIfEnabled(t *testing.T) {
 			}
 		})
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := execActionIfEnabled(tt.args.actionConfig, tt.args.f); (err != nil) != tt.wantErr {
-				t.Errorf("execActionIfEnabled() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+
 }
 
 func Test_retry(t *testing.T) {

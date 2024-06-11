@@ -149,14 +149,7 @@ func TestConfigPluginStore(t *testing.T) {
 			}
 		})
 	}
-	//}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := ConfigPluginStore(tt.args.captenConfig, tt.args.storeType, tt.args.gitProjectId); (err != nil) != tt.wantErr {
@@ -200,13 +193,7 @@ func TestSynchPluginStore(t *testing.T) {
 			}
 		})
 	}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := SynchPluginStore(tt.args.captenConfig, tt.args.storeType); (err != nil) != tt.wantErr {
@@ -256,13 +243,7 @@ func TestShowPluginStorePlugin(t *testing.T) {
 			}
 		})
 	}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := ShowPluginStorePlugin(tt.args.captenConfig, tt.args.storeType, tt.args.pluginName); (err != nil) != tt.wantErr {

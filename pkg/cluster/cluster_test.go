@@ -53,9 +53,7 @@ func TestDestroy(t *testing.T) {
 		{
 			name: "Successful destruction of a cluster",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Add valid captenConfig properties here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
 			wantErr: false,
 		},

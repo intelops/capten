@@ -18,8 +18,36 @@ func Test_readAndValidResourceIdentfierFlags(t *testing.T) {
 		wantId           string
 		wantErr          bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid Resource",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("resource-type", "test-type", "resource type")
+					cmd.Flags().String("id", "test-id", "resource id")
+					return cmd
+				}(),
+			},
+			wantResourceType: "test-type",
+			wantId:           "test-id",
+			wantErr:          false,
+		},
+		{
+			name: "Invalid Resource",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("resource-type", "", "resource type")
+					cmd.Flags().String("id", "", "resource id")
+					return cmd
+				}(),
+			},
+			wantResourceType: "",
+			wantId:           "",
+			wantErr:          true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotResourceType, gotId, err := readAndValidResourceIdentfierFlags(tt.args.cmd)
@@ -42,14 +70,97 @@ func Test_readCloudTypeAttributesFlags(t *testing.T) {
 		cmd       *cobra.Command
 		cloudType string
 	}
+
 	tests := []struct {
 		name           string
 		args           args
 		wantAttributes map[string]string
 		wantErr        bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "valid AWS flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("access-key", "test-access-key", "access key")
+					cmd.Flags().String("secret-key", "test-secret-key", "secret key")
+					return cmd
+				}(),
+				cloudType: "aws",
+			},
+			wantAttributes: map[string]string{
+				"access-key": "test-access-key",
+				"secret-key": "test-secret-key",
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid Azure flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("client-id", "test-client-id", "client id")
+					cmd.Flags().String("client-secret", "test-client-secret", "client secret")
+					return cmd
+				}(),
+				cloudType: "azure",
+			},
+			wantAttributes: map[string]string{
+				"client-id":     "test-client-id",
+				"client-secret": "test-client-secret",
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid cloud type",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					return cmd
+				}(),
+				cloudType: "invalid",
+			},
+			wantAttributes: nil,
+			wantErr:        true,
+		},
+		{
+			name: "empty AWS flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					return cmd
+				}(),
+				cloudType: "aws",
+			},
+			wantAttributes: nil,
+			wantErr:        true,
+		},
+		{
+			name: "empty Azure flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					return cmd
+				}(),
+				cloudType: "azure",
+			},
+			wantAttributes: nil,
+			wantErr:        true,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAttributes, err := readCloudTypeAttributesFlags(tt.args.cmd, tt.args.cloudType)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readCloudTypeAttributesFlags() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotAttributes, tt.wantAttributes) {
+				t.Errorf("readCloudTypeAttributesFlags() = %v, want %v", gotAttributes, tt.wantAttributes)
+			}
+		})
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAttributes, err := readCloudTypeAttributesFlags(tt.args.cmd, tt.args.cloudType)
@@ -69,13 +180,33 @@ func Test_readAndValidResourceDataFlags(t *testing.T) {
 		cmd          *cobra.Command
 		resourceType string
 	}
+
 	tests := []struct {
 		name           string
 		args           args
 		wantAttributes map[string]string
 		wantErr        bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ResourceType is empty",
+			args: args{
+				cmd: &cobra.Command{},
+			},
+			wantAttributes: nil,
+			wantErr:        true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAttributes, err := readAndValidResourceDataFlags(tt.args.cmd, tt.args.resourceType)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readAndValidResourceDataFlags() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotAttributes, tt.wantAttributes) {
+				t.Errorf("readAndValidResourceDataFlags() = %v, want %v", gotAttributes, tt.wantAttributes)
+			}
+		})
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -95,6 +226,7 @@ func Test_readAndValidCreateResourceFlags(t *testing.T) {
 	type args struct {
 		cmd *cobra.Command
 	}
+
 	tests := []struct {
 		name             string
 		args             args
@@ -102,8 +234,38 @@ func Test_readAndValidCreateResourceFlags(t *testing.T) {
 		wantAttributes   map[string]string
 		wantErr          bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "missing resource type",
+			args: args{
+				cmd: &cobra.Command{},
+			},
+			wantResourceType: "",
+			wantAttributes:   nil,
+			wantErr:          true,
+		},
+		{
+			name: "no attributes",
+			args: args{
+				cmd: &cobra.Command{},
+			},
+			wantResourceType: "test-type",
+			wantAttributes:   map[string]string{},
+			wantErr:          false,
+		},
+		{
+			name: "with attributes",
+			args: args{
+				cmd: &cobra.Command{},
+			},
+			wantResourceType: "test-type",
+			wantAttributes: map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotResourceType, gotAttributes, err := readAndValidCreateResourceFlags(tt.args.cmd)
@@ -125,6 +287,7 @@ func Test_readAndValidUpdateResourceFlags(t *testing.T) {
 	type args struct {
 		cmd *cobra.Command
 	}
+
 	tests := []struct {
 		name             string
 		args             args
@@ -133,8 +296,52 @@ func Test_readAndValidUpdateResourceFlags(t *testing.T) {
 		wantAttributes   map[string]string
 		wantErr          bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "valid flags",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("resource-type", "test-type", "resource type")
+					cmd.Flags().String("id", "test-id", "resource id")
+					cmd.Flags().String("key1", "value1", "attribute key1")
+					cmd.Flags().String("key2", "value2", "attribute key2")
+					return cmd
+				}(),
+			},
+			wantResourceType: "test-type",
+			wantId:           "test-id",
+			wantAttributes: map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+			},
+			wantErr: false,
+		},
+		{
+			name: "missing resource type",
+			args: args{
+				cmd: &cobra.Command{},
+			},
+			wantResourceType: "",
+			wantId:           "",
+			wantAttributes:   nil,
+			wantErr:          true,
+		},
+		{
+			name: "missing id",
+			args: args{
+				cmd: func() *cobra.Command {
+					cmd := &cobra.Command{}
+					cmd.Flags().String("resource-type", "test-type", "resource type")
+					return cmd
+				}(),
+			},
+			wantResourceType: "test-type",
+			wantId:           "",
+			wantAttributes:   nil,
+			wantErr:          true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotResourceType, gotId, gotAttributes, err := readAndValidUpdateResourceFlags(tt.args.cmd)
