@@ -13,11 +13,9 @@ import (
 	"encoding/pem"
 	"fmt"
 
-	random "math/rand"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"capten/pkg/config"
 	"capten/pkg/k8s"
@@ -446,17 +444,46 @@ func configureNatsSecret(captenConfig config.CaptenConfig, vaultClient vaultcred
 	return configureSecret(captenConfig, vaultClient, config, secretKeyMapping, nil, genericCredentailType)
 }
 
-func generatePassword() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+// func generatePassword() string {
+// 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-	source := random.NewSource(time.Now().UnixNano())
-	rng := random.New(source)
+// 	source := random.NewSource(time.Now().UnixNano())
+// 	rng := random.New(source)
 
-	password := make([]byte, 11)
-	for i := range password {
-		password[i] = charset[rng.Intn(len(charset))]
+// 	password := make([]byte, 11)
+// 	for i := range password {
+// 		password[i] = charset[rng.Intn(len(charset))]
+// 	}
+// 	return string(password)
+// }
+
+func generateToken() (string, error) {
+	// Generate 32 random bytes
+	randomBytes := make([]byte, 32)
+	if _, err := rand.Read(randomBytes); err != nil {
+		return "", err
 	}
-	return string(password)
+
+	// Encode the random bytes to a base64 string
+	base64String := base64.StdEncoding.EncodeToString(randomBytes)
+
+	// Remove any non-alphanumeric characters
+	var sb strings.Builder
+	for _, ch := range base64String {
+		if ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') {
+			sb.WriteRune(ch)
+		}
+		if sb.Len() == 32 {
+			break
+		}
+	}
+
+	// Ensure the token is exactly 32 characters long
+	token := sb.String()
+	if len(token) < 32 {
+		return "", fmt.Errorf("Lenght of the token is less than 32")
+	}
+	return token, nil
 }
 
 func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config types.CredentialAppConfig, passwordKey string, credential map[string]string) error {
@@ -468,11 +495,14 @@ func generateAndStoreDBPassword(vaultClient vaultcredpb.VaultCredClient, config 
 
 	if err != nil {
 		if strings.Contains(err.Error(), "secret not found") {
-			val := generatePassword()
+			val, err := generateToken()
+			if err != nil {
+				return fmt.Errorf("error while generating token: %v", err)
+			}
 
 			credential[passwordKey] = val
 
-			err := putCredentialInVault(vaultClient, config, credential, serviceCredentailType)
+			err = putCredentialInVault(vaultClient, config, credential, serviceCredentailType)
 			if err != nil {
 				return fmt.Errorf("error storing credentials: %v", err)
 			}
