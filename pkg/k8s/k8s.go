@@ -89,3 +89,24 @@ func FetchClusterLoadBalancerHost(kubeconfigPath, namespace, serviceName string)
 	}
 	return hostName, nil
 }
+
+func FetchNatsLoadBalancerHost(kubeconfigPath, namespace, serviceName string) (hostName string, err error) {
+	clientset, err := GetK8SClient(kubeconfigPath)
+	if err != nil {
+		return "", err
+	}
+
+	service, err := clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	if service.Spec.Type != corev1.ServiceTypeLoadBalancer {
+		return "", fmt.Errorf("service %s is not of type LoadBalancer", serviceName)
+	}
+
+	if len(service.Status.LoadBalancer.Ingress) > 0 {
+		hostName = service.Status.LoadBalancer.Ingress[0].Hostname
+	}
+	return hostName, nil
+}
