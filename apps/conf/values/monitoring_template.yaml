@@ -16,4 +16,9 @@ prometheus-msteams:
   connectors:
   - alert: "{{.TeamsURL}}"
 {{end}}
-
+dashboards:
+{{if eq .ClusterType "talos"}}
+  openebs: true
+{{else if eq .ClusterType "cloud-managed"}}
+  openebs: false
+{{end}}

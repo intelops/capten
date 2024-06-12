@@ -293,12 +293,16 @@ func UpdateLBEndpointFile(cfg *CaptenConfig, lbhostname string, natsLbHostName s
 		return err
 	}
 
-	// Update LoadBalancerHost field
-	lbEndpoint.LoadBalancerHost = lbhostname
-	cfg.LoadBalancerHost = lbhostname
+	if lbhostname != "" {
+		lbEndpoint.LoadBalancerHost = lbhostname
+		cfg.LoadBalancerHost = lbhostname
+	}
 
-	lbEndpoint.NatsLoadBalancerHost = natsLbHostName
-	cfg.NatsLoadBalancerHost = natsLbHostName
+	if natsLbHostName != "" {
+		lbEndpoint.NatsLoadBalancerHost = natsLbHostName
+		cfg.NatsLoadBalancerHost = natsLbHostName
+	}
+
 	// Marshal the updated struct back to YAML
 	updatedYAML, err := yaml.Marshal(&lbEndpoint)
 	if err != nil {
