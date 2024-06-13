@@ -71,6 +71,7 @@ type CaptenConfig struct {
 	AzureTerraformTemplateFileName string `envconfig:"TERRAFORM_TEMPLATE_FILE_NAME" default:"values.azure.tmpl"`
 	VaultCredWaitTime              int    `envconfig:"SETUP_APPS_CONFIG_FILE" default:"300"`
 	LBServiceName                  string `envconfig:"LBSERVICE-NAME" default:"traefik"`
+	NatsLBServiceName              string `envconfig:"NATS-LBSERVICE-NAME" default:"kubviz-client-nats-external"`
 }
 
 type CaptenClusterValues struct {
@@ -85,7 +86,8 @@ type CaptenClusterValues struct {
 }
 
 type CaptenClusterHost struct {
-	LoadBalancerHost string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
+	LoadBalancerHost     string `yaml:"LoadBalancerHost" envconfig:"CLUSTER_LB_HOST"`
+	NatsLoadBalancerHost string `yaml:"NatsLoadBalancerHost" envconfig:"NATS_LB_HOST"`
 }
 
 func GetCaptenConfig() (CaptenConfig, error) {
@@ -268,10 +270,13 @@ func GetCaptenHostConfig() (CaptenClusterHost, error) {
 	if len(hostvalue.(*CaptenClusterHost).LoadBalancerHost) != 0 {
 		cfg.LoadBalancerHost = hostvalue.(*CaptenClusterHost).LoadBalancerHost
 	}
+	if len(hostvalue.(*CaptenClusterHost).NatsLoadBalancerHost) != 0 {
+		cfg.NatsLoadBalancerHost = hostvalue.(*CaptenClusterHost).NatsLoadBalancerHost
+	}
 	return captenhostvalue, err
 
 }
-func UpdateLBEndpointFile(cfg *CaptenConfig, hostname string) error {
+func UpdateLBEndpointFile(cfg *CaptenConfig, lbhostname string, natsLbHostName string) error {
 	// Read YAML file contents
 	hostValuesPath := cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName)
 	yamlFile, err := os.ReadFile(hostValuesPath)
@@ -288,9 +293,16 @@ func UpdateLBEndpointFile(cfg *CaptenConfig, hostname string) error {
 		return err
 	}
 
-	// Update LoadBalancerHost field
-	lbEndpoint.LoadBalancerHost = hostname
-	cfg.LoadBalancerHost = hostname
+	if lbhostname != "" {
+		lbEndpoint.LoadBalancerHost = lbhostname
+		cfg.LoadBalancerHost = lbhostname
+	}
+
+	if natsLbHostName != "" {
+		lbEndpoint.NatsLoadBalancerHost = natsLbHostName
+		cfg.NatsLoadBalancerHost = natsLbHostName
+	}
+
 	// Marshal the updated struct back to YAML
 	updatedYAML, err := yaml.Marshal(&lbEndpoint)
 	if err != nil {
