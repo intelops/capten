@@ -1,0 +1,11 @@
+Name: "falco-exporter"
+ChartName: "tools/falco-exporter"
+Category: "Security"
+Description: ""
+RepoName: "tools"
+RepoURL: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+Namespace: "falco"
+ReleaseName: "falco-exporter"
+Version: "1.0.0"
+CreateNamespace: true
+PrivilegedNamespace: true
