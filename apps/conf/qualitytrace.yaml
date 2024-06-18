@@ -1,0 +1,15 @@
+Name: "qualitytrace"
+ChartName: "qualitytrace/qualitytrace"
+Category: "Observability"
+Description: ""
+RepoName: "qualitytrace"
+RepoURL: "https://intelops.github.io/qualitytrace"
+Namespace: "quality-trace"
+ReleaseName: "qualitytrace"
+Version: "1.0.0"
+CreateNamespace: true
+APIEndpoint: https://qualitytrace.{{.DomainName}}
+OverrideValues:
+  DomainName: "{{.DomainName}}"
+  qtSecretName: "{{ .qtSecretName }}"
+  postgresSecretName: "{{ .postgresSecretName }}"

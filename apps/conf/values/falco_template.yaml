@@ -1,9 +1,14 @@
 driver:
   kind: ebpf
+falco:
+  grpc_output:
+    enabled: true
+  grpc:
+    enabled: true
 resources: 
-    requests:
-      cpu: 100m
-      memory: 512Mi
-    limits:
-      cpu: 1000m
-      memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi

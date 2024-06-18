@@ -12,3 +12,5 @@ PrivilegedNamespace: true
 OverrideValues:
   natsTokenSecretName: "{{.natsTokenSecretName}}"
   clickkhouseSecretName: "{{.clickkhouseSecretName}}"
+  ClusterType: "{{.ClusterType}}"
+

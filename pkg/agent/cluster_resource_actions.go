@@ -107,8 +107,8 @@ func AddClusterResource(captenConfig config.CaptenConfig, resourceType string, a
 			Labels:       strings.Split(attributes["labels"], ","),
 			RegistryType: attributes["registry-type"],
 			RegistryAttributes: map[string]string{
-				"registry-username": attributes["registry-username"],
-				"registry-password": attributes["registry-password"],
+				"username": attributes["registry-username"],
+				"password": attributes["registry-password"],
 			},
 		})
 	default:
@@ -159,8 +159,8 @@ func UpdateClusterResource(captenConfig config.CaptenConfig, resourceType, id st
 			Labels:       strings.Split(attributes["labels"], ","),
 			RegistryType: attributes["registry-type"],
 			RegistryAttributes: map[string]string{
-				"registry-username": attributes["username"],
-				"registry-password": attributes["password"],
+				"username": attributes["registry-username"],
+				"password": attributes["registry-password"],
 			},
 		})
 	default:
@@ -182,8 +182,8 @@ func prepareCloudAttributes(attributes map[string]string) (map[string]string, er
 		cloudAttributes["clientId"] = attributes["client-id"]
 		cloudAttributes["clientSecret"] = attributes["client-secret"]
 	case "aws":
-		cloudAttributes["access-key"] = attributes["access-key"]
-		cloudAttributes["secret-key"] = attributes["secret-key"]
+		cloudAttributes["accessKey"] = attributes["accessKey"]
+		cloudAttributes["secretKey"] = attributes["secretKey"]
 	default:
 		return nil, fmt.Errorf("invalid cloud type: %s", attributes["cloud-type"])
 	}

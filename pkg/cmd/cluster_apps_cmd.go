@@ -83,14 +83,14 @@ var appsInstallSubCmd = &cobra.Command{
 		}
 
 		err = execActionIfEnabled(actions.Actions.FetchLoadBalancerHost, func() error {
-			hostName, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath,
+			lbhostName, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath,
 				captenConfig.KubeConfigFileName), "traefik", captenConfig.LBServiceName)
 			if err != nil {
 				clog.Logger.Error("failed to get LoadBalancerService ", err)
 			}
 
 			err = retry(10, 30*time.Second, func() error {
-				if err := config.UpdateLBEndpointFile(&captenConfig, hostName); err != nil {
+				if err := config.UpdateLBEndpointFile(&captenConfig, lbhostName, ""); err != nil {
 					clog.Logger.Infof("LB is not updated in the capten_lb_endpoint.yaml ")
 					return errors.WithMessage(err, "failed to update LB ")
 				}
@@ -177,6 +177,38 @@ var appsInstallSubCmd = &cobra.Command{
 
 		err = execActionIfEnabled(actions.Actions.InstallDefaultAppGroup, func() error {
 			return app.DeployApps(captenConfig, globalValues, captenConfig.DefaultAppGroupsFileName)
+		})
+		if err != nil {
+			clog.Logger.Errorf("%v", err)
+			return
+		}
+
+		err = execActionIfEnabled(actions.Actions.FetchLoadBalancerHost, func() error {
+
+			natslbhostname, err := k8s.FetchClusterLoadBalancerHost(captenConfig.PrepareFilePath(captenConfig.ConfigDirPath,
+				captenConfig.KubeConfigFileName), "observability", captenConfig.NatsLBServiceName)
+
+			if err != nil {
+				clog.Logger.Error("failed to get NatsLoadBalancerService ", err)
+			}
+
+			err = retry(10, 30*time.Second, func() error {
+				if err := config.UpdateLBEndpointFile(&captenConfig, "", natslbhostname); err != nil {
+					clog.Logger.Infof("LB is not updated in the capten_lb_endpoint.yaml ")
+					return errors.WithMessage(err, "failed to update LB ")
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+			err = agent.StoreCredentials(captenConfig, globalValues)
+			if err != nil {
+
+				return errors.WithMessage(err, "failed to store lbip credentials")
+			}
+			clog.Logger.Info("Fetched nats loadbalancer host and stored in vault")
+			return nil
 		})
 		if err != nil {
 			clog.Logger.Errorf("%v", err)

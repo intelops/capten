@@ -1,0 +1,51 @@
+image:
+  repository: ghcr.io/intelops/qualitytrace
+  tag: v1.0.0
+
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-cluster
+    kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/tls-acme: "true"
+  enabled: true
+  hosts:
+  - host: "qualitytrace.{{.DomainName}}"
+    paths:
+      - path: /
+        pathType: ImplementationSpecific
+  tls:
+    - secretName: cert-qualitytrace
+      hosts:
+      - "qualitytrace.{{.DomainName}}"
+telemetry:
+  exporters:
+    collector:
+      exporter:
+        collector:
+          endpoint: qualitytrace-otel-collector.quality-trace.svc.cluster.local:4317
+otelCollector:
+  ingressRoute:
+    enabled: true
+    host: "qualitytrace-otelcollector.{{.DomainName}}"
+    service:
+      port: 4317
+  config:
+    exporters:
+      otlp/qualitytrace:
+        endpoint: qualitytrace.quality-trace.svc.cluster.local:4317
+      otlp/signoz:
+        endpoint: signoz-otel-collector.observability.svc.cluster.local:4317
+postgresql:
+  enabled: false
+externalPostgresql:
+  host: postgresql.platform.svc.cluster.local
+  existingSecret:
+    name: "{{ .postgresSecretName }}"
+    passwordKey: admin-password
+  qualitytrace:
+    database: "qualitytrace"
+    username: "qualitytrace"
+    existingSecret:
+      name: "{{ .qtSecretName }}"
+      passwordKey: password
