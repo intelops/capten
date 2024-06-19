@@ -55,6 +55,12 @@ grafana:
       name: "{{ .clickkhouseSecretName }}" 
       usernamekey: "username"
       passwordkey: "password"   
+  postgresDatasource:
+    enabled: true
+    username: "postgres"
+    existingSecret:
+      name: "{{ .postgresSecretName }}"
+      passwordkey: "admin-password"
 prometheus:
   ingress:
     annotations:
