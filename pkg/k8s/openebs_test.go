@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"capten/pkg/config"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -13,14 +14,44 @@ func Test_getOpenEBSClient(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		want    *clientset.Clientset
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Empty config",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Empty kubeconfig",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName: "",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName: "kubeconfig",
+				},
+			},
+			want:    nil,
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := getOpenEBSClient(tt.args.captenConfig)
@@ -40,14 +71,37 @@ func Test_getOpenEBSBlockDevices(t *testing.T) {
 		openebsClientset *clientset.Clientset
 		captenConfig     config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		want    []map[string]string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				openebsClientset: nil,
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+			want: []map[string]string{
+				{
+					"blockDevice": "bd1",
+					"nodeName":    "node1",
+				},
+				{
+					"blockDevice": "bd2",
+					"nodeName":    "node2",
+				},
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := getOpenEBSBlockDevices(tt.args.openebsClientset, tt.args.captenConfig)
@@ -66,13 +120,36 @@ func TestCreateCStorPoolClusters(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "some-pool-cluster",
+					PoolClusterNamespace: "some-pool-cluster-ns",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "",
+					PoolClusterName:      "",
+					PoolClusterNamespace: "",
+				},
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateCStorPoolClusters(tt.args.captenConfig); (err != nil) != tt.wantErr {
@@ -80,6 +157,7 @@ func TestCreateCStorPoolClusters(t *testing.T) {
 			}
 		})
 	}
+
 }
 
 func Test_retry(t *testing.T) {
@@ -88,13 +166,36 @@ func Test_retry(t *testing.T) {
 		interval time.Duration
 		f        func() error
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Successful after one retry",
+			args: args{
+				retries:  2,
+				interval: 10 * time.Millisecond,
+				f: func() error {
+					return nil
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Unsuccessful after max retries",
+			args: args{
+				retries:  2,
+				interval: 10 * time.Millisecond,
+				f: func() error {
+					return errors.New("some error")
+				},
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := retry(tt.args.retries, tt.args.interval, tt.args.f); (err != nil) != tt.wantErr {
@@ -108,13 +209,36 @@ func TestCreateCStorPoolClusterWithRetries(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Successful",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "pool-cluster",
+					PoolClusterNamespace: "pool-cluster-ns",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Unsuccessful",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					KubeConfigFileName:   "kubeconfig",
+					PoolClusterName:      "pool-cluster",
+					PoolClusterNamespace: "pool-cluster-ns",
+				},
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateCStorPoolClusterWithRetries(tt.args.captenConfig); (err != nil) != tt.wantErr {

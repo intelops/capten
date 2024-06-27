@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"gopkg.in/yaml.v2"
-	//"gopkg.in/yaml.v2"
 )
 
 func TestSyncInstalledAppConfigsOnAgent(t *testing.T) {

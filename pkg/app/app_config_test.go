@@ -12,41 +12,33 @@ import (
 
 func TestGetClusterGlobalValues(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		// Create a temporary YAML file with test data
 		testValues := `key1: value1
 key2:
   subkey1: subvalue1
   subkey2: subvalue2`
 		valuesFilePath := writeTempFile(t, testValues)
 
-		// Invoke the function
 		values, err := GetClusterGlobalValues(valuesFilePath)
 
-		// Assert no error occurred
 		assert.NoError(t, err)
 
-		// Assert correct values were returned
 		assert.Equal(t, "value1", values["key1"])
 		assert.Equal(t, map[interface{}]interface{}{"subkey1": "subvalue1", "subkey2": "subvalue2"}, values["key2"])
 	})
 
 	t.Run("FileNotFound", func(t *testing.T) {
-		// Invoke the function with a non-existent file path
 		values, err := GetClusterGlobalValues("/non/existent/file.yaml")
 
-		// Assert an error occurred
 		assert.Error(t, err)
 		assert.Nil(t, values)
 	})
 
 	t.Run("InvalidYAML", func(t *testing.T) {
-		// Create a temporary YAML file with invalid YAML syntax
 		invalidValues := `key1: value1
 key2:
   subkey1: subvalue1
   subkey2: subvalue2`
 		valuesFilePath := writeTempFile(t, invalidValues)
-		// Corrupt the YAML syntax by adding an extra colon after "subkey2"
 		corruptValues := `key1: value1
 key2:
   subkey1: subvalue1
@@ -116,16 +108,6 @@ func TestGetApps(t *testing.T) {
 		},
 	}
 
-	// for _, tt := range tests {
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	want    []string
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetApps(tt.args.appListFilePath, "")
@@ -202,8 +184,6 @@ func TestGetAppValuesTemplate(t *testing.T) {
 	type args struct {
 		captenConfig config.CaptenConfig
 		appName      string
-		// appConfigFilePath string
-		// globalValues      map[string]interface{}
 	}
 	tests := []struct {
 		name string
@@ -319,21 +299,15 @@ func TestPrepareGlobalVaules(t *testing.T) {
 		{
 			name: "Valid captenConfig",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Set the required fields here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
-			want: map[string]interface{}{
-				// Set the expected result here
-			},
+			want:    map[string]interface{}{},
 			wantErr: false,
 		},
 		{
 			name: "Invalid captenConfig",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Set the required fields here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
 			want:    nil,
 			wantErr: true,

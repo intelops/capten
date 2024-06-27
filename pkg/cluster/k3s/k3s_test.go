@@ -2,26 +2,20 @@ package k3s
 
 import (
 	"capten/pkg/config"
-	//	"reflect"
 	"strings"
 	"testing"
 )
 
 func Test_getClusterInfo(t *testing.T) {
-	validConfig := config.CaptenConfig{
-		// Add valid configuration fields here
-	}
+	validConfig := config.CaptenConfig{}
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
-	invalidConfig := config.CaptenConfig{
-		// Add invalid configuration fields here
-	}
+	invalidConfig := config.CaptenConfig{}
 
 	tests := []struct {
-		name string
-		args args
-		//	want    interface{}
+		name    string
+		args    args
 		wantErr bool
 	}{
 		{
@@ -29,7 +23,6 @@ func Test_getClusterInfo(t *testing.T) {
 			args: args{
 				captenConfig: validConfig,
 			},
-			//		want:    // Add expected result for valid config,
 			wantErr: false,
 		},
 		{
@@ -37,7 +30,6 @@ func Test_getClusterInfo(t *testing.T) {
 			args: args{
 				captenConfig: invalidConfig,
 			},
-			//		want:    // Add expected result for invalid config,
 			wantErr: true,
 		},
 	}
@@ -49,15 +41,12 @@ func Test_getClusterInfo(t *testing.T) {
 				t.Errorf("getClusterInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			// if !reflect.DeepEqual(got, tt.want) {
-			// 	t.Errorf("getClusterInfo() = %v, want %v", got, tt.want)
-			// }
+
 		})
 	}
 }
 func Test_createOrDestroyCluster(t *testing.T) {
-	// Test create or destroy cluster using valid and invalid config
-	// and both create and destroy actions
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		action       string
@@ -194,22 +183,22 @@ func Test_generateTemplateVarFile(t *testing.T) {
 	}{
 		{
 			name:         "Successful Generation",
-			captenConfig: config.CaptenConfig{}, // Fill in with appropriate config
-			clusterInfo:  "testClusterInfo",     // Fill in with appropriate cluster info
-			templateFile: "testTemplateFile",    // Fill in with appropriate template file
+			captenConfig: config.CaptenConfig{},
+			clusterInfo:  "testClusterInfo",
+			templateFile: "testTemplateFile",
 		},
 		{
 			name:           "Error Reading Template File",
-			captenConfig:   config.CaptenConfig{}, // Fill in with appropriate config
-			clusterInfo:    "testClusterInfo",     // Fill in with appropriate cluster info
-			templateFile:   "invalidTemplateFile", // An invalid template file that should cause an error
+			captenConfig:   config.CaptenConfig{},
+			clusterInfo:    "testClusterInfo",
+			templateFile:   "invalidTemplateFile",
 			expectedErrMsg: "failed to read template file",
 		},
 		{
 			name:           "Error Creating Template File",
-			captenConfig:   config.CaptenConfig{}, // Fill in with appropriate config
-			clusterInfo:    "testClusterInfo",     // Fill in with appropriate cluster info
-			templateFile:   "testTemplateFile",    // Fill in with appropriate template file
+			captenConfig:   config.CaptenConfig{},
+			clusterInfo:    "testClusterInfo",
+			templateFile:   "testTemplateFile",
 			expectedErrMsg: "failed to create template file",
 		},
 	}
