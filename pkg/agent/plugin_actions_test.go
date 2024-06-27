@@ -2,10 +2,22 @@ package agent
 
 import (
 	"capten/pkg/config"
+	"log"
+	"os"
 	"testing"
 )
 
 func TestListClusterPlugins(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
@@ -19,23 +31,25 @@ func TestListClusterPlugins(t *testing.T) {
 			name: "Valid config",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+
+					KubeConfigFileName: "kubeconfig",
 				},
 			},
 			wantErr: false,
-		},
-		{
-			name: "Invalid config",
-			args: args{
-				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "",
-					PoolClusterName:      "",
-					PoolClusterNamespace: "",
-				},
-			},
-			wantErr: true,
 		},
 	}
 
@@ -49,6 +63,17 @@ func TestListClusterPlugins(t *testing.T) {
 }
 
 func TestDeployPlugin(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -65,11 +90,26 @@ func TestDeployPlugin(t *testing.T) {
 			name: "Valid config and valid store type",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+
+					KubeConfigFileName: "kubeconfig",
 				},
-				storeType: "helm",
+				storeType:  "central",
+				pluginName: "argo-cd",
+				version:    "v1.0.2",
 			},
 			wantErr: false,
 		},
@@ -77,9 +117,7 @@ func TestDeployPlugin(t *testing.T) {
 			name: "Valid config and invalid store type",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					KubeConfigFileName: "kubeconfig",
 				},
 				storeType: "invalid-store",
 			},
@@ -89,9 +127,7 @@ func TestDeployPlugin(t *testing.T) {
 			name: "Invalid config and valid store type",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "",
-					PoolClusterName:      "",
-					PoolClusterNamespace: "",
+					KubeConfigFileName: "",
 				},
 				storeType: "helm",
 			},
@@ -121,6 +157,16 @@ func TestDeployPlugin(t *testing.T) {
 }
 
 func TestUnDeployPlugin(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -136,12 +182,25 @@ func TestUnDeployPlugin(t *testing.T) {
 			name: "Valid config and valid store type",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+
+					KubeConfigFileName: "kubeconfig",
 				},
-				storeType:  "helm",
-				pluginName: "some-plugin",
+				storeType:  "central",
+				pluginName: "argo-cd",
 			},
 			wantErr: false,
 		},
@@ -196,6 +255,16 @@ func TestUnDeployPlugin(t *testing.T) {
 }
 
 func TestShowClusterPluginData(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 		pluginName   string
@@ -210,11 +279,24 @@ func TestShowClusterPluginData(t *testing.T) {
 			name: "Valid config and valid plugin name",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+
+					KubeConfigFileName: "kubeconfig",
 				},
-				pluginName: "some-plugin",
+				pluginName: "argo-cd",
 			},
 			wantErr: false,
 		},

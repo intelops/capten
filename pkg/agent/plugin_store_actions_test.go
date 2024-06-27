@@ -3,11 +3,14 @@ package agent
 import (
 	"capten/pkg/agent/pb/pluginstorepb"
 	"capten/pkg/config"
+	"log"
+	"os"
 	"reflect"
 	"testing"
 )
 
 func Test_getStoreTypeEnum(t *testing.T) {
+
 	type args struct {
 		storeType string
 	}
@@ -20,7 +23,7 @@ func Test_getStoreTypeEnum(t *testing.T) {
 	}{
 		{
 			name:    "central-store",
-			args:    args{storeType: "central-store"},
+			args:    args{storeType: "central"},
 			want:    pluginstorepb.StoreType_CENTRAL_STORE,
 			wantErr: false,
 		},
@@ -37,14 +40,7 @@ func Test_getStoreTypeEnum(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	want    pluginstorepb.StoreType
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := getStoreTypeEnum(tt.args.storeType)
@@ -60,6 +56,16 @@ func Test_getStoreTypeEnum(t *testing.T) {
 }
 
 func TestListPluginStoreApps(t *testing.T) {
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -71,18 +77,46 @@ func TestListPluginStoreApps(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Central store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "central-store"},
+			name: "Central store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "central"},
 			wantErr: false,
 		},
 		{
-			name:    "Default store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "default"},
+			name: "Default store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "default"},
 			wantErr: false,
 		},
 		{
 			name:    "Invalid store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "invalid-store"},
+			args:    args{captenConfig: config.CaptenConfig{}, storeType: "local"},
 			wantErr: true,
 		},
 	}
@@ -93,14 +127,7 @@ func TestListPluginStoreApps(t *testing.T) {
 			}
 		})
 	}
-	//}
-	// tests := []struct {
-	// 	name    string
-	// 	args    args
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// }
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := ListPluginStoreApps(tt.args.captenConfig, tt.args.storeType); (err != nil) != tt.wantErr {
@@ -111,6 +138,17 @@ func TestListPluginStoreApps(t *testing.T) {
 }
 
 func TestConfigPluginStore(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -122,13 +160,41 @@ func TestConfigPluginStore(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Central store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "central-store", gitProjectId: "gpid"},
+			name: "Central store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "central-store", gitProjectId: "gpid"},
 			wantErr: false,
 		},
 		{
-			name:    "Default store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "default", gitProjectId: "gpid"},
+			name: "Default store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "default", gitProjectId: "gpid"},
 			wantErr: false,
 		},
 		{
@@ -160,6 +226,17 @@ func TestConfigPluginStore(t *testing.T) {
 }
 
 func TestSynchPluginStore(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -171,18 +248,58 @@ func TestSynchPluginStore(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Central store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "central-store"},
+			name: "Central store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "central-store"},
 			wantErr: false,
 		},
 		{
-			name:    "Default store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "default"},
+			name: "Default store",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "default"},
 			wantErr: false,
 		},
 		{
-			name:    "Invalid store",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "invalid-store"},
+			name: "Invalid store",
+			args: args{captenConfig: config.CaptenConfig{CertDirPath: "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				}}, storeType: "invalid-store"},
 			wantErr: true,
 		},
 	}
@@ -204,6 +321,17 @@ func TestSynchPluginStore(t *testing.T) {
 }
 
 func TestShowPluginStorePlugin(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		storeType    string
@@ -216,23 +344,79 @@ func TestShowPluginStorePlugin(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Central store valid plugin",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "central-store", pluginName: "example-plugin"},
+			name: "Central store valid plugin",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "central-store", pluginName: "example-plugin"},
 			wantErr: false,
 		},
 		{
-			name:    "Central store invalid plugin",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "central-store", pluginName: "invalid-plugin"},
+			name: "Central store invalid plugin",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "central-store", pluginName: "invalid-plugin"},
 			wantErr: true,
 		},
 		{
-			name:    "Default store valid plugin",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "default", pluginName: "example-plugin"},
+			name: "Default store valid plugin",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "default", pluginName: "example-plugin"},
 			wantErr: false,
 		},
 		{
-			name:    "Default store invalid plugin",
-			args:    args{captenConfig: config.CaptenConfig{}, storeType: "default", pluginName: "invalid-plugin"},
+			name: "Default store invalid plugin",
+			args: args{captenConfig: config.CaptenConfig{
+				CertDirPath:        "/" + presentdir + "/cert/",
+				ConfigDirPath:      "/" + presentdir + "/config/",
+				AgentHostName:      "captenagent",
+				KubeConfigFileName: "kubeconfig",
+				ClientKeyFileName:  "client.key",
+				ClientCertFileName: "client.crt",
+				CAFileName:         "ca.crt",
+				CaptenClusterValues: config.CaptenClusterValues{
+					DomainName: "awsdemo.optimizor.app",
+				},
+				CaptenClusterHost: config.CaptenClusterHost{
+					LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+				},
+			}, storeType: "default", pluginName: "invalid-plugin"},
 			wantErr: true,
 		},
 	}

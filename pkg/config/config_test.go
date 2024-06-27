@@ -58,19 +58,19 @@ func TestUpdateLBEndpointFile(t *testing.T) {
 
 	mockOS.On("WriteFile", cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), mock.Anything, os.FileMode(0644)).Return(nil)
 
-	err = UpdateLBEndpointFile(cfg, "newhost")
+	err = UpdateLBEndpointFile(cfg, "newhost", "")
 	require.NoError(t, err)
 	assert.Equal(t, "newhost", cfg.LoadBalancerHost)
 
 	mockOS.On("ReadFile", cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName)).Return(nil, errors.New("failed to read file"))
 
-	err = UpdateLBEndpointFile(cfg, "newhost")
+	err = UpdateLBEndpointFile(cfg, "newhost", "")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to read file")
 
 	mockOS.On("WriteFile", cfg.PrepareFilePath(cfg.ConfigDirPath, cfg.CaptenHostValuesFileName), mock.Anything, os.FileMode(0644)).Return(errors.New("failed to write file"))
 
-	err = UpdateLBEndpointFile(cfg, "newhost")
+	err = UpdateLBEndpointFile(cfg, "newhost", "")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to write file")
 }

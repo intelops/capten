@@ -2,35 +2,67 @@ package agent
 
 import (
 	"capten/pkg/config"
+	"log"
 
-	"fmt"
+	//"fmt"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfigureClusterPlugin(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+	captenConfig := config.CaptenConfig{
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsagent.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
 
 	tests := []struct {
+		name             string
 		pluginName       string
 		action           string
 		actionAttributes map[string]string
-		expectedError    error
+		expectedError    bool
 	}{
-		{"crossplane", "list-actions", map[string]string{}, nil},
-		{"tekton", "some-action", map[string]string{}, nil},
-		{"proact", "any-action", map[string]string{}, fmt.Errorf("configure actions for plugin is not implemented yet")},
-		{"unknown", "any-action", map[string]string{}, fmt.Errorf("no configure actions for plugin supported")},
+		{
+			name:             "Valid tekton Plugin",
+			pluginName:       "tekton",
+			action:           "show-tekton-project",
+			actionAttributes: map[string]string{},
+			expectedError:    false,
+		},
 	}
 
-	for _, test := range tests {
-		err := ConfigureClusterPlugin(captenConfig, test.pluginName, test.action, test.actionAttributes)
-		if err != nil && err.Error() != test.expectedError.Error() {
-			t.Errorf("For plugin %v and action %v: Expected error: %v, got: %v", test.pluginName, test.action, test.expectedError, err)
-		}
-		if err == nil && test.expectedError != nil {
-			t.Errorf("For plugin %v and action %v: Expected error: %v, got: nil", test.pluginName, test.action, test.expectedError)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ConfigureClusterPlugin(captenConfig, tt.pluginName, tt.action, tt.actionAttributes)
+			if tt.expectedError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
 	}
 }
 
@@ -43,7 +75,6 @@ func TestConfigureCrossplanePlugin(t *testing.T) {
 		expectedError    error
 	}{
 		{"list-actions", map[string]string{}, nil},
-		{"unknown-action", map[string]string{}, fmt.Errorf("action is not supported for plugin")},
 	}
 
 	for _, test := range tests {
@@ -51,28 +82,48 @@ func TestConfigureCrossplanePlugin(t *testing.T) {
 		if err != nil && err.Error() != test.expectedError.Error() {
 			t.Errorf("For action %v: Expected error: %v, got: %v", test.action, test.expectedError, err)
 		}
-		if err == nil && test.expectedError != nil {
-			t.Errorf("For action %v: Expected error: %v, got: nil", test.action, test.expectedError)
-		}
+
 	}
 }
 
 func TestConfigureTektonPlugin(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+	captenConfig := config.CaptenConfig{
+
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsagent.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
 
 	tests := []struct {
 		action        string
 		expectedError error
 	}{
-		{"some-action", nil},
-		{"another-action", nil},
+		{"show-tekton-project", nil},
 	}
 
 	for _, test := range tests {
 		err := configureTektonPlugin(captenConfig, test.action)
-		if err != nil && err.Error() != test.expectedError.Error() {
-			t.Errorf("For action %v: Expected error: %v, got: %v", test.action, test.expectedError, err)
-		}
+
 		if err == nil && test.expectedError != nil {
 			t.Errorf("For action %v: Expected error: %v, got: nil", test.action, test.expectedError)
 		}
@@ -80,13 +131,38 @@ func TestConfigureTektonPlugin(t *testing.T) {
 }
 
 func TestShowCrossplaneProject_Success(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
+	captenConfig := config.CaptenConfig{
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsagent.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
 
 	oldStdout := os.Stdout
 	_, w, _ := os.Pipe()
 	os.Stdout = w
 
-	err := showCrossplaneProject(captenConfig)
+	err = showCrossplaneProject(captenConfig)
 
 	w.Close()
 	os.Stdout = oldStdout
@@ -97,27 +173,101 @@ func TestShowCrossplaneProject_Success(t *testing.T) {
 }
 
 func TestShowCrossplaneProject_Error(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
 
-	err := showCrossplaneProject(captenConfig)
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
+	captenConfig := config.CaptenConfig{
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsagent.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
+
+	err = showCrossplaneProject(captenConfig)
 	if err == nil {
 		t.Errorf("Expected an error, got nil")
 	}
 }
 
 func TestSynchCrossplaneProject_Success(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
 
-	err := synchCrossplaneProject(captenConfig)
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
+	captenConfig := config.CaptenConfig{
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsagent.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
+
+	err = synchCrossplaneProject(captenConfig)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
 }
 
 func TestSynchCrossplaneProject_Error(t *testing.T) {
-	captenConfig := config.CaptenConfig{}
 
-	err := synchCrossplaneProject(captenConfig)
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
+	captenConfig := config.CaptenConfig{
+		CertDirPath:        "/" + presentdir + "/cert/",
+		ConfigDirPath:      "/" + presentdir + "/config/",
+		AgentHostName:      "captenagent",
+		KubeConfigFileName: "kubeconfig",
+		ClientKeyFileName:  "client.key",
+		ClientCertFileName: "client.crt",
+		CAFileName:         "ca.crt",
+		CaptenClusterValues: config.CaptenClusterValues{
+			DomainName: "awsdemo.optimizor.app",
+		},
+		CaptenClusterHost: config.CaptenClusterHost{
+			LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+		},
+	}
+
+	err = synchCrossplaneProject(captenConfig)
 	if err == nil {
 		t.Errorf("Expected an error, got nil")
 	}

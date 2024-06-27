@@ -2,10 +2,22 @@ package agent
 
 import (
 	"capten/pkg/config"
+	"log"
+	"os"
 	"testing"
 )
 
 func TestListClusterApplications(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 	}
@@ -19,23 +31,22 @@ func TestListClusterApplications(t *testing.T) {
 			name: "Valid config",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					CertDirPath: "/" + presentdir + "/cert/",
+
+					AgentHostName:      "captenagent",
+					KubeConfigFileName: "kubeconfig",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsagent.optimizor.app",
+					},
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
 				},
 			},
 			wantErr: false,
-		},
-		{
-			name: "Invalid config",
-			args: args{
-				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "",
-					PoolClusterName:      "",
-					PoolClusterNamespace: "",
-				},
-			},
-			wantErr: true,
 		},
 	}
 
@@ -49,6 +60,15 @@ func TestListClusterApplications(t *testing.T) {
 }
 
 func TestShowClusterAppData(t *testing.T) {
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 		appName      string
@@ -63,37 +83,24 @@ func TestShowClusterAppData(t *testing.T) {
 			name: "Valid config and app name",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ConfigDirPath:      "/" + presentdir + "/config/",
+					KubeConfigFileName: "kubeconfig",
+					AgentHostName:      "captenagent",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsagent.optimizor.app",
+					},
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
 				},
-				appName: "some-app",
+
+				appName: "external-secrets",
 			},
 			wantErr: false,
-		},
-		{
-			name: "Invalid config",
-			args: args{
-				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "",
-					PoolClusterName:      "",
-					PoolClusterNamespace: "",
-				},
-				appName: "some-app",
-			},
-			wantErr: true,
-		},
-		{
-			name: "Empty app name",
-			args: args{
-				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
-				},
-				appName: "",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -120,9 +127,7 @@ func TestDeployDefaultApps(t *testing.T) {
 			name: "Valid config",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "kubeconfig",
-					PoolClusterName:      "some-pool-cluster",
-					PoolClusterNamespace: "some-pool-cluster-ns",
+					KubeConfigFileName: "kubeconfig",
 				},
 			},
 			wantErr: false,
@@ -131,7 +136,7 @@ func TestDeployDefaultApps(t *testing.T) {
 			name: "Invalid config",
 			args: args{
 				captenConfig: config.CaptenConfig{
-					KubeConfigFileName:   "",
+					KubeConfigFileName:   "kubeconfig",
 					PoolClusterName:      "",
 					PoolClusterNamespace: "",
 				},

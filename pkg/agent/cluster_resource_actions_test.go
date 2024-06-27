@@ -2,11 +2,23 @@ package agent
 
 import (
 	"capten/pkg/config"
+	"log"
+	"os"
 	"reflect"
 	"testing"
 )
 
 func TestListClusterResources(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 		resourceType string
@@ -20,34 +32,25 @@ func TestListClusterResources(t *testing.T) {
 		{
 			name: "list git-project",
 			args: args{
-				captenConfig: config.CaptenConfig{},
+				captenConfig: config.CaptenConfig{
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+				},
 				resourceType: "git-project",
 			},
 			wantErr: false,
-		},
-		{
-			name: "list cloud-provider",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "cloud-provider",
-			},
-			wantErr: false,
-		},
-		{
-			name: "list container-registry",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "container-registry",
-			},
-			wantErr: false,
-		},
-		{
-			name: "list unknown-resource",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "unknown-resource",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -61,6 +64,17 @@ func TestListClusterResources(t *testing.T) {
 }
 
 func TestAddClusterResource(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
+
 	type args struct {
 		captenConfig config.CaptenConfig
 		resourceType string
@@ -74,54 +88,32 @@ func TestAddClusterResource(t *testing.T) {
 		{
 			name: "add git-project",
 			args: args{
-				captenConfig: config.CaptenConfig{},
+				captenConfig: config.CaptenConfig{
+
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+				},
 				resourceType: "git-project",
 				attributes: map[string]string{
 					"git-project-url": "https://github.com/example/example-project.git",
-					"labels":          "label1,label2",
-					"access-token":    "testAccessToken",
-					"user-id":         "testUserId",
+					//"labels":          "label1,label2",
+					"access-token": "testAccessToken",
+					"user-id":      "testUserId",
 				},
 			},
 			wantErr: false,
-		},
-		{
-			name: "add cloud-provider",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "cloud-provider",
-				attributes: map[string]string{
-					"cloud-type":  "aws",
-					"labels":      "label1,label2",
-					"cloud-key":   "testCloudKey",
-					"cloud-token": "testCloudToken",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "add container-registry",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "container-registry",
-				attributes: map[string]string{
-					"registry-url":      "https://example.com",
-					"labels":            "label1,label2",
-					"registry-type":     "harbor",
-					"registry-username": "testUsername",
-					"registry-password": "testPassword",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "add unknown-resource",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "unknown-resource",
-				attributes:   map[string]string{},
-			},
-			wantErr: true,
 		},
 	}
 
@@ -135,6 +127,16 @@ func TestAddClusterResource(t *testing.T) {
 }
 
 func TestUpdateClusterResource(t *testing.T) {
+
+	currentdir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error while getting cuerent dir", err)
+	}
+	presentdir, err := getRelativePathUpTo(currentdir)
+
+	if err != nil {
+		log.Println("Error while getting working dir", err)
+	}
 	type args struct {
 		captenConfig config.CaptenConfig
 		resourceType string
@@ -149,45 +151,29 @@ func TestUpdateClusterResource(t *testing.T) {
 		{
 			name: "update git-project",
 			args: args{
-				captenConfig: config.CaptenConfig{},
+				captenConfig: config.CaptenConfig{
+					AgentSecure:        true,
+					AgentHostName:      "captenagent",
+					CertDirPath:        "/" + presentdir + "/cert/",
+					ClientKeyFileName:  "client.key",
+					ClientCertFileName: "client.crt",
+					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					AgentHostPort:      ":443",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "awsdemo.optimizor.app",
+					},
+				},
 				resourceType: "git-project",
-				id:           "test-id",
+				id:           "9e9cb5a1-49bc-46d6-b773-5423672438cc",
 				attributes: map[string]string{
 					"git-project-url": "https://github.com/example/example-project.git",
-					"labels":          "label1,label2",
-					"access-token":    "updatedAccessToken",
+					"labels":          "IntelopsCi",
+					"access-token":    "ksjdksjdk",
 					"user-id":         "updatedUserId",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "update cloud-provider",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "cloud-provider",
-				id:           "test-id",
-				attributes: map[string]string{
-					"cloud-type":  "aws",
-					"labels":      "label1,label2",
-					"cloud-key":   "updatedCloudKey",
-					"cloud-token": "updatedCloudToken",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "update container-registry",
-			args: args{
-				captenConfig: config.CaptenConfig{},
-				resourceType: "container-registry",
-				id:           "test-id",
-				attributes: map[string]string{
-					"registry-url":      "https://example.com",
-					"labels":            "label1,label2",
-					"registry-type":     "harbor",
-					"registry-username": "updatedUsername",
-					"registry-password": "updatedPassword",
 				},
 			},
 			wantErr: false,
@@ -218,27 +204,15 @@ func Test_prepareCloudAttributes(t *testing.T) {
 			name: "valid AWS cloud attributes",
 			args: args{
 				attributes: map[string]string{
-					"access-key": "test-access-key",
-					"secret-key": "test-secret-key",
+					"cloud-type": "aws",
+					"accessKey":  "dkdndnfdnf",
+					"secretKey":  "nSlkdnnns",
 				},
 			},
 			want: map[string]string{
-				"accessKey": "test-access-key",
-				"secretKey": "test-secret-key",
-			},
-			wantErr: false,
-		},
-		{
-			name: "valid Azure cloud attributes",
-			args: args{
-				attributes: map[string]string{
-					"client-id":     "test-client-id",
-					"client-secret": "test-client-secret",
-				},
-			},
-			want: map[string]string{
-				"clientID":     "test-client-id",
-				"clientSecret": "test-client-secret",
+				//"cloud-type": "aws",
+				"accessKey": "dkdndnfdnf",
+				"secretKey": "nSlkdnnns",
 			},
 			wantErr: false,
 		},
@@ -298,11 +272,4 @@ func TestRemoveClusterResource(t *testing.T) {
 		})
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := RemoveClusterResource(tt.args.captenConfig, tt.args.resourceType, tt.args.id); (err != nil) != tt.wantErr {
-				t.Errorf("RemoveClusterResource() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
 }

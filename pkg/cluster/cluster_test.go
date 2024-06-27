@@ -17,18 +17,14 @@ func TestCreate(t *testing.T) {
 		{
 			name: "Valid captenConfig",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Add valid captenConfig properties here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Invalid captenConfig",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Add invalid captenConfig properties here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
 			wantErr: true,
 		},
@@ -60,9 +56,7 @@ func TestDestroy(t *testing.T) {
 		{
 			name: "Error handling when trying to destroy a non-existing cluster",
 			args: args{
-				captenConfig: config.CaptenConfig{
-					// Add invalid captenConfig properties here
-				},
+				captenConfig: config.CaptenConfig{},
 			},
 			wantErr: true,
 		},

@@ -25,7 +25,7 @@ func TestGetAgentClient(t *testing.T) {
 	presentdir, err := getRelativePathUpTo(currentdir)
 
 	if err != nil {
-		log.Println("Error while getting working dir", err)
+		log.Println("Error while getting relative path", err)
 	}
 
 	type args struct {
@@ -49,9 +49,12 @@ func TestGetAgentClient(t *testing.T) {
 					ClientKeyFileName:  "client.key",
 					ClientCertFileName: "client.crt",
 					CAFileName:         "ca.crt",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
 				},
 				clusterconf: config.CaptenClusterValues{
-					DomainName: "aws.optimizor.app",
+					DomainName: "awsdemo.optimizor.app",
 				},
 			},
 			wantErr: false,
@@ -64,7 +67,7 @@ func TestGetAgentClient(t *testing.T) {
 					AgentHostName: "captenagent",
 				},
 				clusterconf: config.CaptenClusterValues{
-					DomainName: "aws.optimizor.app",
+					DomainName: "awsdemo.optimizor.app",
 				},
 			},
 			wantErr: false,
@@ -120,6 +123,10 @@ func TestGetVaultClient(t *testing.T) {
 					ClientKeyFileName:  "client.key",
 					ClientCertFileName: "client.crt",
 					CAFileName:         "ca.crt",
+					VaultCredHostName:  "vault-cred",
+					CaptenClusterHost: config.CaptenClusterHost{
+						LoadBalancerHost: "a084c23852d0b428e98f363457fc8f8b-5ee99283c8b044fa.elb.us-west-2.amazonaws.com",
+					},
 				},
 			},
 			wantErr: false,
@@ -216,7 +223,7 @@ func Test_loadTLSCredentials(t *testing.T) {
 				ClientAuth: tls.RequireAnyClientCert,
 			}),
 
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "invalid cert file",

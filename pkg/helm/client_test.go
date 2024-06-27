@@ -135,7 +135,6 @@ func TestClient_installApp(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "valid action config",
 			fields: fields{
