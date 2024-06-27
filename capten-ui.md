@@ -148,6 +148,9 @@ helm list -A
 ./capten show cluster info
 ```
 
+#### Update DNS entry 
+
+Add record updating the domain name in `./config/capten.yaml` and LB host in `./config/capten-lb-endpoint.yaml` to  any dns so that applications could be exposed.
 
 #### Destroying the cluster
 
@@ -157,6 +160,59 @@ Cluster destruction command initiates the process of removing all components ass
 ./capten destroy cluster
 ```
 
+# CAPTEN UI
+
+## How to Access the Capten UI?
+
+1. For a new user, sign up on Intelops UI (https://alpha.intelops.app/)
+
+2. For existing user, login with user credentials
+
+![Inteloops-Login-UI](.readme_assets/itelops-login-ui.png)
+
+3. After login to Intelops UI, for new user, popup screen will be displayed for creating organisation. Create organisation and assign the roles, add cluster admin role to register new cluster
+
+## Registering Controlplane cluster
+
+![Capten-cluster-Registration](.readme_assets/cluster-register.png)
+
+1. Provide the cluster name and upload the client certificates (./cert/capten-client-auth-certs.zip) created by Capten CLI.
+
+2. Provide the cluster agent endpoint, Domainname configured in capten.yaml to be used for accessing the cluster
+
+```
+https://captenagent.<domainname>
+```
+
+For example agent endpoint, if 'aws.eg.com' Domainname is configure in capten.yaml,
+
+```
+https://captenagent.aws.eg.com
+```
+
+3. After providing above details, register the cluster.
+
+### Capten Cluster Applications Management
+
+Capten supports Web UI luanch for supportted applications, Web UI launch supported for default applications like grafana, signoz.
+
+Navigate for Capten controlplane cluster by clicking on the Registered cluster.
+Web UI launch applications listed on "Tools" tab
+
+![Capten-Tools](.readme_assets/tools.png)
+
+Launching the grafana Web UI and access grafana dashboards
+Click on "Prometheus" Icon to launch grafana Web UI. Web UI will be launched with single sign-on and show grafana landing page, from there navigate to view dashboards
+
+One of the cluster-overview metrics dashboards is as shown below
+
+![Capten-GrafanaDashboard](.readme_assets/grafanadashboard.png)
+
+### DeRegistering the Controlplane cluster
+
+Navigate for Capten controlplane cluster, Click the remove button to deregister the controlPlane cluster, it will delete registration data from Intelops cluster, to delete cluster, Capten CLI will have to be used.
+
+![DeRegistering-Control-Plane-Cluster](.readme_assets/deregister-modified.png)
 
 # Capten Plugin SDK
 
@@ -188,50 +244,122 @@ This Central Plugin Store is integrated with Capten Stack by default, and Plugin
 
 Capten SDK supports managing a local plugin store, i.e., in your Git repository. A Git repository needs to be integrated into the Capten from Capten UI, which can then be used to onboard and manage Plugin applications.
 
+## Onboarding Plugin Application
 
+Pre-requisites to onboard Plugin Application into this Capten Plugin Store
 
-## Depoly Plugin Application in Central Plugin Store
+### Prerequisites
 
-Deploy Plugin application on Capten cluster 
+- Plugin Application available in helm repository accessible from Capten cluster
+- Container image for plugin application available in container registry onboarded into the Capten cluster
 
+### Add Plugin Application name
+
+Add the plugin application name in `plugin-store/plugin-list.yaml` file
+
+```
+plugins:
+  - argo-cd
+  - crossplane
+  - tekton
+```
+
+### Add Plugin Application Configuration
+
+Create a folder with plugin name `plugin-store/<plugin-name>`, and add plugin metadata files
+
+- Add plugin application configuration in `plugin-store/<plugin-name>/plugin-config.yaml` file
+- Add plugin application Icon file in `plugin-store/<plugin-name>/icon.svg`
+
+| Attribute   | Description                           |
+| ----------- | ------------------------------------- |
+| pluginName  | Plugin application name               |
+| description | Plugin application description        |
+| category    | Plugin application category           |
+| icon        | Plugin application icon               |
+| versions    | Plugin application supported versions |
+
+```
+pluginName: "argo-cd"
+description: "GitOps continuous delivery tool for Kubernetes"
+category: "CI/CD"
+icon: "icon.svg"
+versions:
+  - "v1.0.2"
+  - "v1.0.5"
+```
+
+### Add Plugin Application Version Deployment Configuration
+
+For each supported version, create version folder `plugin-store/<plugin-name>/<version>` and add plugin version deployment metadata files
+
+- add plugin application version deployment configuration in `plugin-store/<plugin-name>/<version>/plugin-config.yaml` file
+- add plugin application version values file in `plugin-store/<plugin-name>/<version>/values.yaml` file
+
+\*\* plugin application version deployment configuration attributes \*\*
+| Attribute | Description |
+| ------------------- | ---------------------------------------- |
+| chartName | Plugin application chart name |
+| chartRepo | Plugin application chart repo |
+| version | Plugin application version |
+| defaultNamespace | Plugin application default namespace |
+| privilegedNamespace | Plugin application privileged namespace |
+| valuesFile | Plugin application values file |
+| apiEndpoint | Plugin application API endpoint |
+| uiEndpoint | Plugin application ui endpoint |
+| capabilities | Plugin application required capabilities |
+
+Table below shows an example of plugin application version deployment configuration
+
+| Capabilities                | Description                                                      |
+| --------------------------- | ---------------------------------------------------------------- |
+| deploy-controlplane-cluster | Capability to deploy plugin application on control plane cluster |
+| deploy-bussiness-cluster    | Capability to deploy plugin application on business cluster      |
+| capten-sdk                  | Capability to access Capten cluster SDK                          |
+| ui-sso-oauth                | Capability to enable Single SignOn for plugin application UI     |
+| postgress-store             | Capability to access Capten cluster storage service              |
+| vault-store                 | Capability to access Capten cluster vault service                |
+
+```
+deployment:
+  controlplaneCluster:
+    chartName: "argo-cd"
+    chartRepo: "https://kube-tarian.github.io/helmrepo-supporting-tools"
+    version: "v1.0.2"
+    defaultNamespace: "argo-cd"
+    privilegedNamespace: false
+    valuesFile: "values.yaml"
+apiEndpoint: https://argo.{{.DomainName}}
+uiEndpoint: https://argo.{{.DomainName}}
+capabilities:
+  - deploy-controlplane-cluster
+  - capten-sdk
+  - ui-sso-oauth
+```
+
+### Publish Plugin Application
+
+Merge all plugin configuration files into the capten plugin store Git repository
+
+## Depoly Plugin Application
+
+Deploy Plugin application on Capten cluster from Intelops UI(https://alpha.intelops.app/)
+
+#1 Login to Intelops UI
+
+# #2 Navigate to "Controlplance Cluster" -> Select the cluster -> Select "Application Store"
 
 Capten SDK creates resources for plugin applications for plugin-configured capabilities before deploying plugin applications to the Capten cluster.
 
-For deploying the application like crossplane,argocd and tekton,use the below commands:
+![Plugin-Application-Store](.readme_assets/plugin-store-apps.png)
 
-1. Sync the applications in the application store with the below command
+#3 Select "Configure Apps Store" and click on "sync' button to Synchronize the plugin store
 
-```bash
- ./capten plugin store synch --store-type central
-```
+![Syncronize-Plugin-Application-Store](.readme_assets/synchronize_plugin_apps.png)
 
-2. For viewing the applications in the central store ,use the below command.
+#4 Click on Deploy plugin application, Select plugin version and click on Deploy button
 
-```bash
- ./capten plugin store list --store-type central
-```
-This command will list the applications in the central store and its respective version
-
-
-3. For deploying the applications in the central store,use the below sample commands.Use the right version and the application name 
-
-* For deploying tekton,use the below command
-
-```bash
-  ./capten plugin deploy --plugin-name tekton --store-type central --version v0.1.9
-```
-* For deploying crossplane,use the below command
-
-```bash
- ./capten plugin deploy --plugin-name crossplane --store-type central --version v1.0.3
-```
-
-* For deploying argocd, use the below command
-```bash
- ./capten plugin deploy --plugin-name argo-cd --store-type central --version v1.0.2
-```
-
-
+![Plugin-Application-Deploy](.readme_assets/plugin-app-deploy.png)
 
 ### Capten Pluguin Resources/Environment
 
@@ -259,8 +387,18 @@ List of supported capabilities:
 
 - This capability provides postgres DB setup required for the plugin application.
 
+## Plugin Application UI launch
 
+- Plugin application UI can be launched directly from icons shortcut in cluster widget.
 
+![Plugin-Application-UI-Launch](.readme_assets/plugin_app_ui_launch.png)
+
+## Plugin Application Capten UI Widget
+
+- Navigate to "Capten" -> "Platform Engineering"
+- In this screen plugin application can be visualized.
+
+![Plugin-Application-UI-Widget](.readme_assets/plugin_app_widget.png)
 
 # Capten Crossplane Plugin
 
@@ -268,158 +406,36 @@ List of supported capabilities:
 
 ### Git Project:
 
-### Add Git Project via Capten CLI
+1. First to add crossplane plugin, we need to add an empty private repository.
+2. In onboarding section, go to **Git** tab and click _Add Git Repo_.
+3. Enter the git repo url and the token and also set the label to crossplane.
 
-For adding the git project,use the below command,
-
-```bash
-./capten cluster resources create --resource-type "git-project" --access-token "<gitbub-pat-token>" --user-id "<github-user-id>" --labels="crossplane" --git-project-url="<repo-url>"
-```
-**Note:**:
-
-For creating Business cluster,add git project with the label "crossplane"
-
-Provide the empty git repository to the repo-url and also provide the necessary github-pat token and userid 
-
-
-### List Git Project via Capten CLI
-
-```bash
-./capten cluster resources list --resource-type="git-project"
-```
-the sample output of above command is given below
-
-```bash
-+--------------------------------------+-----------------------------------------+------------+
-|                  ID                  |               PROJECT URL               |   LABELS   |
-+--------------------------------------+-----------------------------------------+------------+
-| 952001a4-7d6c-4cf7-adf3-83543ddea2bb | https://gitproject/git/sample.git       | crossplane |
-+--------------------------------------+-----------------------------------------+------------+
-```
-### Update Git Project via Capten CLI
-
-Below command is used for updating the git project
-```bash
-./capten cluster resources create --resource-type "git-project" --access-token "<gitbub-pat-token>" --user-id "<github-user-id>" --labels="crossplane" --git-project-url="<repo-url>" --id "<ID>"
-```
-**Note:**:
-
-The ID can be retrieved while listing the git project.
-
-For example,
-```bash
-./capten cluster resources create --resource-type "git-project" --access-token "msdbb" --user-id "samp" --labels="crossplane" --git-project-url="https://gitproject/git/sample.git" --id 952001a4-7d6c-4cf7-adf3-83543ddea2bb
-```
-
-### Delete Git Project via Capten 
-
-```bash
-/capten cluster resources delete --id "<ID>" --resource-type git-project
-```
-
-Below is the sample command for deleting the git project,
-
-```bash
-/capten cluster resources delete --id 952001a4-7d6c-4cf7-adf3-83543ddea2bb --resource-type git-project
-```
-**Note:**:
-
-The id is retrieved by listing the git project
-
+![GitRepo](.readme_assets/gitproj.png)
 
 =======
+Add git repository details in the mentioned section_
 
 ### Cloud Provider:
 
-### Add Cloud Provider via Capten CLI
+1. Now to add cloud provider, go to **Cloud Providers** and click _ Add Cloud Provider_.
+2. Select the required cloud provider and enter the credentials for the same. (The label is set to crossplane)
 
-```bash
+![AddCloudProvider](.readme_assets/cloudprovider.png)
 
-./capten cluster resources create --resource-type="cloud-provider" --cloud-type="aws" --labels="crossplane" --access-key="accesskey" --secret-key="secretkey"
-```
+Add cloud provider details in the mentioned section_
+
 **Note:** The label _crossplane_ is used by the crossplane plugin to reference both the repository and provider.
-
-
-### List Cloud Provider via Capten CLI
-
-
-```bash
-
-./capten cluster resources list  --resource-type="cloud-provider"
-```
-Below is the sample output
-
-```bash
-
-+--------------------------------------+------------+------------+
-|                  ID                  | CLOUD TYPE |   LABELS   |
-+--------------------------------------+------------+------------+
-| 5a68240f-3f87-4c41-a589-5f32c1040f1e | aws        | crossplane |
-+--------------------------------------+------------+------------+
-```
-
-
-### Update Cloud Provider via Capten CLI
-
-```bash
-
-./capten1 cluster resources update --resource-type="cloud-provider" --cloud-type="aws" --labels="tekton" --access-key="accesskey" --secret-key="secretkey" --id "<ID>"
-```
-
-For example,sample command will be,
-
-```bash
-
-./capten1 cluster resources update --resource-type="cloud-provider" --cloud-type="aws" --labels="tekton" --access-key="accesskey" --secret-key="secretkey" --id "5a68240f-3f87-4c41-a589-5f32c1040f1e"
-```
-
-
-### Delete Cloud Provider via Capten CLI
-
-Below command is used for deleting the cloud provider
-
-```bash
-./capten cluster resources delete --resource-type cloud-provider --id "<ID>"
-```
-
 
 ## Create Crossplane provider:
 
-1. Add the git project by referring the above command
+1. In platform engineering section, select _Setup_ under **Crossplane** plugin.
+2. Under providers section, select both the required provider and 'crossplane' label.
+3. Under configure section, click sync next to the repository which is needed to deploy the plugin.
+4. After the sync, the provider will get deployed and enter _Healthy_ state in a few minutes.
 
-2. Sync the crossplane project with the beloe command
+![AddCrossplaneProvider](.readme_assets/provider.png)
 
-```bash
- ./capten plugin config --action synch-crossplane-project --plugin-name crossplane
-```
-
-3. Then list the cloud provider with the below command
-
-```bash
-./capten cluster resources list  --resource-type="cloud-provider"
-```
-
-The sample output is shown below:
-
-```bash
-+--------------------------------------+------------+------------+
-|                  ID                  | CLOUD TYPE |   LABELS   |
-+--------------------------------------+------------+------------+
-| 5a68240f-3f87-4c41-a589-5f32c1040f1e | aws        | crossplane |
-+--------------------------------------+------------+------------+
-
-```
-Then use the above lister id  for creating the crossplane provider,
-```bash
-
-./capten plugin config --action create-crossplane-provider --cloud-type aws --cloud-provider-id 5a68240f-3f87-4c41-a589-5f32c1040f1e
-```
-
-4. Then again sync the crossplane plugin
-
-```bash
-./capten plugin config --action synch-crossplane-project --plugin-name crossplane
-```
+Once onboarding is done both the git and provider details will be automatically populated in crossplane plugin using crossplane label_
 
 ## Create Business cluster
 
@@ -442,129 +458,46 @@ Make sure to sync all crossplane related apps_
 
 ## Delete Crossplane provider
 
-1. List the crossplane provider with the below command
+1. To delete crossplane provider, go to capten UI.
+2. Under platform engineering, select _Setup_ under **Crossplane** plugin
+3. Under providers section, select the delete option next to the provider which is to be deleted.
+4. This removes the provider from the cluster
+5. It is also possible to remove the provider from onboarding list by the delete option provided with the cloud provider
 
-```bash
-./capten plugin config --action list-crossplane-providers --plugin-name crossplane
-```
+![DeleteProvider](.readme_assets/deleteprovider.png)
 
-+--------------------------------------+------------+--------------------------------------+--------+
-|                  ID                  | CLOUD TYPE |          CLOUD PROVIDER ID           | STATUS |
-+--------------------------------------+------------+--------------------------------------+--------+
-| ee162729-6d34-4481-8a85-e3e92694511b | aws        | e2f4886e-c201-45c7-8813-36449af67e09 | Ready  |
-+--------------------------------------+------------+--------------------------------------+--------+
-
-
-2.. Use the below command for deleting the crossplane provider (use the  id for deleting the crossplane provider)
-
-```bash
-
-./capten plugin config --action delete-crossplane-provider --crossplane-provider-id ee162729-6d34-4481-8a85-e3e92694511b --plugin-name crossplane
-```
-
-3. Then synch the project with the below command
-
-```bash
-./capten plugin config --action synch-crossplane-project --plugin-name crossplane
-```
-
-With the above 3 commands ,crossplane provider will be deleted
-
+To delete the crossplane provider, click the delete button next to the provider name_
 
 # Tekton Flow For Capten
 
 ## Tekton CI/CD Pipeline
 
-### Add Git Project via Capten CLI
+1. Login to the capten ui page
+2. Onboarding git project in to capten
 
-Onboard the git project by providing repo url,access token and label for the customer repo (label is tekton) and for the tekton ci/cd repo (label is IntelopsCi) using the below steps:
+   ![GitOnboarding](.readme_assets/onboarding-git.png)
+   ![NewGitOnboarding](.readme_assets/new-git-onboarding.png)
 
-1. First onboard the empty git project  
+   - select the `add git repo` from the **git** section
+   - add the git repo url,access token and label for the customer repo (label is tekton) and the tekton ci/cd repo (label is IntelopsCi)
 
-  ```bash
-  ./capten cluster resources create --resource-type="git-project" --access-token "<accesskey>" --user-id "<user-id>" --labels "tekton" --git-project-url "<repo-url>"
-  ```
+3. Onboarding container registry in to capten
 
+![ContainerRegisterOnboarding](.readme_assets/onboarding-container.png)
+![NewContainerRegisterOnboarding](.readme_assets/new-container-onboarding.png)
 
-2. Then onboard the application repo-url ,access-token and userId with the label IntelopsCi
-
-```bash
-
-./capten cluster resources create --resource-type="git-project" --access-token="access-token" --user-id="git-user-id" --labels="IntelopsCi" --git-project-url="https://github.com/sample/qt-test-application.git"
-```
-
-
-### Onboarding container registry in to capten
-
-
-1. Add Container registry
-
-Add the registry url,username,access token and label to which the built image needs to be pushed (label is "tekton")
-
-```bash
-
-./capten cluster resources create --resource-type="container-registry" --registry-url="ghcr.io" --registry-type="GitHub Registry" --registry-username="registry-user-name" --registry-password="registry-password"
-```
-
-List Container Registry
-
-```bash
-./capten cluster resources list  --resource-type="container-registry"
-```
-
-```bash
-+--------------------------------------+-----------------+--------------+--------+
-|                  ID                  |  REGISTRY TYPE  | REGISTRY URL | LABELS |
-+--------------------------------------+-----------------+--------------+--------+
-| 6d7ec739-168d-472e-84d0-66971fb29bb5 | GitHub Registry | ghcr.io      |        |
-+--------------------------------------+-----------------+--------------+--------+
-```
-
-
-Update Container Registry
-
-```bash
-
-./capten cluster resources create --resource-type="container-registry" --registry-url="ghcr.io" --registry-type="GitHub Registry" --registry-username="registry-user-name" --registry-password="registry-password" --id "<id>"
-```
- The id can be retrieved by listing the container-registry
-
-
-Delete Container Registry
-
-```bash
-./capten cluster resources delete --id "<id>" --resource-type container-registry
-```
-
+- select `add container registry` from **container registry** section
+- add the registry url,username,access token and label to which the built image needs to be pushed (label is "tekton")
 
 # Configuring Tekton
 
 ## Configuring Capten Tekton Plugin
 
+Go to the _capten-->platform engineering_ ,select on the tekton plugin setup and then select the `sync` option under the **configure** section and this will configure the tekton and the neccessary floders will be created in the customer's repo
 
-Use the below commad for synchronizing the tekton to the customer empty repository.This will configure the tekton and  neccessary folders will be created in the customer's repo.
+![TektonPlugin](.readme_assets/tek-plugin.png)
 
-```bash
- ./capten plugin config --action synch-tekton-project --plugin-name tekton
-```
-
-The status can be viewed by using below command
-
-```bash
-./capten plugin config --action show-tekton-project --plugin-name tekton
-```
-
-The sample output can be shown below
-
-```bash
-+-----------------+-----------------------------------------+
-|    ATTRIBUTE    |                  VALUE                  |
-+-----------------+-----------------------------------------+
-| git-project-url | https://github.com/sample/infra.git |
-| status          | configured                              |
-+-----------------+-----------------------------------------+
-
-```
+![TektonPlugin](.readme_assets/tek-plugin-new.png)
 
 # Pre-requisite For Tekton CI/CD Pipeline Creation
 
@@ -821,74 +754,35 @@ once done the argocd will update this changes to the cluster and the pipeline,tr
 
 Proact is CLI/CI Tool for Automating Vulnerability Management for Enhancing Software Supply Chain Security Measures.
 
-* To create a new schedule click on Schedule Scan repo.
+After selecting proact from the installed apps, you will be treated with a list of schedules, if there are any. To create a new schedule click on Schedule Scan repo.
 
+![proact create schedule](.readme_assets/proact-create-schedule.png)
 
-```bash
-curl -X 'POST' \
-  'http://proact-scheduler.awsagents.optimizor.app/api/v1/schedule/' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "schedule_name": "<schedule-name>",
-  "container_registry_id": "ghcr.io",
-  "container_registry_url": "ghcr.io",
-  "cron_schedule": "* * * * *",
-  "scan_configs": [
+Fill all the details for the schedule and config
+
+| Attribute   | Description                           |
+| ----------- | ------------------------------------- |
+| Schedule Name  | Name of the schedule               |
+| Select Container Registry | Select the container registry        |
+| Cron Schedule    | Schedule for the job in crontab expression           |
+| Scan Config        | Config details for the job             |
+
+![proact schedule details](.readme_assets/proact-schedule-details.png)
+proact-schedule-details
+
+<b>sample config</b>
+```json
+[
     {
-      "docker_image_name": "<docker-image-name>",
-      "pyroscope_enabled": "true",
-      "pyroscope_url": "http://pyroscope.<DomainName>",
-      "pyroscope_app_name": "user",
-      "rebuild_image": "true",
-      "docker_file_folder_path": "<dockerfile-repo-url>"
+        "docker_image_name": "arunnintelops/qt-test-application:latest", // Docker image name
+        "pyroscope_enabled": "true", // To enable pyroscope
+        "pyroscope_url": "https://pyroscope.awsdemo.optimizor.app", //Url for pyroscope
+        "pyroscope_app_name": "qt.test.application", //Application name in pyroscope
+        "rebuild_image": "false" //Option to enable or disable rebuild image after scanning
     }
-  ]
-}'
-
+]
 ```
+After successful scan you can view the result of the scan.
 
-**Note**
-
-Use the domain name that is configured in **capten.yaml** in the pyroscope_url.
-
-```bash
- "pyroscope_url": "http://pyroscope.<Domain-Name>",
-```
-
-
-* To List all schedules
-
-```bash
-curl -X 'GET' \
-  'http://proact-scheduler.<Domain-Name>/api/v1/schedule' \
-  -H 'accept: application/json'
-```
-* To pause schedule:
-
-```bash
-curl -X 'PUT' \
-  'https://proact-scheduler.<DomainName>/api/v1/schedule/{scheduleId}/pause' \
-  -H 'accept: application/json'
-```
-
-* To resume schedule:
-
-```bash
-curl -X 'PUT' \
-  'https://proact-scheduler.<DomainName>/api/v1/schedule/{scheduleId}/resume' \
-  -H 'accept: application/json'
-```
-
-* To delete schedule:
-
-```bash
-curl -X 'DELETE' \
-  'https://proact-scheduler.<Domain-name>/api/v1/schedule/{scheduleId}' \
-  -H 'accept: application/json'
-```
-
-
-## CAPTEN UI
-
-Follow the documentation [here](https://github.com/intelops/capten/blob/main/capten-ui.md) to access the capten UI 
+proact-schedule-results
+![proact schedule results](.readme_assets/proact-schedule-results.jpg)
