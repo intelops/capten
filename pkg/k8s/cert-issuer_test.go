@@ -14,8 +14,39 @@ func TestCreateOrUpdateClusterIssuer(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "valid config",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "aws.intelops.com",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid config: missing domain",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					CaptenClusterValues: config.CaptenClusterValues{
+						DomainName: "",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid config: missing email",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					CaptenClusterValues: config.CaptenClusterValues{},
+				},
+			},
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateOrUpdateClusterIssuer(tt.args.captenConfig); (err != nil) != tt.wantErr {

@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"reflect"
 	"testing"
 
 	"k8s.io/client-go/kubernetes"
@@ -17,7 +16,21 @@ func TestMakeNamespacePrivilege(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Test empty kubeconfig path",
+			args:    args{"", "testns"},
+			wantErr: true,
+		},
+		{
+			name:    "Test empty namespace",
+			args:    args{"../config/kubeconfig", ""},
+			wantErr: true,
+		},
+		{
+			name:    "Test valid case",
+			args:    args{"../config/kubeconfig", "testns"},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -26,19 +39,32 @@ func TestMakeNamespacePrivilege(t *testing.T) {
 			}
 		})
 	}
+
 }
 
 func TestGetK8SClient(t *testing.T) {
 	type args struct {
 		kubeconfigPath string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		want    *kubernetes.Clientset
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Test empty kubeconfig path",
+			args:    args{""},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "Test valid kubeconfig path",
+			args:    args{"../config/kubeconfig"},
+			want:    nil,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,11 +73,12 @@ func TestGetK8SClient(t *testing.T) {
 				t.Errorf("GetK8SClient() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if (got == nil) != (tt.want == nil) {
 				t.Errorf("GetK8SClient() = %v, want %v", got, tt.want)
 			}
 		})
 	}
+
 }
 
 func TestCreateNamespaceIfNotExists(t *testing.T) {
@@ -59,12 +86,27 @@ func TestCreateNamespaceIfNotExists(t *testing.T) {
 		kubeconfigPath string
 		namespace      string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Test empty kubeconfig path",
+			args:    args{"", "testns"},
+			wantErr: true,
+		},
+		{
+			name:    "Test empty namespace",
+			args:    args{"../config/kubeconfig", ""},
+			wantErr: true,
+		},
+		{
+			name:    "Test valid case",
+			args:    args{"../config/kubeconfig", "testns"},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,4 +115,5 @@ func TestCreateNamespaceIfNotExists(t *testing.T) {
 			}
 		})
 	}
+
 }

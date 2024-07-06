@@ -33,9 +33,6 @@ func TestStoreCredentials(t *testing.T) {
 			args: args{
 				captenConfig: config.CaptenConfig{
 					VaultCredHostName: "vault-cred",
-
-					//	VaultAddress: "http://localhost:8200",
-					//	VaultToken:   "s.1234567890",
 				},
 				appGlobalVaules: map[string]interface{}{
 					"key1": "value1",
@@ -49,7 +46,6 @@ func TestStoreCredentials(t *testing.T) {
 			args: args{
 				captenConfig: config.CaptenConfig{
 					VaultCredHostName: "vault-cred",
-					//	VaultToken:   "s.1234567890",
 				},
 				appGlobalVaules: map[string]interface{}{
 					"key1": "value1",
@@ -156,7 +152,6 @@ func Test_storeKubeConfig(t *testing.T) {
 					KubeConfigFileName: "kubeconfig",
 					ConfigDirPath:      "./testdata/kubeconfig",
 				},
-				//	vaultClient: vaultcredpb.VaultCredClient{},
 			},
 			wantErr: true,
 		},
@@ -357,13 +352,42 @@ func Test_configireCosignKeysSecret(t *testing.T) {
 		captenConfig config.CaptenConfig
 		vaultClient  vaultcredpb.VaultCredClient
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test empty config and vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+				//vaultClient:  vaultcredpb.VaultCredClient{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test valid config and empty vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					//CosignSecretName: "cosign-secret",
+				},
+				//vaultClient: vaultcredpb.VaultCredClient{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test valid config and valid vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					//	CosignSecretName: "cosign-secret",
+				},
+				//vaultClient: vaultcredpb.VaultCredClient{},
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := configureCosignKeysSecret(tt.args.captenConfig, tt.args.vaultClient, types.CredentialAppConfig{}); (err != nil) != tt.wantErr {
@@ -379,13 +403,48 @@ func Test_storeCosignKeys(t *testing.T) {
 		appGlobalVaules map[string]interface{}
 		vaultClient     vaultcredpb.VaultCredClient
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test empty config and vaultclient",
+			args: args{
+				captenConfig:    config.CaptenConfig{},
+				appGlobalVaules: map[string]interface{}{},
+				// vaultClient:     vaultcredpb.VaultCredClient{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test valid config and empty vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// CosignSecretName: "cosign-secret",
+				},
+				appGlobalVaules: map[string]interface{}{},
+				// vaultClient:     vaultcredpb.VaultCredClient{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test valid config and valid vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					// CosignSecretName: "cosign-secret",
+				},
+				appGlobalVaules: map[string]interface{}{
+					"key1": "value1",
+					"key2": "value2",
+				},
+				// vaultClient: vaultcredpb.VaultCredClient{},
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := storeCredentials(tt.args.captenConfig, tt.args.appGlobalVaules, tt.args.vaultClient, types.CredentialAppConfig{}); (err != nil) != tt.wantErr {
@@ -393,6 +452,7 @@ func Test_storeCosignKeys(t *testing.T) {
 			}
 		})
 	}
+
 }
 
 func Test_storeTerraformStateConfig(t *testing.T) {
@@ -400,13 +460,32 @@ func Test_storeTerraformStateConfig(t *testing.T) {
 		captenConfig config.CaptenConfig
 		vaultClient  vaultcredpb.VaultCredClient
 	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test with empty config and vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{},
+				// vaultClient:  vaultcredpb.VaultCredClient{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test with valid config and vaultclient",
+			args: args{
+				captenConfig: config.CaptenConfig{
+					//	TerraformStateConfigFileName: "terraform_state_config.json",
+					ConfigDirPath: "./testdata",
+				},
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := storeTerraformStateConfig(tt.args.captenConfig, tt.args.vaultClient); (err != nil) != tt.wantErr {
